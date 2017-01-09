@@ -13,18 +13,26 @@ import throttle from 'lodash/throttle';
 import reducers from './reducers';
 
 import initialTemplate from '../templates/initial-template.json';
-import {v4} from 'node-uuid';
 
-export default (history) => {
+import {createPageFromInitialTemplate} from './actions/page';
+
+export default (history,templates,plugins) => {
 
     let initialState = StatePersister.load();
 
-    if (initialState === undefined) {
+    let hasInitState = initialState !== undefined;
+    if (!hasInitState) {
         initialState = {
-            pages: [buildInitialTemplate()],
             context: {},
-            manager: {}
+            manager: {},
+            templates: templates,
+            plugins: plugins
         }
+    } else {
+        initialState = Object.assign({},initialState,{
+            templates: templates,
+            plugins: plugins
+        });
     }
 
     var store = createStore(
@@ -37,18 +45,14 @@ export default (history) => {
         )
     );
 
+    // If needed add the initial pages/widgets from the template
+    if (!hasInitState) {
+        store.dispatch(createPageFromInitialTemplate(initialTemplate,templates,plugins));
+    }
+
     store.subscribe(throttle(()=>{StatePersister.save(store.getState());},1000));
 
     return store;
 };
 
-function buildInitialTemplate() {
-    initialTemplate.id = "0";
-
-    _.each(initialTemplate.widgets,(widget)=> {
-        widget.id = v4();
-    });
-
-    return initialTemplate;
-}
 

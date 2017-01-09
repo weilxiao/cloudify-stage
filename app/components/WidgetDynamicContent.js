@@ -3,20 +3,17 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import PluginUtils from '../utils/pluginUtils';
 import StageUtils from '../utils/stageUtils';
-import {getContext} from '../utils/Context';
+import {getToolbox} from '../utils/Toolbox';
 
+import {ErrorMessage} from './basic'
 import fetch from 'isomorphic-fetch';
 
 export default class WidgetDynamicContent extends Component {
     static propTypes = {
         widget: PropTypes.object.isRequired,
-        context: PropTypes.object.isRequired,
         templates : PropTypes.object.isRequired,
-        manager: PropTypes.object.isRequired,
-        setContextValue: PropTypes.func.isRequired,
-        onDrilldownToPage: PropTypes.func.isRequired
+        manager: PropTypes.object.isRequired
     };
 
     constructor(props) {
@@ -29,25 +26,65 @@ export default class WidgetDynamicContent extends Component {
         this.pollingTimeout = null;
         this.fetchDataPromise = null;
         this.mounted = false;
+        this.fetchParams = {
+            gridParams: {pageSize: this.props.widget.plugin.pageSize,
+                sortColumn: this.props.widget.plugin.sortColumn,
+                sortAscending: this.props.widget.plugin.sortAscending},
+            filterParams: {}
+        };
     }
 
-    _getContext () {
-        return getContext(this._fetchData.bind(this));
+    _getToolbox () {
+        return getToolbox(this._fetchData.bind(this));
     }
 
-    _fetch(url,context) {
+    _fetch(url, toolbox) {
         var fetchUrl = _.replace(url,/\[config:(.*)\]/i,(match,configName)=>{
-            var conf = this.props.widget.configuration ? _.find(this.props.widget.configuration,{id:configName}) : {};
-            return conf && conf.value ? conf.value : 'NA';
+            return this.props.widget.configuration ? this.props.widget.configuration[configName] : 'NA';
         });
 
         // Only add auth token if we access the manager
         if (url.indexOf('[manager]') >= 0) {
             var baseUrl = url.substring('[manager]'.length);
-            return context.getManager().doGet(baseUrl);
+
+            let params = {};
+            if (url.indexOf('[params]') >= 0) {
+                params = this._fetchParams();
+                baseUrl = _.replace(baseUrl, '[params]', "");
+            }
+
+            return toolbox.getManager().doGet(baseUrl, params);
         } else {
             return fetch(fetchUrl).then(response => response.json())
         }
+    }
+
+    _fetchParams() {
+        let params = {};
+
+        let gridParams = this.fetchParams.gridParams;
+        if (gridParams) {
+            if (gridParams.sortColumn) {
+                params._sort = `${gridParams.sortAscending?'':'-'}${gridParams.sortColumn}`;
+            }
+
+            if (gridParams.pageSize) {
+                params._size=gridParams.pageSize;
+            }
+
+            if (gridParams.currentPage) {
+                params._offset=(gridParams.currentPage-1)*gridParams.pageSize;
+            }
+        }
+
+        let filterParams = this.fetchParams.filterParams;
+        _.forIn(filterParams, function(value, key) {
+            if (!(typeof value == 'string' && !value.trim() || typeof value == 'undefined' || value === null)) {
+                params[key] = value;
+            }
+        });
+
+        return params;
     }
 
     _beforeFetch() {
@@ -79,8 +116,13 @@ export default class WidgetDynamicContent extends Component {
     _startPolling() {
         this._stopPolling();
 
-        let pollingTimeOptions = _.find(this.props.widget.configuration,{id:"pollingTime"});
-        let interval = _.get(pollingTimeOptions, "value", 0);
+        let interval = this.props.widget.configuration['pollingTime'] || 0;
+        try {
+            interval = Number.isInteger(interval) ? interval : parseInt(interval);
+        } catch (e){
+            console.log('Polling interval doesnt have a valid value, using zero. Value is: '+this.props.widget.configuration['pollingTime']);
+            interval = 0;
+        }
 
         if (interval > 0 && this.mounted) {
             console.log(`Polling widget '${this.props.widget.name}' - time interval: ${interval} sec`);
@@ -88,24 +130,43 @@ export default class WidgetDynamicContent extends Component {
         }
     }
 
-    _fetchData() {
+    _fetchData(params) {
+        if (params) {
+            this.fetchParams = _.merge({}, this.fetchParams, params.gridParams ? params : {filterParams: params});
+        }
+
+        if (this.fetchDataPromise) {
+            this.fetchDataPromise.cancel();
+        }
+
         if (this.props.widget.plugin.fetchUrl) {
             this._beforeFetch();
 
-            var context = this._getContext();
+            var toolbox = this._getToolbox();
 
-            var urls = this.props.widget.plugin.fetchUrl;
-            if (!Array.isArray(urls)){
-                urls = [urls];
-            }
+            var url = this.props.widget.plugin.fetchUrl;
 
-            var fetches = _.map(urls,(url)=>this._fetch(url,context));
+            var urls = _.isString(url) ? [url] : _.valuesIn(url);
+
+            var fetches = _.map(urls,(url)=> this._fetch(url, toolbox));
 
             this.fetchDataPromise = StageUtils.makeCancelable(Promise.all(fetches));
             this.fetchDataPromise.promise
                     .then((data)=> {
                         console.log(`Widget '${this.props.widget.name}' data fetched`);
-                        this.setState({data: data.length === 1 ? data[0] : data,error: null});
+
+                        var output = data;
+                        if (!_.isString(url)) {
+                            output = {};
+                            let keys = _.keysIn(url);
+                            for (var i=0; i < data.length; i++) {
+                                output[keys[i]] = data[i];
+                            }
+                        } else {
+                            output = data[0];
+                        }
+
+                        this.setState({data: output, error: null});
                         this._afterFetch();
                     })
                     .catch((e)=>{
@@ -122,7 +183,7 @@ export default class WidgetDynamicContent extends Component {
             this._beforeFetch();
 
             this.fetchDataPromise = StageUtils.makeCancelable(
-                                  this.props.widget.plugin.fetchData(this.props.widget,this._getContext(),PluginUtils));
+                                  this.props.widget.plugin.fetchData(this.props.widget,this._getToolbox(),this._fetchParams()));
             this.fetchDataPromise.promise
                 .then((data)=> {
                     console.log(`Widget '${this.props.widget.name}' data fetched`);
@@ -142,14 +203,16 @@ export default class WidgetDynamicContent extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+
         // Check if any configuration that requires fetch was changed
         var requiresFetch = false;
         if (prevProps.widget.configuration && this.props.widget.configuration) {
 
-            _.each(this.props.widget.configuration,(config)=>{
-                var oldConfig = _.find(prevProps.widget.configuration,{id:config.id});
+            _.each(this.props.widget.configuration,(config,confName)=>{
+                //var oldConfig = _.find(prevProps.widget.configuration,{id:config.id});
+                var oldConfig = prevProps.widget.configuration[confName];
 
-                if (oldConfig.value !== config.value) {
+                if (oldConfig !== config) {
                     requiresFetch = true;
                     return false;
                 }
@@ -158,6 +221,16 @@ export default class WidgetDynamicContent extends Component {
 
         if (prevProps.manager.tenants.selected !== this.props.manager.tenants.selected) {
             requiresFetch = true;
+        }
+
+        if (this.props.widget.plugin.fetchParams && typeof this.props.widget.plugin.fetchParams === 'function') {
+            let params = this.props.widget.plugin.fetchParams(this.props.widget, this._getToolbox());
+
+            let mergedParams = _.merge({}, this.fetchParams, {filterParams: params});
+            if (!_.isEqual(this.fetchParams, mergedParams)) {
+                this.fetchParams = mergedParams;
+                requiresFetch = true;
+            }
         }
 
         if (requiresFetch) {
@@ -187,7 +260,7 @@ export default class WidgetDynamicContent extends Component {
         var widgetHtml = 'Loading...';
         if (this.props.widget.plugin && this.props.widget.plugin.render) {
             try {
-                widgetHtml = this.props.widget.plugin.render(this.props.widget,this.state.data,this.state.error,this._getContext(),PluginUtils);
+                widgetHtml = this.props.widget.plugin.render(this.props.widget,this.state.data,this.state.error,this._getToolbox());
             } catch (e) {
                 console.error('Error rendering widget - '+e.message,e.stack);
             }
@@ -200,10 +273,10 @@ export default class WidgetDynamicContent extends Component {
         if (this.props.widget.plugin && this.props.widget.plugin.render) {
             try {
                 if (this.state.error) {
-                    return PluginUtils.renderReactError(this.state.error);
+                    return <ErrorMessage error={this.state.error}/>;
                 }
 
-                widget = this.props.widget.plugin.render(this.props.widget,this.state.data,this.state.error,this._getContext(),PluginUtils);
+                widget = this.props.widget.plugin.render(this.props.widget,this.state.data,this.state.error,this._getToolbox());
             } catch (e) {
                 console.error('Error rendering widget - '+e.message,e.stack);
             }
@@ -220,7 +293,7 @@ export default class WidgetDynamicContent extends Component {
                         return;
                     }
                     $(container).find(event.selector).off(event.event);
-                    $(container).find(event.selector).on(event.event,(e)=>{event.fn(e,this.props.widget,this._getContext(),PluginUtils)});
+                    $(container).find(event.selector).on(event.event,(e)=>{event.fn(e,this.props.widget,this._getToolbox())});
                 },this);
             } catch (e) {
                 console.error('Error attaching events to widget',e);
@@ -228,7 +301,7 @@ export default class WidgetDynamicContent extends Component {
         }
 
         if (this.props.widget.plugin.postRender) {
-            this.props.widget.plugin.postRender($(container),this.props.widget,this.state.data,this._getContext(),PluginUtils);
+            this.props.widget.plugin.postRender($(container),this.props.widget,this.state.data,this._getToolbox());
         }
     }
     render() {

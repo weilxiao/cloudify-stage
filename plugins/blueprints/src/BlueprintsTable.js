@@ -1,128 +1,69 @@
 /**
- * Created by kinneretzin on 02/10/2016.
+ * Created by kinneretzin on 08/01/2017.
  */
 
-import DeployModal from './DeployBlueprintModal';
-import Actions from './actions';
+import UploadModal from './UploadBlueprintModal';
 
-export default class extends React.Component {
+let PropTypes = React.PropTypes;
 
-    constructor(props,context) {
-        super(props,context);
+export default class BlueprintsTable extends React.Component{
+    static propTypes = {
+        data: PropTypes.object.isRequired,
+        widget: PropTypes.object.isRequired,
+        toolbox: PropTypes.object.isRequired,
+        fetchGridData: PropTypes.func,
+        onSelectBlueprint: PropTypes.func,
+        onDeleteBlueprint: PropTypes.func,
+        onCreateDeployment: PropTypes.func
 
-        this.state = {
-            confirmDelete:false
-        }
-    }
+    };
 
-    _selectBlueprint (item){
-        var oldSelectedBlueprintId = this.props.context.getValue('blueprintId');
-        this.props.context.setValue('blueprintId',item.id === oldSelectedBlueprintId ? null : item.id);
-    }
+    static defaultProps = {
+        fetchGridData: ()=>{},
+        onSelectBlueprint: ()=>{},
+        onDeleteBlueprint: ()=>{},
+        onCreateDeployment: ()=>{}
+    };
 
-    _createDeployment(item,event){
-        event.stopPropagation();
-
-        // Get the full blueprint data (including plan for inputs)
-        var actions = new Actions(this.props.context);
-        actions.doGetFullBlueprintData(item).then((fullBlueprint)=>{
-            this.props.context.setValue(this.props.widget.id + 'createDeploy',fullBlueprint);
-        }).catch((err)=> {
-            this.setState({error: err.error});
-        });
-    }
-
-    _deleteBlueprintConfirm(item,event){
-        event.stopPropagation();
-
-        this.setState({
-            confirmDelete : true,
-            item: item
-        });
-    }
-
-    _deleteBlueprint() {
-        if (!this.state.item) {
-            this.setState({error: 'Something went wrong, no blueprint was selected for delete'});
-            return;
-        }
-
-        var actions = new Actions(this.props.context);
-        actions.doDelete(this.state.item)
-            .then(()=> {
-                this.setState({confirmDelete: false});
-                this.props.context.getEventBus().trigger('blueprints:refresh');
-            })
-            .catch((err)=>{
-                this.setState({confirmDelete: false, error: err.error});
-            });
-    }
-
-    _refreshData() {
-        this.props.context.refresh();
-    }
-
-    componentDidMount() {
-        this.props.context.getEventBus().on('blueprints:refresh',this._refreshData,this);
-    }
-
-    componentWillUnmount() {
-        this.props.context.getEventBus().off('blueprints:refresh',this._refreshData);
-    }
-
-    render() {
-        var Confirm = Stage.Basic.Confirm;
-        var ErrorMessage = Stage.Basic.ErrorMessage;
+    render(){
+        var Grid = Stage.Basic.Grid;
 
         return (
-            <div>
-                <ErrorMessage error={this.state.error}/>
+            <Grid.Table fetchData={this.props.fetchGridData}
+                        totalSize={this.props.data.total}
+                        pageSize={this.props.widget.plugin.pageSize}
+                        selectable={true}
+                        className="blueprintsTable">
 
-                <table className="ui very compact table blueprintsTable">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Created</th>
-                        <th>Updated</th>
-                        <th># Deployments</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {
-                        this.props.data.items.map((item)=>{
-                            return (
-                                <tr key={item.id} className={"row "+ (item.isSelected ? 'active' : '')} onClick={this._selectBlueprint.bind(this,item)}>
-                                    <td>
-                                        <div>
-                                            <a className='blueprintName' href="javascript:void(0)">{item.id}</a>
-                                        </div>
-                                    </td>
-                                    <td>{item.created_at}</td>
-                                    <td>{item.updated_at}</td>
-                                    <td><div className="ui green horizontal label">{item.depCount}</div></td>
-                                    <td>
-                                        <div className="rowActions">
-                                            <i className="rocket icon link bordered" title="Create deployment" onClick={this._createDeployment.bind(this,item)}></i>
-                                            <i className="trash icon link bordered" title="Delete blueprint" onClick={this._deleteBlueprintConfirm.bind(this,item)}></i>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    }
-                    </tbody>
-                </table>
+                <Grid.Column label="Name" name="id" width="30%"/>
+                <Grid.Column label="Created" name="created_at" width="20%"/>
+                <Grid.Column label="Updated" name="updated_at" width="20%"/>
+                <Grid.Column label="# Deployments" width="20%"/>
+                <Grid.Column width="10%"/>
 
-                <Confirm title='Are you sure you want to remove this blueprint?'
-                         show={this.state.confirmDelete}
-                         onConfirm={this._deleteBlueprint.bind(this)}
-                         onCancel={()=>this.setState({confirmDelete : false})} />
+                {
+                    this.props.data.items.map((item)=>{
+                        return (
+                            <Grid.Row key={item.id} select={item.isSelected} onClick={()=>this.props.onSelectBlueprint(item)}>
+                                <Grid.Data><a className='blueprintName' href="javascript:void(0)">{item.id}</a></Grid.Data>
+                                <Grid.Data>{item.created_at}</Grid.Data>
+                                <Grid.Data>{item.updated_at}</Grid.Data>
+                                <Grid.Data><div className="ui green horizontal label">{item.depCount}</div></Grid.Data>
+                                <Grid.Data className="center aligned rowActions">
+                                    <i className="rocket icon link bordered" title="Create deployment" onClick={(event)=>{event.stopPropagation();this.props.onCreateDeployment(item)}}></i>
+                                    <i className="trash icon link bordered" title="Delete blueprint" onClick={(event)=>{event.stopPropagation();this.props.onDeleteBlueprint(item)}}></i>
+                                </Grid.Data>
+                            </Grid.Row>
+                        );
+                    })
+                }
 
-                <DeployModal widget={this.props.widget} data={this.props.data} context={this.props.context}/>
+                <Grid.Action>
+                    <UploadModal widget={this.props.widget} data={this.props.data} toolbox={this.props.toolbox}/>
+                </Grid.Action>
 
-            </div>
+            </Grid.Table>
 
         );
     }
-};
+}

@@ -11,48 +11,47 @@ Stage.addPlugin({
     initialWidth: 8,
     initialHeight: 6,
     color : "purple",
-    fetchUrl: '[manager]/executions',
+    fetchUrl: '[manager]/executions[params]',
     isReact: true,
     initialConfiguration:
         [
             {id: "fieldsToShow",name: "List of fields to show in the table", placeHolder: "Enter list of comma separated field names (json format)",
              default: '["Blueprint","Deployment","Workflow","Id","Created","IsSystem","Params","Status"]'}
         ],
+    pageSize: 5,
 
-    render: function(widget,data,error,context,pluginUtils) {
+    fetchParams: function(widget, toolbox) {
+        return {
+            blueprint_id: toolbox.getContext().getValue('blueprintId'),
+            deployment_id: toolbox.getContext().getValue('deploymentId')
+        }
+    },
+
+    render: function(widget,data,error,toolbox) {
 
         if (_.isEmpty(data)) {
-            return pluginUtils.renderReactLoading();
+            return <Stage.Basic.Loading/>;
         }
 
         var formattedData = Object.assign({},data);
-
-        var blueprintId = context.getValue('blueprintId');
-        var deploymentId = context.getValue('deploymentId');
-        var selectedExecution = context.getValue('executionId');
-
-        if (blueprintId) {
-            formattedData.items = _.filter(data.items,{blueprint_id:blueprintId});
-        }
-
-        if (deploymentId) {
-            formattedData.items = _.filter(data.items,{deployment_id:deploymentId});
-        }
-
+        var selectedExecution = toolbox.getContext().getValue('executionId');
 
         formattedData = Object.assign({},formattedData,{
             items: _.map (formattedData.items,(item)=>{
                 return Object.assign({},item,{
-                    created_at: pluginUtils.moment(item.created_at,'YYYY-MM-DD HH:mm:ss.SSSSS').format('DD-MM-YYYY HH:mm'), //2016-07-20 09:10:53.103579
+                    created_at: moment(item.created_at,'YYYY-MM-DD HH:mm:ss.SSSSS').format('DD-MM-YYYY HH:mm'), //2016-07-20 09:10:53.103579
                     isSelected: item.id === selectedExecution
                 })
             })
         });
+        formattedData.total = _.get(data, "metadata.pagination.total", 0);
 
-        formattedData.blueprintId = blueprintId;
-        formattedData.deploymentId = deploymentId;
+        let params = this.fetchParams(widget, toolbox);
+        formattedData.blueprintId = params.blueprint_id;
+        formattedData.deploymentId = params.deployment_id;
+
         return (
-            <ExecutionsTable widget={widget} data={formattedData} context={context} utils={pluginUtils}/>
+            <ExecutionsTable widget={widget} data={formattedData} toolbox={toolbox}/>
         );
     }
 });

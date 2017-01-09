@@ -7,12 +7,17 @@ import * as types from './types';
 import {createDrilldownPage,selectPage} from './page';
 import {v4} from 'node-uuid';
 
-export function addWidget(pageId,name,plugin) {
+export function addWidget(pageId,name,plugin,width,height,x,y,configuration) {
     return {
         type: types.ADD_WIDGET,
         pageId,
         name,
-        plugin
+        plugin,
+        width,
+        height,
+        x,
+        y,
+        configuration
     };
 }
 
@@ -63,7 +68,7 @@ export function setWidgetDrilldownPage(widgetId,drillDownPageId) {
 
 }
 
-export function drillDownToPage(widget,defaultTemplate) {
+export function drillDownToPage(widget,defaultTemplate,plugins) {
 
 
     return function (dispatch) {
@@ -74,7 +79,12 @@ export function drillDownToPage(widget,defaultTemplate) {
 
         } else {
             var newPageId = v4();
-            dispatch(createDrilldownPage(Object.assign({id:newPageId},defaultTemplate)));
+            dispatch(createDrilldownPage(newPageId,defaultTemplate.name));
+            _.each(defaultTemplate.widgets,(widget)=>{
+                var plugin = _.find(plugins,{id:widget.plugin});
+                dispatch(addWidget(newPageId,widget.name,plugin,widget.width,widget.height,widget.x,widget.y));
+            });
+
             dispatch(setWidgetDrilldownPage(widget.id,newPageId));
             dispatch(selectPage(newPageId,true));
             //// dispatch action to create drilldown page. It will also drilldown to it
