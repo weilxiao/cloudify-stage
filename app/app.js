@@ -36,22 +36,25 @@ import { syncHistoryWithStore } from 'react-router-redux'
 
 import configureStore  from './configureStore';
 import createRoutes from './routes';
-import PluginLoader from './utils/pluginsLoader';
+import WidgetDefinitionsLoader from './utils/widgetDefinitionsLoader';
 import {createToolbox} from './utils/Toolbox';
+import ConfigLoader from './utils/ConfigLoader';
 
 import TemplatesLoader from './utils/templatesLoader';
 
 window.React = React;
 
-PluginLoader.init();
+WidgetDefinitionsLoader.init();
 Promise.all([
     TemplatesLoader.load(),
-    PluginLoader.load()
+    WidgetDefinitionsLoader.load(),
+    ConfigLoader.load()
 ]).then((result)=>{
     var templates = result[0];
-    var plugins = result[1];
+    var widgetDefinitions = result[1];
+    var config = result[2];
 
-    const store = configureStore(browserHistory,templates,plugins);
+    const store = configureStore(browserHistory,templates,widgetDefinitions,config);
 
     const history = syncHistoryWithStore(browserHistory, store);
 

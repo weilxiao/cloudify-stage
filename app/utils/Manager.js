@@ -2,12 +2,13 @@
  * Created by kinneretzin on 22/11/2016.
  */
 
-import fetch from 'isomorphic-fetch';
+import 'isomorphic-fetch';
 import StageUtils from './stageUtils';
 
 import log from 'loglevel';
-
 let logger = log.getLogger("Manager");
+
+import Consts from './consts';
 
 export default class Manager {
 
@@ -82,7 +83,7 @@ export default class Manager {
                 xhr.setRequestHeader("Authentication-Token", securityHeaders["Authentication-Token"]);
             }
 
-            var selectedTenant = _.get(this._data,'tenants.selected',null);
+            var selectedTenant = _.get(this._data,'tenants.selected',Consts.DEFAULT_TENANT);
             if (selectedTenant) {
                 xhr.setRequestHeader("tenant",selectedTenant);
             }
@@ -98,12 +99,9 @@ export default class Manager {
         logger.debug(method+' data. URL: '+url);
 
         var headers = Object.assign({
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            tenant: _.get(this._data,'tenants.selected',Consts.DEFAULT_TENANT)
         },securityHeaders);
-        var selectedTenant = _.get(this._data,'tenants.selected',null);
-        if (selectedTenant) {
-            headers.tenant = selectedTenant;
-        }
 
         var options = {
             method: method,
@@ -140,7 +138,7 @@ export default class Manager {
         var urlInServer = `${this._data.version?'/api/'+this._data.version:''}${url}${queryString}`;
 
         let su = encodeURIComponent(`http://${this._data.ip}${urlInServer}`);
-        return `http://${window.location.hostname}:8088/sp/?su=${su}`;
+        return `/sp/?su=${su}`;
     }
 
     getManagerUrl(url,data) {

@@ -6,7 +6,7 @@ import 'proxy-polyfill';
 
 import {drillDownToPage} from '../actions/widgets';
 
-import PluginEventBus from './PluginEventBus';
+import EventBus from './EventBus';
 import Context from './Context';
 import Manager from './Manager';
 
@@ -27,15 +27,15 @@ class Toolbox {
         this.templates = state.templates || {};
         this._Manager = new Manager(state.manager || {});
         this._Context = new Context(this.store);
-        this.plugins = state.plugins || [];
+        this.widgetDefinitions = state.widgetDefinitions || [];
     }
 
-    drillDown(widget,defaultTemplate) {
-        this.store.dispatch(drillDownToPage(widget,this.templates[defaultTemplate],this.plugins));
+    drillDown(widget,defaultTemplate,drilldownContext,drilldownPageName) {
+        this.store.dispatch(drillDownToPage(widget,this.templates[defaultTemplate],this.widgetDefinitions,drilldownContext,drilldownPageName));
     }
 
     getEventBus (){
-        return PluginEventBus;
+        return EventBus;
     }
 
     getManager() {
@@ -46,7 +46,9 @@ class Toolbox {
         return this._Context;
     }
 
-    refresh () {}
+    refresh() {}
+
+    loading(show) {}
 }
 
 var toolbox = null;
@@ -55,11 +57,13 @@ let createToolbox = (store) =>{
     toolbox = new Toolbox(store);
 };
 
-let getToolbox  = (onRefresh)=>{
+let getToolbox  = (onRefresh, onLoading)=>{
     return new Proxy(toolbox,{
         get: (target, name)=> {
             if (name === 'refresh') {
                 return onRefresh;
+            } else if (name === 'loading') {
+                return onLoading;
             } else {
                 return target[name];
             }

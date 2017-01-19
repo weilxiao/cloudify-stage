@@ -1,0 +1,23 @@
+[
+  "blueprints",
+  "deployments",
+  "topology",
+  "deploymentNum",
+  "serversNum",
+  "pluginsNum",
+  "usersList",
+  "graph",
+  "cpuUtilizationSystem",
+  "cpuUtilizationUser",
+  "inputs",
+  "githubRepositories",
+  "events",
+  "plugins",
+  "snapshots",
+  "logs",
+  "filter",
+  "outputs",
+  "executions",
+  "nodes",
+  "deploymentButton"
+]
