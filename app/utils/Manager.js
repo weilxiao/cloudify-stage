@@ -3,7 +3,7 @@
  */
 
 import 'isomorphic-fetch';
-import StageUtils from './stageUtils';
+import {saveAs} from 'file-saver';
 
 import log from 'loglevel';
 let logger = log.getLogger("Manager");
@@ -32,7 +32,7 @@ export default class Manager {
         return this._ajaxCall(url,'put',params,data) ;
     }
 
-    doUpload(url,params,file,method) {
+    doUpload(url,params,files,method) {
         var actualUrl = this._buildActualUrl(url,params);
         var securityHeaders = this._buildSecurityHeader();
 
@@ -52,14 +52,14 @@ export default class Manager {
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.message) {
-                        reject({error: response.message});
+                        reject({message: response.message});
                     } else {
-                        reject({error: e.message});
+                        reject({message: e.message});
                     }
 
                 } catch (err) {
                     logger.error('Cannot parse upload response',err);
-                    reject({error: e.message});
+                    reject({message: err.message});
                 }
             });
             xhr.addEventListener('load', function(e) {
@@ -68,12 +68,14 @@ export default class Manager {
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.message) {
-                        reject({error: response.message});
+                        reject({message: response.message});
                         return;
                     }
 
                 } catch (err) {
-                    logger.error('Cannot parse upload response',err);
+                    let errorMessage = `Cannot parse upload response: ${err}`;
+                    logger.error(errorMessage);
+                    reject({message: errorMessage});
                 }
                 resolve();
             });
@@ -88,11 +90,26 @@ export default class Manager {
                 xhr.setRequestHeader("tenant",selectedTenant);
             }
 
-            xhr.send(file);
+            var formData = new FormData();
+            if (files) {
+                if (_.isString(files)) {
+                    files = {"upload":files};
+                }
+
+                _.forEach(files, function (value, key) {
+                    formData.append(key, value);
+                });
+            }
+
+            xhr.send(formData);
         });
     }
 
-    _ajaxCall(url,method,params,data) {
+    doDownload(url,fileName) {
+        return this._ajaxCall(url,'get',null,null,fileName);
+    }
+
+    _ajaxCall(url,method,params,data,fileName) {
         var actualUrl = this._buildActualUrl(url,params);
         var securityHeaders = this._buildSecurityHeader();
 
@@ -107,6 +124,7 @@ export default class Manager {
             method: method,
             headers: headers
         };
+
         if (data) {
             try {
                 options.body = JSON.stringify(data)
@@ -114,23 +132,31 @@ export default class Manager {
                 logger.error('Error stringifying data. URL: '+actualUrl+' data ',data);
             }
         }
-        return fetch(actualUrl,options)
-            .then(this._checkStatus)
-            .then(response=>response.json());
-    }
 
+        if (fileName) {
+            return fetch(actualUrl,options)
+                .then(this._checkStatus)
+                .then(response => response.blob())
+                .then(blob => saveAs(blob, fileName));
+        } else {
+            return fetch(actualUrl,options)
+                .then(this._checkStatus)
+                .then(response => response.json());
+        }
+    }
 
     _checkStatus(response) {
         if (response.ok) {
             return response;
         }
 
-        return response.json().then((resJson)=>{
-            if (resJson.message) {
-                return Promise.reject({error: resJson.message});
-            }
-            return Promise.reject({error:response.statusText});
-        });
+        let isJsonContentType = (response) => _.isEqual(_.toLower(response.headers.get('content-type')), 'application/json');
+        if (isJsonContentType(response)) {
+            return response.json()
+                .then(resJson => Promise.reject({message: resJson.message || response.statusText}))
+        } else {
+            return Promise.reject({message: response.statusText});
+        }
     }
 
     _buildActualUrl(url,data) {

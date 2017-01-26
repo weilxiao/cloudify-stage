@@ -12,7 +12,7 @@ export default class extends React.Component {
         super(props,context);
 
         this.state = {
-            confirmDelete:false
+            confirmDelete: false
         }
     }
 
@@ -25,7 +25,7 @@ export default class extends React.Component {
         event.stopPropagation();
 
         this.setState({
-            confirmDelete : true,
+            confirmDelete: true,
             item: item
         });
     }
@@ -37,14 +37,16 @@ export default class extends React.Component {
         actions.doRestore(item).then(()=>{
             this.props.toolbox.refresh();
         }).catch((err)=>{
-            this.setState({error:err.error});
+            this.setState({error:err.message});
         });
     }
 
     _downloadSnapshot(item,event) {
         event.stopPropagation();
 
-        window.open(this.props.toolbox.getManager().getManagerUrl(`/snapshots/${item.id}/archive`));
+        let actions = new Actions(this.props.toolbox);
+        actions.doDownload(item)
+               .catch((err) => {this.setState({error: err.message})});
     }
 
     _deleteSnapshot() {
@@ -58,7 +60,7 @@ export default class extends React.Component {
             this.setState({confirmDelete: false});
             this.props.toolbox.refresh();
         }).catch((err)=>{
-            this.setState({confirmDelete: false, error: err.error});
+            this.setState({confirmDelete: false, error: err.message});
         });
     }
 
@@ -89,7 +91,7 @@ export default class extends React.Component {
 
                 <Table fetchData={this.fetchGridData.bind(this)}
                             totalSize={this.props.data.total}
-                            pageSize={this.props.widget.pageSize}
+                            pageSize={this.props.widget.configuration.pageSize}
                             selectable={true}
                             className="snapshotsTable">
 
