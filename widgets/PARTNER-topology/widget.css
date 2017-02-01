@@ -1,4 +1,46 @@
-.partnerTopology {
+.partnerTopology , .partnerTopologyContainer , .partnerTopologyWidget   {
     width: 100%;
     height: 100%;
+}
+
+.pNode.a {
+    stroke: blue;
+    fill: transparent;
+}
+
+.pNode.b {
+    stroke: blue;
+    fill: lightblue;
+}
+
+.pNode.c {
+    stroke: red;
+    fill: red;
+}
+
+.pNode.d {
+    stroke: blue;
+    fill: blue;
+}
+
+.pConn.a2b  {
+    stroke: darkgreen;
+    fill: transparent;
+}
+
+.pConn.b2c {
+    stroke: darkgreen;
+}
+
+.pConn.c2d {
+    stroke: red;
+    stroke-dasharray: 10, 5;
+}
+
+.pConn .connNob {
+    fill: darkgreen;
+}
+
+.pConn.c2d .connNob {
+    fill: red;
 }
