@@ -3,16 +3,13 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import { Form, Message } from 'semantic-ui-react'
+import { Form, Message, Input as FormInput, Radio as FormRadio,
+         Checkbox as FormCheckbox, Button as FormButton, Dropdown as FormDropdown } from 'semantic-ui-react'
 import FormField from './FormField'
 import FormGroup from './FormGroup'
 import FormDivider from './FormDivider'
-import FormInput from '../control/Input'
-import FormRadio from '../control/Radio'
-import FormCheckbox from '../control/Checkbox'
-import FormFile from '../control/InputFile'
-import FormDropdown from '../control/Dropdown'
-import FormButton from '../control/Button'
+import FormFile from '../InputFile'
+import FormDate from '../InputDate'
 
 export default class FormWrapper extends Component {
 
@@ -24,6 +21,7 @@ export default class FormWrapper extends Component {
     static Checkbox = FormCheckbox;
     static File = FormFile;
     static Dropdown = FormDropdown;
+    static InputDate = FormDate;
     static Button = FormButton;
 
     static propTypes = {

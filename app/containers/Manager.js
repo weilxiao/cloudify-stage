@@ -3,9 +3,7 @@
  */
 
 import { connect } from 'react-redux'
-import { push } from 'react-router-redux';
 import Manager from '../components/Manager'
-import {getStatus,getTenants} from '../actions/managers';
 
 const mapStateToProps = (state, ownProps) => {
     return {
@@ -15,9 +13,6 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        fetchManagerStatus: (manager) => {
-            dispatch(getStatus(manager));
-        }
     }
 };
 

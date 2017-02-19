@@ -9,23 +9,12 @@ export default class Manager extends Component {
         manager: PropTypes.object.isRequired
     };
 
-    componentWillMount() {
-        if (_.get(this.props.manager,'tenants.selected')) {
-            this.props.fetchManagerStatus(this.props.manager);
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (_.get(prevProps.manager,'tenants.selected') !== _.get(this.props.manager,'tenants.selected')) {
-            this.props.fetchManagerStatus(this.props.manager);
-        }
-    }
 
     renderStatusIcon(status) {
-        if (!status) return <i className="circle icon statusIcon"/>;
-        if (status === 'running') return <i className="circle icon green statusIcon"/>;
-        return <i className="circle icon red statusIcon"/>;
+        let {Icon} = Stage.Basic;
+        return <Icon name='circle' color={status ? (status === 'running' ? 'green' : 'red') : 'grey' } className='statusIcon'/>;
     }
+
     render() {
         return (
             <div className='manager'>

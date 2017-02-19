@@ -135,12 +135,16 @@ export default class WidgetDynamicContent extends Component {
 
     _stopPolling() {
         clearTimeout(this.pollingTimeout);
+
+        if (this.fetchDataPromise) {
+            this.fetchDataPromise.cancel();
+        }
     }
 
     _startPolling() {
         this._stopPolling();
 
-        let interval = this.props.widget.configuration['pollingTime'] || 0;
+        let interval = this.props.widget.configuration.pollingTime || 0;
         try {
             interval = Number.isInteger(interval) ? interval : parseInt(interval);
         } catch (e){
@@ -163,7 +167,7 @@ export default class WidgetDynamicContent extends Component {
 
     _fetchData(params) {
         if (params) {
-            this.fetchParams = _.merge({}, this.fetchParams, params.gridParams ? params : {filterParams: params});
+            Object.assign(this.fetchParams.gridParams, params.gridParams);
             this._updateConfiguration(params);
         }
 
@@ -258,9 +262,8 @@ export default class WidgetDynamicContent extends Component {
         if (this.props.widget.definition.fetchParams && typeof this.props.widget.definition.fetchParams === 'function') {
             let params = this.props.widget.definition.fetchParams(this.props.widget, this._getToolbox());
 
-            let mergedParams = _.merge({}, this.fetchParams, {filterParams: params});
-            if (!_.isEqual(this.fetchParams, mergedParams)) {
-                this.fetchParams = mergedParams;
+            if (!_.isEqual(this.fetchParams.filterParams, params)) {
+                this.fetchParams.filterParams = params;
                 requiresFetch = true;
             }
         }
@@ -272,6 +275,9 @@ export default class WidgetDynamicContent extends Component {
 
     // In component will mount fetch the data if needed
     componentDidMount() {
+        $(window).on("focus", this._startPolling.bind(this));
+        $(window).on("blur", this._stopPolling.bind(this));
+
         this.mounted = true;
 
         console.log(`Widget '${this.props.widget.name}' mounted`);
@@ -279,12 +285,13 @@ export default class WidgetDynamicContent extends Component {
     }
 
     componentWillUnmount() {
+        $(window).off("focus", this._startPolling.bind(this));
+        $(window).off("blur", this._stopPolling.bind(this));
+
         this.mounted = false;
 
         this._stopPolling();
-        if (this.fetchDataPromise) {
-            this.fetchDataPromise.cancel();
-        }
+
         console.log(`Widget '${this.props.widget.name}' unmounts`);
     }
 

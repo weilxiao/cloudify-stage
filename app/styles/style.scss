@@ -10,19 +10,17 @@ a:hover {
   img {
     height: 45px;
     margin: 4px;
-    position: absolute;
   }
 }
 
 .ui.top.menu .right.menu .ui.dropdown.item{
   padding: 5px 10px;
   border-left: none;
-  height: 52px;
+  height: 55px;
 }
 
 .dropDownText
 {
-  color: #ffffff;
   display: inline-block;
 }
 
@@ -32,11 +30,11 @@ a:hover {
   right: 0;
   bottom: 0;
   //bottom: 30px;
-  top: 52px;
+  top: 55px;
 
   .ui.left.menu.sidebar {
     z-index: 0;
-    top: 52px;
+    top: 55px;
     //height: auto !important;
     //bottom: 29px;
   }
@@ -67,6 +65,23 @@ a:hover {
 .grid-stack > .grid-stack-item.widget > .grid-stack-item-content {
   overflow-x: initial;
   overflow-y: initial;
+}
+
+.maximizeWidget .grid-stack-item.widget {
+  display: none;
+
+  &.maximize {
+    display: block;
+  }
+
+  &.maximize .widgetItem {
+    position: fixed;
+    top: 8rem;
+    bottom: 1rem;
+    left: 14rem;
+    right: 1rem;
+    outline: 0;
+  }
 }
 
 .pageMenuItem {
@@ -102,15 +117,19 @@ a:hover {
 
 .widget {
 
-  .widgetEditButtons {
+  .widgetEditButtons, .widgetViewButtons {
     position: absolute;
     top: 0px;
     right : 0px;
     display: none;
   }
 
+  .widgetViewButtons.alwaysOnTop {
+    display: block;
+  }
+
   &:hover {
-    .widgetEditButtons{
+    .widgetEditButtons, .widgetViewButtons{
       display: block;
     }
 
@@ -236,6 +255,7 @@ a:hover {
   .icon.statusIcon {
     line-height: 18px;
     margin-right: 0px;
+    margin-left: 7px;
   }
 }
 .tenantsMenu {
@@ -249,15 +269,25 @@ a:hover {
     margin: 0 0 0 0.5em !important;
     opacity: 0.5 !important;
   }
+}
 
-  &.ui.dropdown > .text > .icon.statusIcon {
-    margin-left: 5px;
+.usersMenu {
+  .dropdown.icon {
+    margin: 0 0 0 0.4em !important;
   }
 }
 
-.ui.menu:not(.vertical) .item.managerAndTenants {
-  flex-direction: column;
+.ui.menu:not(.vertical) .item.configPanel {
+  flex-direction: row;
   align-items: flex-end;
+  & .managerAndTenants {
+    flex-direction: column;
+    margin-right: 10px;
+    text-align: right;
+    & .tenantsMenu {
+      margin-right: 5px;
+    }
+  }
 }
 
 .ui.inline.loader.widgetLoader {
@@ -267,7 +297,7 @@ a:hover {
   display: none;
 
   &.header {
-    right: 12px;
+    right: 20px;
     top: 4px;
   }
 
@@ -353,7 +383,7 @@ code.hljs {
     box-shadow: none !important;
 
     .nodeState .segment {
-      padding: 2px 15px !important;
+      padding: 2px 0px !important;
     }
 
     .nodeState .icon {
@@ -378,7 +408,7 @@ code.hljs {
 
   .column.action  {
 
-    .ui.dropdown {
+    .ui.dropdown.menuAction {
       position: absolute;
       right: 10px;
     }
@@ -423,4 +453,34 @@ code.hljs {
 
 .ui.divided.light.list>.item:first-child {
   border-top: none;
+}
+
+.superscripted {
+  vertical-align: super;
+}
+
+.gaugeContainer {
+  width: 100%;
+  height: 100%;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .backgroundColor {
+    fill: #A4A4A4;
+  }
+
+  .okColor {
+    fill: #269FA9;
+  }
+
+  .lowColor {
+    fill: #FF2832;
+  }
+
+  .highColor {
+    fill: #23804D;
+  }
 }

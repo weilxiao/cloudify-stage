@@ -12,6 +12,7 @@
   "inputs",
   "githubRepositories",
   "events",
+  "eventsFilter",
   "plugins",
   "snapshots",
   "logs",
@@ -20,6 +21,9 @@
   "executions",
   "nodes",
   "deploymentButton",
-  "Tenants",
-  "userManagement"
+  "tenants",
+  "userManagement",
+  "userGroups",
+  "buttonLink",
+  "GaugeTest"
 ]
