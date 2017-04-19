@@ -6,11 +6,10 @@
   },
   "singleManager": false,
   "whiteLabel": {
-    "enabled": false,
-    "logoUrl": "/app/images/Cloudify-icon.png",
-    "mainColor": "black",
+    "logoUrl": "/app/images/Cloudify-logo.png",
+    "mainColor": "#39b9d4",
     "pagesLocation": "",
-    "headerTextColor": "white",
+    "headerTextColor": "#ffffff",
     "loginPageHeader": "",
     "loginPageText": ""
   },

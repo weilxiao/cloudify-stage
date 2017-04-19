@@ -16,6 +16,7 @@ import DataSegment from './dataSegment/DataSegment';
 import Loading from './Loading';
 import GenericField from './GenericField';
 import Form from './form/Form';
+import InputColor from './InputColor';
 import InputFile from './InputFile';
 import InputDate from './InputDate';
 import { Input, Radio, Checkbox, Button, Icon, Message, Table, Header,
@@ -66,5 +67,6 @@ export {
     NodesTree,
     SplitterLayout,
     Table,
-    Header
+    Header,
+    InputColor
 };

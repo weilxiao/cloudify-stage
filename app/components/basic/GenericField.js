@@ -3,7 +3,7 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import {Icon, Popup, Input, Checkbox, Dropdown, Form} from './index'
+import {Icon, Popup, Input, Checkbox, Dropdown, Form, InputColor} from './index'
 
 export default class GenericField extends Component {
 
@@ -12,6 +12,7 @@ export default class GenericField extends Component {
     static NUMBER_TYPE = 'number';
     static BOOLEAN_TYPE = 'boolean';
     static LIST_TYPE = 'list';
+    static COLOR_TYPE = 'color';
     static NUMBER_LIST_TYPE = 'numberList';
     static MULTI_SELECT_LIST_TYPE = 'multiSelectList';
     static EDITABLE_LIST_TYPE = 'editableList';
@@ -94,6 +95,10 @@ export default class GenericField extends Component {
                               search={this.props.type === GenericField.EDITABLE_LIST_TYPE || this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
                               placeholder={this.props.placeholder} options={options}
                               onChange={(proxy, field)=>this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}/>;
+        } else if (this.props.type === GenericField.COLOR_TYPE) {
+            field = <InputColor name={this.props.name} placeholder={this.props.placeholder} value={this.props.value}
+                                onChange={(color, event) => this.props.onChange(null, Object.assign({}, {name: this.props.name, value: color.hex, genericType: this.props.type, color}))}/>
+
         }
 
         return (
