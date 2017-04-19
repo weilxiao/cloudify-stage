@@ -31,6 +31,7 @@ var Applications = require('./routes/Applications');
 var BlueprintAdditions = require('./routes/BlueprintAdditions');
 var Monitoring = require('./routes/Monitoring');
 var clientConfig = require('./routes/ClientConfig');
+var adminSettings = require('./routes/AdminSettings');
 var SourceBrowser = require('./routes/SourceBrowser');
 var GitHub = require('./routes/GitHub');
 var Style = require('./routes/Style');
@@ -71,6 +72,7 @@ app.use('/ba',BlueprintAdditions);
 app.use('/monitor',Monitoring);
 app.use('/style',Style);
 app.use('/clientConfig',clientConfig);
+app.use('/adminSettings',adminSettings);
 app.use('/github',GitHub);
 app.use('/config',function(req,res){
     res.send(config.getForClient(ServerSettings.settings.mode));
