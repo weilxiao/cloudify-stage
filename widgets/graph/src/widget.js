@@ -18,10 +18,14 @@ Stage.defineWidget({
          items: [{name: "cpu_total_system", value: "cpu_total_system"}, {name: "cpu_total_user", value: "cpu_total_user"},
                  {name: "memory_MemFree", value: "memory_MemFree"}, {name: "memory_SwapFree", value: "memory_SwapFree"},
                  {name: "loadavg_processes_running", value: "loadavg_processes_running"}]},
-        {id: "from", name: "Time from", placeHolder: "Start time for data to be presented", default: "now() - 15m", type: Stage.Basic.GenericField.LIST_TYPE,
+        {id: "from", name: "Time range start", placeHolder: "Start time for data to be presented", default: "now() - 15m", type: Stage.Basic.GenericField.LIST_TYPE,
          items: [{name:'last 15 minutes', value:'now() - 15m'}, {name:'last hour', value:'now() - 1h'}, {name:'last day', value: 'now() - 1d'}]},
-        {id: "to", name: "Time to", placeHolder: "End time for data to be presented", default: "now()", type: Stage.Basic.GenericField.LIST_TYPE,
+        {id: "to", name: "Time range end", placeHolder: "End time for data to be presented", default: "now()", type: Stage.Basic.GenericField.LIST_TYPE,
          items: [{name:'now', value:'now()'}]},
+        {id: "resolution", name: "Time resolution value",  placeHolder: "Time resolution value", default: "1", type: Stage.Basic.GenericField.NUMBER_TYPE,
+         min: Stage.Common.TimeConsts.MIN_TIME_RESOLUTION_VALUE, max: Stage.Common.TimeConsts.MAX_TIME_RESOLUTION_VALUE},
+        {id: "unit", name: "Time resolution unit", placeHolder: "Time resolution unit", default: "m", type: Stage.Basic.GenericField.LIST_TYPE,
+            items: Stage.Common.TimeConsts.TIME_RESOLUTION_UNITS},
         {id: "query", name: "Database query", placeHolder: "InfluxQL query to fetch input data for the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
         {id: "type", name: "Graph type", items: [{name:'Line chart', value:Stage.Basic.Graphs.Graph.LINE_CHART_TYPE}, {name:'Bar chart', value:Stage.Basic.Graphs.Graph.BAR_CHART_TYPE}],
          default: Stage.Basic.Graphs.Graph.LINE_CHART_TYPE, type: Stage.Basic.GenericField.LIST_TYPE},
@@ -54,13 +58,19 @@ Stage.defineWidget({
     fetchParams: function(widget, toolbox) {
         let deploymentId = toolbox.getContext().getValue('deploymentId') || widget.configuration.deploymentId;
 
-        let timeStart = toolbox.getContext().getValue('time_start');
+        let timeFilter = toolbox.getContext().getValue('timeFilter');
+
+        let timeStart = timeFilter && timeFilter.start;
         timeStart = timeStart ? `${moment(timeStart).unix()}s` : widget.configuration.from;
 
-        let timeEnd = toolbox.getContext().getValue('time_end');
+        let timeEnd = timeFilter && timeFilter.end;
         timeEnd = timeEnd ? `${moment(timeEnd).unix()}s` : widget.configuration.to;
 
-        let timeGroup = `${toolbox.getContext().getValue('time_resolution')}${toolbox.getContext().getValue('time_unit')}`;
+        let timeResolutionValue = timeFilter && timeFilter.resolution;
+        let timeResolutionUnit = timeFilter && timeFilter.unit;
+        let timeGroup = timeResolutionValue && timeResolutionUnit
+            ? `${timeResolutionValue}${timeResolutionUnit}`
+            : `${widget.configuration.resolution}${widget.configuration.unit}`;
 
         return { deploymentId, timeStart, timeEnd, timeGroup };
     },

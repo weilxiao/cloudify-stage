@@ -9,34 +9,43 @@ export default class ExecuteDeploymentModal extends React.Component {
     constructor(props,context) {
         super(props,context);
 
-        this.state = ExecuteDeploymentModal.initialState;
+        this.state = ExecuteDeploymentModal.initialState(props);
     }
 
-    static initialState = {
-        errors: {},
-        loading: false
+    static initialState = (props) => {
+
+        var params = {};
+        _.each(props.workflow.parameters,(param, name)=>{
+            params[name] = Stage.Common.JsonUtils.stringify(param.default);
+        })
+
+        return {
+            errors: {},
+            loading: false,
+            params
+        }
     }
 
     static propTypes = {
         toolbox: PropTypes.object.isRequired,
-        show: PropTypes.bool.isRequired,
+        open: PropTypes.bool.isRequired,
         deployment: PropTypes.object.isRequired,
         workflow: PropTypes.object.isRequired,
         onHide: PropTypes.func.isRequired
     };
 
     componentWillReceiveProps(nextProps) {
-        if (!this.props.show && nextProps.show) {
-            this.setState(ExecuteDeploymentModal.initialState);
+        if (!this.props.open && nextProps.open) {
+            this.setState(ExecuteDeploymentModal.initialState(this.props));
         }
     }
 
     onApprove () {
-        this.refs.executeForm.submit();
+        this._submitExecute();
         return false;
     }
 
-    onDeny () {
+    onCancel () {
         this.props.onHide();
         return true;
     }
@@ -49,15 +58,8 @@ export default class ExecuteDeploymentModal extends React.Component {
 
         this.setState({loading: true});
 
-        var params = {};
-
-        $(this.refs.executeForm).find('[name=executeInput]').each((index,input)=>{
-            var input = $(input);
-            params[input.data('name')] = input.val();
-        });
-
         var actions = new Stage.Common.DeploymentActions(this.props.toolbox);
-        actions.doExecute(this.props.deployment, this.props.workflow, params).then(()=>{
+        actions.doExecute(this.props.deployment, this.props.workflow, this.state.params).then(()=>{
             this.setState({loading: false});
             this.props.onHide();
             this.props.toolbox.getEventBus().trigger('executions:refresh');
@@ -66,19 +68,23 @@ export default class ExecuteDeploymentModal extends React.Component {
         })
     }
 
+    handleInputChange(event, field) {
+        this.setState({params: {...this.state.params, ...Stage.Basic.Form.fieldNameValue(field)}});
+    }
+
     render() {
-        var {Modal, Icon, Form, Message} = Stage.Basic;
+        var {Modal, Icon, Form, Message, Input, ApproveButton, CancelButton} = Stage.Basic;
 
         var workflow = Object.assign({},{name:"", parameters:[]}, this.props.workflow);
 
         return (
-            <Modal show={this.props.show} loading={this.state.loading} onDeny={this.onDeny.bind(this)} onApprove={this.onApprove.bind(this)}>
+            <Modal open={this.props.open}>
                 <Modal.Header>
                     <Icon name="road"/> Execute workflow {workflow.name}
                 </Modal.Header>
 
-                <Modal.Body>
-                    <Form onSubmit={this._submitExecute.bind(this)} errors={this.state.errors} ref="executeForm">
+                <Modal.Content>
+                    <Form loading={this.state.loading} errors={this.state.errors}>
                         {
                             _.isEmpty(workflow.parameters)
                             &&
@@ -90,19 +96,18 @@ export default class ExecuteDeploymentModal extends React.Component {
                                 return (
                                     <Form.Field key={name}>
                                         <label title={parameter.description || name }>{name}</label>
-                                        <input name='executeInput' data-name={name} type="text"
-                                               defaultValue={Stage.Common.JsonUtils.stringify(parameter.default)}/>
+                                        <Input name={name} value={this.state.params[name]} onChange={this.handleInputChange.bind(this)}/>
                                     </Form.Field>
                                 );
                             })
                         }
                     </Form>
-                </Modal.Body>
+                </Modal.Content>
 
-                <Modal.Footer>
-                    <Modal.Cancel/>
-                    <Modal.Approve label="Execute" icon="rocket" className="green"/>
-                </Modal.Footer>
+                <Modal.Actions>
+                    <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
+                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Execute" icon="rocket" color="green"/>
+                </Modal.Actions>
             </Modal>
         );
     }

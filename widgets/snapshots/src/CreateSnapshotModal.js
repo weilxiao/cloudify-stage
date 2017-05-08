@@ -9,31 +9,29 @@ export default class CreateModal extends React.Component {
     constructor(props,context) {
         super(props, context);
 
-        this.state = {...CreateModal.initialState, show: false}
+        this.state = {...CreateModal.initialState, open: false}
     }
 
     static initialState = {
         loading: false,
         snapshotId: "",
+        includeMetrics: false,
+        includeCredentials: false,
         errors: {}
     }
 
     onApprove () {
-        this.refs.createForm.submit();
+        this._submitCreate();
         return false;
     }
 
-    onDeny () {
-        this.setState({show: false});
+    onCancel () {
+        this.setState({open: false});
         return true;
     }
 
-    _showModal() {
-        this.setState({show: true});
-    }
-
     componentWillUpdate(prevProps, prevState) {
-        if (!prevState.show && this.state.show) {
+        if (!prevState.open && this.state.open) {
             this.setState(CreateModal.initialState);
         }
     }
@@ -43,6 +41,12 @@ export default class CreateModal extends React.Component {
 
         if (_.isEmpty(this.state.snapshotId)) {
             errors["snapshotId"]="Please provide snapshot id";
+        } else {
+            const URL_SAFE_CHARACTERS_RE = /^[0-9a-zA-Z\$\-\_\.\+\!\*\'\(\)\,]+$/;
+            if (!URL_SAFE_CHARACTERS_RE.test(this.state.snapshotId)) {
+                errors["snapshotId"] = "Please use safe characters. Letters, digits and the following " +
+                                       "special characters $-_.+!*'(), are allowed";
+            }
         }
 
         if (!_.isEmpty(errors)) {
@@ -55,10 +59,10 @@ export default class CreateModal extends React.Component {
 
         // Call create method
         var actions = new Actions(this.props.toolbox);
-        actions.doCreate(this.state.snapshotId).then(()=>{
+        actions.doCreate(this.state.snapshotId, this.state.includeMetrics, this.state.includeCredentials).then(()=>{
             this.props.toolbox.getContext().setValue(this.props.widget.id + 'createSnapshot',null);
             this.props.toolbox.getEventBus().trigger('snapshots:refresh');
-            this.setState({loading: false, show: false});
+            this.setState({loading: false, open: false});
         }).catch((err)=>{
             this.setState({errors: {error: err.message}, loading: false});
         });
@@ -69,34 +73,41 @@ export default class CreateModal extends React.Component {
     }
 
     render() {
-        var {Modal, Button, Icon, Form} = Stage.Basic;
+        var {Modal, Button, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
+        const createButton = <Button content='Create' icon='add' labelPosition='left' />;
 
         return (
-            <div>
-                <Button content='Create' icon='add' labelPosition='left' onClick={this._showModal.bind(this)}/>
+            <Modal trigger={createButton} open={this.state.open} onOpen={()=>this.setState({open:true})} onClose={()=>this.setState({open:false})}>
+                <Modal.Header>
+                    <Icon name="add"/> Create snapshot
+                </Modal.Header>
 
-                <Modal show={this.state.show} onDeny={this.onDeny.bind(this)} onApprove={this.onApprove.bind(this)} loading={this.state.loading}>
-                    <Modal.Header>
-                        <Icon name="add"/> Create snapshot
-                    </Modal.Header>
+                <Modal.Content>
+                    <Form loading={this.state.loading} errors={this.state.errors}>
 
-                    <Modal.Body>
-                        <Form onSubmit={this._submitCreate.bind(this)} errors={this.state.errors} ref="createForm">
+                        <Form.Field error={this.state.errors.snapshotId}>
+                            <Form.Input name='snapshotId' placeholder="Snapshot ID"
+                                        value={this.state.snapshotId} onChange={this._handleInputChange.bind(this)}/>
+                        </Form.Field>
 
-                            <Form.Field error={this.state.errors.snapshotId}>
-                                <Form.Input name='snapshotId' placeholder="Snapshot ID"
-                                            value={this.state.snapshotId} onChange={this._handleInputChange.bind(this)}/>
-                            </Form.Field>
+                        <Form.Field>
+                            <Form.Checkbox label="Include metrics stored in InfluxDB" name="includeMetrics"
+                                           checked={this.state.includeMetrics} onChange={this._handleInputChange.bind(this)}/>
+                        </Form.Field>
 
-                        </Form>
-                    </Modal.Body>
+                        <Form.Field>
+                            <Form.Checkbox label="Include agent SSH keys (including those specified in uploaded blueprints)" name="includeCredentials"
+                                           checked={this.state.includeCredentials} onChange={this._handleInputChange.bind(this)}/>
+                        </Form.Field>
 
-                    <Modal.Footer>
-                        <Modal.Cancel/>
-                        <Modal.Approve label="Create" icon="add" className="green"/>
-                    </Modal.Footer>
-                </Modal>
-            </div>
+                    </Form>
+                </Modal.Content>
+
+                <Modal.Actions>
+                    <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
+                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Create" icon="add" color="green"/>
+                </Modal.Actions>
+            </Modal>
         );
     }
 };

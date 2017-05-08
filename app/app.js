@@ -22,6 +22,8 @@ import '../semantic/dist/semantic.min.css';
 import '../semantic/dist/semantic.min';
 import '../node_modules/semantic-ui-calendar/dist/calendar.min.css';
 import '../node_modules/semantic-ui-calendar/dist/calendar';
+import '../node_modules/semantic-ui-daterangepicker/daterangepicker.min.css';
+import '../node_modules/semantic-ui-daterangepicker/daterangepicker';
 
 // Import gridstack
 import '../node_modules/gridstack/dist/gridstack.css';
@@ -76,7 +78,6 @@ export default class app{
     }
 
     static start (store) {
-//history.listen(location => analyticsService.track(location.pathname))
         const history = syncHistoryWithStore(browserHistory, store);
 
         ReactDOM.render(

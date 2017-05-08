@@ -77,9 +77,9 @@ export default class UsersTable extends React.Component {
     }
 
     _showModal(value, user) {
-        if (value === MenuAction.ADD_TENANT_ACTION) {
+        if (value === MenuAction.EDIT_TENANTS_ACTION) {
             this._getAvailableTenants(value, user);
-        } else if (value === MenuAction.ADD_GROUP_ACTION) {
+        } else if (value === MenuAction.EDIT_GROUPS_ACTION) {
             this._getAvailableGroups(value, user);
         } else if (value === MenuAction.ACTIVATE_ACTION) {
             this._activateUser(user);
@@ -192,33 +192,33 @@ export default class UsersTable extends React.Component {
                 </DataTable>
 
                 <PasswordModal
-                    show={this.state.modalType === MenuAction.SET_PASSWORD_ACTION && this.state.showModal}
+                    open={this.state.modalType === MenuAction.SET_PASSWORD_ACTION && this.state.showModal}
                     user={this.state.user}
                     onHide={this._hideModal.bind(this)}
                     toolbox={this.props.toolbox}/>
 
                 <RoleModal
-                    show={this.state.modalType === MenuAction.SET_ROLE_ACTION && this.state.showModal}
+                    open={this.state.modalType === MenuAction.SET_ROLE_ACTION && this.state.showModal}
                     user={this.state.user}
                     onHide={this._hideModal.bind(this)}
                     toolbox={this.props.toolbox}/>
 
                 <TenantModal
-                    show={this.state.modalType === MenuAction.ADD_TENANT_ACTION && this.state.showModal}
+                    open={this.state.modalType === MenuAction.EDIT_TENANTS_ACTION && this.state.showModal}
                     user={this.state.user}
                     tenants={this.state.tenants}
                     onHide={this._hideModal.bind(this)}
                     toolbox={this.props.toolbox}/>
 
                 <GroupModal
-                    show={this.state.modalType === MenuAction.ADD_GROUP_ACTION && this.state.showModal}
+                    open={this.state.modalType === MenuAction.EDIT_GROUPS_ACTION && this.state.showModal}
                     user={this.state.user}
                     groups={this.state.groups}
                     onHide={this._hideModal.bind(this)}
                     toolbox={this.props.toolbox}/>
 
-                <Confirm title={`Are you sure you want to remove user ${this.state.user.username}?`}
-                         show={this.state.modalType === MenuAction.DELETE_ACTION && this.state.showModal}
+                <Confirm content={`Are you sure you want to remove user ${this.state.user.username}?`}
+                         open={this.state.modalType === MenuAction.DELETE_ACTION && this.state.showModal}
                          onConfirm={this._deleteUser.bind(this)}
                          onCancel={this._hideModal.bind(this)} />
 

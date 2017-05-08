@@ -107,9 +107,10 @@ export default class extends React.Component {
                            className="snapshotsTable">
 
                     <DataTable.Column label="Id" name="id" width="40%"/>
-                    <DataTable.Column label="Created at" name="created_at" width="25%"/>
-                    <DataTable.Column label="Status" name="status" width="20%"/>
-                    <DataTable.Column width="15%"/>
+                    <DataTable.Column label="Created at" name="created_at" width="20%"/>
+                    <DataTable.Column label="Status" name="status" width="15%"/>
+                    <DataTable.Column label="Creator" name='created_by' width="15%"/>
+                    <DataTable.Column width="10%"/>
 
                     {
                         this.props.data.items.map((item)=>{
@@ -119,6 +120,7 @@ export default class extends React.Component {
                                     <DataTable.Data><a className='snapshotName' href="javascript:void(0)">{item.id}</a></DataTable.Data>
                                     <DataTable.Data>{item.created_at}</DataTable.Data>
                                     <DataTable.Data>{item.status}</DataTable.Data>
+                                    <DataTable.Data>{item.created_by}</DataTable.Data>
                                     <DataTable.Data className="center aligned rowActions">
                                         <Icon name='undo' title="Restore" bordered disabled={!isSnapshotUseful} link={isSnapshotUseful}
                                               onClick={isSnapshotUseful ? this._restoreSnapshot.bind(this,item) : ()=>{}} />
@@ -139,13 +141,13 @@ export default class extends React.Component {
 
                 </DataTable>
 
-                <RestoreModal show={this.state.showRestore}
+                <RestoreModal open={this.state.showRestore}
                               onHide={()=>this.setState({showRestore : false})}
                               toolbox={this.props.toolbox}
                               snapshot={this.state.item}/>
 
-                <Confirm title='Are you sure you want to remove this snapshot?'
-                         show={this.state.confirmDelete}
+                <Confirm content='Are you sure you want to remove this snapshot?'
+                         open={this.state.confirmDelete}
                          onConfirm={this._deleteSnapshot.bind(this)}
                          onCancel={()=>this.setState({confirmDelete : false})} />
 

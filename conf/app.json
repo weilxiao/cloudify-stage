@@ -4,14 +4,16 @@
     "user": "initial-template",
     "customer": "initial-template-customer"
   },
-  "singleManager": false,
+  "singleManager": true,
   "whiteLabel": {
     "logoUrl": "/app/images/Cloudify-logo.png",
     "mainColor": "#39b9d4",
     "pagesLocation": "",
     "headerTextColor": "#ffffff",
     "loginPageHeader": "",
-    "loginPageText": ""
+    "loginPageText": "",
+    "sidebarColor": "#ffffff",
+    "sidebarTextColor" : "#000000"
   },
   "db": {
     "url": "postgres://cloudify:cloudify@localhost:5432/stage",

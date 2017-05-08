@@ -107,10 +107,11 @@ export default class SecretsTable extends React.Component {
                            className="secretsTable">
 
                     <DataTable.Column label="Key" name="key" width="20%" />
-                    <DataTable.Column label="Value" width="25%" />
-                    <DataTable.Column label="Created" name="created_at" width="15%" />
-                    <DataTable.Column label="Updated" name="updated_at" width="15%" />
-                    <DataTable.Column label="Tenant" name="tenant_name" width="10%" />
+                    <DataTable.Column label="Value" width="20%" />
+                    <DataTable.Column label="Created" name="created_at" width="10%" />
+                    <DataTable.Column label="Updated" name="updated_at" width="10%" />
+                    <DataTable.Column label="Creator" name='created_by' width="15%" />
+                    <DataTable.Column label="Tenant" name="tenant_name" width="15%" />
                     <DataTable.Column width="10%" />
 
                     {
@@ -132,6 +133,7 @@ export default class SecretsTable extends React.Component {
                                     </DataTable.Data>
                                     <DataTable.Data>{secret.created_at}</DataTable.Data>
                                     <DataTable.Data>{secret.updated_at}</DataTable.Data>
+                                    <DataTable.Data>{secret.created_by}</DataTable.Data>
                                     <DataTable.Data>{secret.tenant_name}</DataTable.Data>
                                     <DataTable.Data className="center aligned rowActions">
                                         <Icon bordered link name="edit" title="Update secret" onClick={this._onUpdateSecret.bind(this, secret)} />
@@ -148,13 +150,13 @@ export default class SecretsTable extends React.Component {
 
                 </DataTable>
 
-                <DeleteModal title={`Are you sure you want to delete secret '${this.state.secret.key}'?`}
-                             show={this.state.modalType === SecretsTable.DELETE_SECRET_ACTION && this.state.showModal}
+                <DeleteModal content={`Are you sure you want to delete secret '${this.state.secret.key}'?`}
+                             open={this.state.modalType === SecretsTable.DELETE_SECRET_ACTION && this.state.showModal}
                              onConfirm={this._deleteSecret.bind(this)}
                              onCancel={this._hideModal.bind(this)}/>
 
                 <UpdateModal toolbox={this.props.toolbox}
-                             show={this.state.modalType === SecretsTable.UPDATE_SECRET_ACTION && this.state.showModal}
+                             open={this.state.modalType === SecretsTable.UPDATE_SECRET_ACTION && this.state.showModal}
                              onHide={this._hideModal.bind(this)}
                              secret={this.state.secret} />
             </div>
