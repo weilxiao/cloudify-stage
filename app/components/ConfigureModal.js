@@ -42,6 +42,8 @@ export default class ConfigureModal extends Component {
             canUserEdit: this.state.canUserEdit,
             mainColor: this.state.mainColor,
             headerTextColor: this.state.headerTextColor,
+            sidebarColor: this.state.sidebarColor,
+            sidebarTextColor: this.state.sidebarTextColor,
             logoUrl: this.state.logoUrl,
             loginPageHeader: this.state.loginPageHeader,
             loginPageText: this.state.loginPageText
@@ -91,6 +93,20 @@ export default class ConfigureModal extends Component {
                                       type={GenericField.COLOR_TYPE}
                                       description=''
                                       value={this.state.headerTextColor}
+                                      onChange={this._handleInputChange.bind(this)}/>
+
+                        <GenericField label='Sidebar color'
+                                      name='sidebarColor'
+                                      type={GenericField.COLOR_TYPE}
+                                      description=''
+                                      value={this.state.sidebarColor}
+                                      onChange={this._handleInputChange.bind(this)}/>
+
+                        <GenericField label='Sidebar text color'
+                                      name='sidebarTextColor'
+                                      type={GenericField.COLOR_TYPE}
+                                      description=''
+                                      value={this.state.sidebarTextColor}
                                       onChange={this._handleInputChange.bind(this)}/>
 
                         <GenericField label='Logo URL'
