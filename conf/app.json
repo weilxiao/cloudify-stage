@@ -7,7 +7,7 @@
   "singleManager": true,
   "whiteLabel": {
     "logoUrl": "/app/images/Cloudify-logo.png",
-    "mainColor": "#39b9d4",
+    "mainColor": "#000069",
     "pagesLocation": "",
     "headerTextColor": "#ffffff",
     "loginPageHeader": "",

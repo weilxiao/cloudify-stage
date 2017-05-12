@@ -33,7 +33,7 @@ const mapStateToProps = (state, ownProps) => {
         loginError: state.manager ? state.manager.err : '',
         mode: state.config.mode,
         shouldShowIpField: state.config.mode === Consts.MODE_MAIN && !_.get(state.config, 'app.singleManager',false),
-        whiteLabel : state.config.app.whiteLabel
+        clientConfig : state.config.clientConfig
     };
 };
 
@@ -41,7 +41,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     return {
         onLogin: (ip,username,password)=> {
             dispatch(login(ip,username,password));
-            //dispatch(push('/'));
         }
     }
 };

@@ -16,7 +16,8 @@ function setClientConfig(config) {
 
 export function getClientConfig() {
     return function(dispatch,getState) {
-        var ip = getState().manager.ip;
+        // FIXME: Temporary solution, to be decided how to handle that
+        var ip = '*';//getState().manager.ip;
         var external = new External();
         return external.doGet(`/clientConfig/${ip}`).then(response=>{
             dispatch(setClientConfig(response.config))
@@ -26,10 +27,12 @@ export function getClientConfig() {
 
 export function saveClientConfig(config) {
     return function(dispatch,getState) {
-        var ip = getState().manager.ip;
+        // FIXME: Temporary solution, to be decided how to handle that
+        var ip = '*';//getState().manager.ip;
         var external = new External();
         return external.doPost(`/clientConfig/${ip}`,null,config).then(response=>{
-            dispatch(setClientConfig(response.config))
+            dispatch(setClientConfig(response.config));
+            window.location.reload();
         });
     }
 }

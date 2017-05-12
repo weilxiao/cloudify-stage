@@ -3,7 +3,7 @@
  */
 
 import React, {Component, PropTypes} from "react";
-import {Modal, ErrorMessage, GenericField, Form, ApproveButton, CancelButton} from "./basic";
+import {Modal, ErrorMessage, GenericField, Form, ApproveButton, CancelButton, Button} from "./basic";
 
 export default class ConfigureModal extends Component {
 
@@ -16,12 +16,14 @@ export default class ConfigureModal extends Component {
     static initialState = (props) => {
         return {
             loading: false,
-            canUserEdit: props.config.canUserEdit,
-            mainColor: props.config.mainColor,
-            headerTextColor: props.config.headerTextColor,
-            logoUrl: props.config.logoUrl,
-            loginPageHeader: props.config.loginPageHeader,
-            loginPageText: props.config.loginPageText
+            canUserEdit: props.config.clientConfig.canUserEdit,
+            mainColor: props.config.clientConfig.mainColor,
+            headerTextColor: props.config.clientConfig.headerTextColor,
+            sidebarColor: props.config.clientConfig.sidebarColor,
+            sidebarTextColor: props.config.clientConfig.sidebarTextColor,
+            logoUrl: props.config.clientConfig.logoUrl,
+            loginPageHeader: props.config.clientConfig.loginPageHeader,
+            loginPageText: props.config.clientConfig.loginPageText
         }
     };
 
@@ -57,6 +59,22 @@ export default class ConfigureModal extends Component {
 
     onDeny () {
         this.props.onHide();
+        return true;
+    }
+
+    onRestoreDefaults () {
+        let defaults = {
+            canUserEdit: this.props.config.app.whiteLabel.canUserEdit,
+            mainColor: this.props.config.app.whiteLabel.mainColor,
+            headerTextColor: this.props.config.app.whiteLabel.headerTextColor,
+            sidebarColor: this.props.config.app.whiteLabel.sidebarColor,
+            sidebarTextColor: this.props.config.app.whiteLabel.sidebarTextColor,
+            logoUrl: this.props.config.app.whiteLabel.logoUrl,
+            loginPageHeader: this.props.config.app.whiteLabel.loginPageHeader,
+            loginPageText: this.props.config.app.whiteLabel.loginPageText
+        };
+
+        this.setState(defaults);
         return true;
     }
 
@@ -133,6 +151,7 @@ export default class ConfigureModal extends Component {
                 </Modal.Content>
 
                 <Modal.Actions>
+                    <Button content="Restore defaults" icon="undo" onClick={this.onRestoreDefaults.bind(this)} disabled={this.state.loading} />
                     <CancelButton onClick={this.onDeny.bind(this)} disabled={this.state.loading} />
                     <ApproveButton content="Save" color="green" onClick={this.onApprove.bind(this)} disabled={this.state.loading} />
                 </Modal.Actions>

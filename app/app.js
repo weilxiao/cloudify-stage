@@ -42,6 +42,7 @@ import configureStore  from './configureStore';
 import WidgetDefinitionsLoader from './utils/widgetDefinitionsLoader';
 import {createToolbox} from './utils/Toolbox';
 import ConfigLoader from './utils/ConfigLoader';
+import ClientConfigLoader from './utils/ClientConfigLoader';
 import createRoutes from './routes';
 
 import TemplatesLoader from './utils/templatesLoader';
@@ -59,11 +60,12 @@ export default class app{
         return Promise.all([
             TemplatesLoader.load(),
             WidgetDefinitionsLoader.load(),
-            ConfigLoader.load()
+            ConfigLoader.load(),
+            ClientConfigLoader.load()
         ]).then((result)=>{
             var templates = result[0];
             var widgetDefinitions = result[1];
-            var config = result[2];
+            var config = {...result[2], clientConfig: result[3].config};
 
             const store = configureStore(browserHistory,templates,widgetDefinitions,config);
 

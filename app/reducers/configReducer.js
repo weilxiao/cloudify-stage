@@ -14,7 +14,6 @@ const config = (state = {}, action) => {
             });
         case types.LOGOUT:
             return Object.assign({},state,{
-                clientConfig: null,
                 isEditMode: false
             });
         default:

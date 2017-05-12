@@ -14,8 +14,7 @@ export default class Login extends Component {
         onLogin: PropTypes.func.isRequired,
         shouldShowIpField: PropTypes.bool.isRequired,
         isLoggingIn: PropTypes.bool.isRequired,
-        whiteLabel: PropTypes.object
-
+        clientConfig: PropTypes.object
     };
 
     constructor(props,context){
@@ -37,10 +36,10 @@ export default class Login extends Component {
     render() {
         SplashLoadingScreen.turnOff();
 
-        var isWhiteLabelEnabled = _.get(this.props,'whiteLabel.enabled');
-        let loginPageHeader = _.get(this.props,'whiteLabel.loginPageHeader');
-        let loginPageText = _.get(this.props,'whiteLabel.loginPageText');
-        let isHeaderTextPresent = isWhiteLabelEnabled && (loginPageHeader || loginPageText);
+        let loginPageHeader = _.get(this.props,'clientConfig.loginPageHeader');
+        let loginPageText = _.get(this.props,'clientConfig.loginPageText');
+        let isHeaderTextPresent = loginPageHeader || loginPageText;
+
         return (
             <div className='loginPage ui segment basic inverted'>
                 <div className="logo">

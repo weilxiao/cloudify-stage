@@ -4,7 +4,7 @@ import {saveClientConfig} from '../actions/clientConfig';
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        config: state.config.clientConfig
+        config: state.config
     }
 };
 

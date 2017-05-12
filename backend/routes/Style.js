@@ -6,10 +6,11 @@ var express = require('express');
 var path = require('path');
 var fs = require('fs');
 var ejs = require('ejs');
+var request = require('request');
 
 var router = express.Router();
 
-var configuration = require('../../conf/app.json');
+var configurationFile = require('../../conf/app.json');
 var styleTemplateFile = path.resolve(__dirname, '../templates', 'style.ejs');
 
 var DEFAULT_MAIN_COLOR = '#000069';
@@ -28,20 +29,27 @@ function shadeColor(color, percent) {
 }
 
 router.get('/', function(req, res, next) {
-    var whiteLabel = configuration.whiteLabel;
-    var stylesheetTemplate = fs.readFileSync(styleTemplateFile, 'utf8');
+    request.get(req.protocol + '://' + req.headers.host + '/clientConfig/*')
+        .on('response', function(response) {
+            var responseBody = "";
+            response.on("data", function(dataChunk) { responseBody = responseBody + dataChunk; });
+            response.on("end", function() {
+                var stylesheetTemplate = fs.readFileSync(styleTemplateFile, 'utf8');
+                var configFromDb = JSON.parse(responseBody).config;
+                var configFromFile = configurationFile.whiteLabel;
 
-    var stylesheet = ejs.render(stylesheetTemplate, {
-        logoUrl: whiteLabel.enabled && whiteLabel.logoUrl || DEFAULT_LOGO_URL,
-        mainColor: whiteLabel.enabled && whiteLabel.mainColor || DEFAULT_MAIN_COLOR,
-        headerTextColor: whiteLabel.enabled && whiteLabel.headerTextColor || DEFAULT_HEADER_TEXT_COLOR,
-        sidebarColor: whiteLabel.enabled && whiteLabel.sidebarColor || DEFAULT_SIDEBAR_COLOR,
-        sideBarHoverActiveColor: shadeColor(whiteLabel.enabled && whiteLabel.sidebarColor || DEFAULT_SIDEBAR_COLOR,0.1),
-        sidebarTextColor: whiteLabel.enabled && whiteLabel.sidebarTextColor || DEFAULT_SIDEBAR_TEXT_COLOR
-    });
+                var stylesheet = ejs.render(stylesheetTemplate, {
+                    logoUrl: configFromDb.logoUrl || configFromFile.logoUrl || DEFAULT_LOGO_URL,
+                    mainColor: configFromDb.mainColor || configFromFile.mainColor || DEFAULT_MAIN_COLOR,
+                    headerTextColor: configFromDb.headerTextColor || configFromFile.mainColor || DEFAULT_HEADER_TEXT_COLOR,
+                    sidebarColor: configFromDb.sidebarColor || configFromFile.mainColor || DEFAULT_SIDEBAR_COLOR,
+                    sideBarHoverActiveColor: shadeColor(configFromDb.sidebarColor || configFromFile.mainColor || DEFAULT_SIDEBAR_COLOR,0.1),
+                    sidebarTextColor: configFromDb.sidebarTextColor || configFromFile.mainColor || DEFAULT_SIDEBAR_TEXT_COLOR
+                });
 
-    res.header("content-type", "text/css");
-    res.send(stylesheet);
+                res.contentType('text/css').send(stylesheet);
+            });
+        });
 });
 
 module.exports = router;
