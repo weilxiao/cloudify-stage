@@ -90,6 +90,27 @@ a:hover {
   }
 }
 
+.grid-stack-item.widget.minimize widgetContent{
+  display: none;
+}
+
+.minimizeWidget .grid-stack-item.widget {
+  display: none;
+
+  &.maximize {
+    display: block;
+  }
+
+  &.maximize .widgetItem {
+    position: fixed;
+    top: 8rem;
+    bottom: 1rem;
+    left: 14rem;
+    right: 1rem;
+    outline: 0;
+  }
+}
+
 .pageMenuItem {
 }
 

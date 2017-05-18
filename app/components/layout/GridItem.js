@@ -14,7 +14,10 @@ export default class GridItem extends Component {
         className: PropTypes.string,
         onItemAdded: PropTypes.func,
         onItemRemoved: PropTypes.func,
-        maximized: PropTypes.bool
+        onItemMinimized: PropTypes.func,
+        maximized: PropTypes.bool,
+        minimized: PropTypes.bool,
+        savedHeight: PropTypes.number
     };
 
     static defaultProps = {
@@ -23,25 +26,31 @@ export default class GridItem extends Component {
         width: 1,
         height: 1,
         className: '',
-        maximized: false
+        maximized: false,
+        minimized: false,
+        onItemAdded: ()=>{},
+        onItemRemoved:  ()=>{},
+        onItemMinimized:  ()=>{}
     };
 
     componentDidMount() {
-        if (this.props.onItemAdded) {
-            this.props.onItemAdded(this.props.id);
-        }
+        this.props.onItemAdded(this.props.id);
     }
 
     componentWillUnmount() {
-        if (this.props.onItemRemoved) {
-            this.props.onItemRemoved(this.props.id);
+        this.props.onItemRemoved(this.props.id);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.minimized !== prevProps.minimized) {
+            this.props.onItemMinimized(this.props.id, this.props.minimized, this.props.savedHeight);
         }
     }
 
     render() {
         return (
             <div id={this.props.id} ref='item'
-                 className={`grid-stack-item ${this.props.maximized?'maximize':''} ${this.props.className}`}
+                 className={`grid-stack-item ${this.props.maximized?'maximize':''} ${this.props.minimized?'minimize':''} ${this.props.className}`}
                  data-gs-auto-position={!(this.props.x !== undefined && this.props.y !== undefined)}
                  data-gs-x={this.props.x}
                  data-gs-y={this.props.y}

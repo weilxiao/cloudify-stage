@@ -26,6 +26,7 @@ export default class Widget extends Component {
         setContextValue: PropTypes.func.isRequired,
         onWidgetRemoved: PropTypes.func.isRequired,
         onWidgetMaximize: PropTypes.func.isRequired,
+        onWidgetMinimize: PropTypes.func.isRequired,
         onWidgetConfigUpdate: PropTypes.func.isRequired,
         fetchWidgetData: PropTypes.func.isRequired
     };
@@ -120,14 +121,27 @@ export default class Widget extends Component {
                         </div>
                         :
                         this.props.widget.definition.showHeader &&
-                        <div className={`widgetViewButtons ${this.props.widget.maximized?'alwaysOnTop':''}`}>
+                        <div className={`widgetViewButtons ${this.props.widget.maximized || this.props.widget.minimized?'alwaysOnTop':''}`}>
                             {
-                                this.props.widget.maximized ?
+                                this.props.widget.maximized &&
                                 <i className="compress link icon"
                                    onClick={() => this.props.onWidgetMaximize(this.props.pageId, this.props.widget.id, false)}/>
-                                :
-                                <i className="expand link icon small"
-                                   onClick={() => this.props.onWidgetMaximize(this.props.pageId, this.props.widget.id, true)}/>
+                            }
+                            {
+                                this.props.widget.minimized &&
+                                <i className="expand link icon"
+                                   onClick={() => this.props.onWidgetMinimize(this.props.pageId, this.props.widget.id, false, this.props.widget.savedHeight)}/>
+                            }
+                            {
+                                !this.props.widget.maximized && !this.props.widget.minimized &&
+                                [
+                                    <i key="expand" className="expand link icon"
+                                       onClick={() => this.props.onWidgetMaximize(this.props.pageId, this.props.widget.id, true)}/>
+                                    ,
+                                    <i key="compress" className="compress link icon"
+                                       onClick={() => this.props.onWidgetMinimize(this.props.pageId, this.props.widget.id, true, this.props.widget.height)}/>
+
+                                ]
                             }
                         </div>
                 }

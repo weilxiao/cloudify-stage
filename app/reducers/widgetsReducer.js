@@ -51,6 +51,11 @@ const widget = (state = {}, action) => {
             return Object.assign({}, state, {
                 maximized: action.maximized
             });
+        case types.MINIMIZE_WIDGET:
+            return Object.assign({}, state, {
+                minimized: action.minimized,
+                savedHeight: action.savedHeight
+            });
         case types.MINIMIZE_WIDGETS:
             return Object.assign({}, state, {
                 maximized: false
@@ -101,6 +106,13 @@ const widgets = (state = [], action) => {
                 return w
             });
         case types.MAXIMIZE_WIDGET:
+            return state.map( (w) => {
+                if (w.id === action.widgetId) {
+                    return widget(w,action);
+                }
+                return w
+            });
+        case types.MINIMIZE_WIDGET:
             return state.map( (w) => {
                 if (w.id === action.widgetId) {
                     return widget(w,action);

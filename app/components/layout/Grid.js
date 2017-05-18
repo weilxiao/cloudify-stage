@@ -3,6 +3,7 @@
  */
 
 import React, { Component, PropTypes } from 'react';
+import GridItem from './GridItem'
 
 export default class Grid extends Component {
     static propTypes = {
@@ -25,8 +26,8 @@ export default class Grid extends Component {
         });
 
         this.itemIds = [];
-        _.each(this.props.children,(child)=>{
-            if (child.type && child.type.name === 'GridItem') {
+        React.Children.forEach(this.props.children, child => {
+            if (child.type && child.type === GridItem) {
                 this.itemIds.push(child.props.id);
             }
         });
@@ -87,12 +88,29 @@ export default class Grid extends Component {
         }
     }
 
+    _itemMinimized(itemId, minimized, height) {
+        if (this.itemIds && _.indexOf(this.itemIds,itemId) >= 0) {
+            let el = $(this.refs.grid).find('#'+itemId);
+            if (el.length > 0) {
+                el = el[0];
+                var gridStack = $(this.refs.grid).data('gridstack');
+
+                console.log(minimized, height);
+                gridStack.update(el, null, null, null, minimized?3:height);
+            }
+        }
+    }
+
     render() {
 
         var gridItems = [];
-        _.each(this.props.children,(child)=>{
-            if (child.type && child.type.name === 'GridItem') {
-                var gridItem = React.cloneElement(child,{onItemAdded: this._itemAdded.bind(this),onItemRemoved: this._itemRemoved.bind(this)})
+        React.Children.forEach(this.props.children, child => {
+            if (child.type && child.type === GridItem) {
+                var gridItem = React.cloneElement(child,{
+                    onItemAdded: this._itemAdded.bind(this),
+                    onItemRemoved: this._itemRemoved.bind(this),
+                    onItemMinimized: this._itemMinimized.bind(this)
+                });
                 gridItems.push(gridItem);
             } else {
                 console.warn('Found a grid child that is not grid item. Ignoring this child')

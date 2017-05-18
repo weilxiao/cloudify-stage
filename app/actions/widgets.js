@@ -57,6 +57,16 @@ export function maximizeWidget(pageId,widgetId,maximized) {
     }
 }
 
+export function minimizeWidget(pageId,widgetId,minimized,savedHeight) {
+    return {
+        type: types.MINIMIZE_WIDGET,
+        pageId,
+        widgetId,
+        minimized,
+        savedHeight
+    }
+}
+
 export function minimizeWidgets() {
     return {
         type: types.MINIMIZE_WIDGETS
