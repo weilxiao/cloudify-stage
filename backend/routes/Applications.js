@@ -2,8 +2,6 @@
  * Created by Alex on 21/03/2017.
  */
 
-'use strict';
-
 var bodyParser = require('body-parser');
 var express = require('express');
 var router = express.Router();
@@ -28,35 +26,26 @@ router.get('/:id', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    var name = req.body.name, status = req.body.status, isPrivate = req.body.isPrivate, extras = req.body.extras;
-
     db.Application
-        .findOrCreate({ where: { name } })
-        .spread(application => {
-            application
-                .update({ name, status, isPrivate, extras })
-                .then(response => { res.send(response) })
-        })
+        .create(req.body, { fields: ['name', 'status', 'isPrivate', 'extras'] })
+        .then(application => { res.send(application) })
         .catch(next);
 });
 
 router.post('/:id', (req, res, next) => {
-    var name = req.body.name, status = req.body.status, isPrivate = req.body.isPrivate, extras = req.body.extras;
-
     db.Application
         .findOrCreate({ where: { id: req.params.id } })
-        .spread(application => {
-            application
-                .update({ name, status, isPrivate, extras })
-                .then(response => { res.send(response) })
-        })
+        .spread(item =>
+            item.update(req.body, { fields: ['name', 'status', 'isPrivate', 'extras'] })
+        )
+        .then(application => { res.send(application) })
         .catch(next);
 });
 
 router.delete('/:id', (req, res, next) => {
     db.Application
         .destroy({ where: { id: req.params.id } })
-        .then(response => { res.send(response) })
+        .then(() => { res.end(JSON.stringify({ status: 'ok' })); })
         .catch(next);
 });
 
