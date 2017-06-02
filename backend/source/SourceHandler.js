@@ -16,13 +16,9 @@ var fsp = pify(fs);
 var logger = require('log4js').getLogger('sourceHandler');
 
 module.exports = (function() {
-
-    function _getRootFolder() {
-        return pathlib.join(os.tmpdir(), config.get().app.extractedSourcesDir);
-    }
+    var rootFolder = pathlib.join(os.tmpdir(), config.get().app.extractedSourcesDir);
 
     function browseArchiveTree(lastUpdate, contentDisposition, callback) {
-        var rootFolder = _getRootFolder();
         fs.mkdirsSync(rootFolder);
 
         var filename = _extractFilename(contentDisposition);
@@ -79,7 +75,7 @@ module.exports = (function() {
     function _scanArchive(archivePath) {
         logger.debug('scan archive', archivePath);
 
-        return _scanRecursive(_getRootFolder(), archivePath);
+        return _scanRecursive(rootFolder, archivePath);
     }
 
     function _isUnixHiddenPath(path) {
@@ -121,8 +117,7 @@ module.exports = (function() {
     function _removeOldArchives() {
         const PAST_TIME = 60*60*1000; //remove archives older then 1 hour
 
-        var rootFolder = _getRootFolder();
-        fs.readdir(_getRootFolder(), function (err, files) {
+        fs.readdir(rootFolder, function (err, files) {
             if (err) {
                 logger.error(err);
                 return;
@@ -142,8 +137,19 @@ module.exports = (function() {
         });
     }
 
+    function _checkPrefix(prefix, candidate) {
+        var absPrefix = pathlib.resolve(prefix) + pathlib.sep;
+        var absCandidate = pathlib.resolve(prefix, candidate) + pathlib.sep;
+
+        return absCandidate.substring(0, absPrefix.length) === absPrefix;
+    }
+
     function browseArchiveFile(path, callback) {
-        var absolutePath = pathlib.join(_getRootFolder(), path);
+        if (!_checkPrefix(rootFolder, path)) {
+            return callback('wrong path');
+        }
+
+        var absolutePath = pathlib.join(rootFolder, path);
         fsp.readFile(absolutePath, 'utf-8').then(function(content) {
             callback(null, content);
         }).catch(function(err){
