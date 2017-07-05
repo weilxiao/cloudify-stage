@@ -44,6 +44,7 @@ module.exports = {
 
                     checkIfDeploymentsCountEqual: function (blueprintName, deploymentsCount) {
                         return this.getText(this.props.deploymentsCount(blueprintName), (result) => {
+                            console.log(result);
                             this.assert.equal(result.value, deploymentsCount, 'Deployments count equals to ' + deploymentsCount + '.');
                         });
                     },
@@ -105,6 +106,7 @@ module.exports = {
             elements: {
                 privateResource: '.header i[title="Private resource"]',
                 deploymentName: '.content input[name="deploymentName"]',
+                //skipPluginValidationCheckbox: '.content .field.skipPluginsValidationCheckbox',
                 deployButton: '.actions button.ok',
                 cancelButton: '.actions button.cancel'
             },
@@ -118,6 +120,9 @@ module.exports = {
                                     this.setValue(`input[name="${inputName}"]`, inputValue)
                                 }));
                         return this;
+                    },
+                    setSkipValidation: function(value) {
+                        return this.setCheckbox('.content .field.skipPluginsValidationCheckbox', value);
                     },
                     clickDeploy: function() {
                         return this

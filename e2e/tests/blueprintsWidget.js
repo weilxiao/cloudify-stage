@@ -95,6 +95,7 @@ module.exports = {
                 .clickDeploy(BLUEPRINT_NAME)
             .parent.section.deployBlueprintModal
                 .fillIn(BLUEPRINT_INPUTS)
+                .setSkipValidation(true)
                 .clickDeploy();
         client.pause(2000); // FIXME: waiting for blueprints table to be updated, looking for better way than pause
 
