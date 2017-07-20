@@ -3,12 +3,15 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import {Icon, Popup, Input, Checkbox, Dropdown, Form} from './index'
+import {Icon, Popup, Input, Checkbox, Dropdown, Form} from '../index'
 
 /**
  * GenericField is a generic component which can be used as different input fields in {@link FormWrapper} component
  *
  * It is used widely in widget coniguration modal. Constant values used for defining field type are described below.
+ *
+ * ## Access
+ * `Stage.Basic.Form.GenericField`
  *
  * ## Usage
  *

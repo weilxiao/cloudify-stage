@@ -14,7 +14,7 @@ export default class BlueprintInfo extends React.Component {
     }
 
     render() {
-        var {ErrorMessage, Grid, Image, PrivateMarker, Message} = Stage.Basic;
+        var {ErrorMessage, Grid, Image, PrivateMarker, Message, Label} = Stage.Basic;
 
         var blueprint = this.props.data;
 
@@ -41,6 +41,10 @@ export default class BlueprintInfo extends React.Component {
                         </Grid.Column>
                     </Grid.Row>
 
+                    <Grid.Column width="16">
+                        {blueprint.description}
+                    </Grid.Column>
+
                     <Grid.Row className="noPadded">
                         <Grid.Column width="7"><h5 className="ui icon header">Created</h5></Grid.Column>
                         <Grid.Column width="9">{blueprint.created_at}</Grid.Column>
@@ -54,6 +58,16 @@ export default class BlueprintInfo extends React.Component {
                     <Grid.Row className="noPadded">
                         <Grid.Column width="7"><h5 className="ui icon header">Creator</h5></Grid.Column>
                         <Grid.Column width="9">{blueprint.created_by}</Grid.Column>
+                    </Grid.Row>
+
+                    <Grid.Row className="noPadded">
+                        <Grid.Column width="7"><h5 className="ui icon header">Main Blueprint File</h5></Grid.Column>
+                        <Grid.Column width="9">{blueprint.main_file_name}</Grid.Column>
+                    </Grid.Row>
+
+                    <Grid.Row className="noPadded">
+                        <Grid.Column width="7"><h5 className="ui icon header">Deployments</h5></Grid.Column>
+                        <Grid.Column width="9"><Label color="green" horizontal>{blueprint.deployments}</Label></Grid.Column>
                     </Grid.Row>
                 </Grid>
             </div>

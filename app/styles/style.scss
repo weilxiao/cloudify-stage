@@ -574,6 +574,10 @@ code.hljs {
   text-align: center !important;
 }
 
+.verticalAlignTop {
+  vertical-align: top;
+}
+
 .noWrap {
   white-space: nowrap !important;
 }
@@ -630,6 +634,10 @@ a.underline {
     background-color: black;
     transform: scaleX(1);
   }
+}
+
+.clickable {
+  cursor: pointer;
 }
 
 .superscripted {

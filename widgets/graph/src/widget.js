@@ -15,6 +15,7 @@ Stage.defineWidget({
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(5),
         {id: "deploymentId", name: "Deployment ID", placeHolder: "If not set, then will be taken from context", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
+        // TODO: EDITABLE_MULTI_SELECT?
         {id: "metrics", name: "Metrics", placeHolder: "Metrics data to be presented on the graph", default: "memory_MemFree", type: Stage.Basic.GenericField.MULTI_SELECT_LIST_TYPE,
          items: ["cpu_total_system", "cpu_total_user", "memory_MemFree", "memory_SwapFree", "loadavg_processes_running"]},
         {id: "from", name: "Time range start", placeHolder: "Start time for data to be presented", default: "now() - 15m", type: Stage.Basic.GenericField.LIST_TYPE,
@@ -28,10 +29,12 @@ Stage.defineWidget({
         {id: "query", name: "Database query", placeHolder: "InfluxQL query to fetch input data for the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
         {id: "type", name: "Graph type", items: [{name:'Line chart', value:Stage.Basic.Graphs.Graph.LINE_CHART_TYPE}, {name:'Bar chart', value:Stage.Basic.Graphs.Graph.BAR_CHART_TYPE}],
          default: Stage.Basic.Graphs.Graph.LINE_CHART_TYPE, type: Stage.Basic.GenericField.LIST_TYPE},
-        {id: "label", name: "Graph label",  placeHolder: "Data label to be shown on the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE}
+        {id: "label", name: "Graph label",  placeHolder: "Data label to be shown below the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
+        {id: "dataUnit", name: "Graph data unit",  placeHolder: "Data unit to be shown on the left side of the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE}
     ],
 
-    _prepareData: function(data, xDataKey) {
+    // TODO: ? _prepareData: function(data, xDataKey) {
+    _prepareData: function(data, xDataKey, yDataKey, yDataUnit) {
         const TIME_FORMAT = "HH:mm:ss";
         const MAX_NUMBER_OF_POINTS = 500;
         const NUMBER_OF_METRICS = data.length;
@@ -111,11 +114,12 @@ Stage.defineWidget({
         let metrics = widget.configuration.metrics;
         let query = widget.configuration.query;
         if ((_.isEmpty(deploymentId) || _.isEmpty(metrics)) && _.isEmpty(query)) {
+            let {Message, Icon} = Stage.Basic;
             return (
-                <div className="ui icon message">
-                    <i className="ban icon"></i>
+                <Message>
+                    <Icon name="ban" />
                     <span>Widget not configured properly. Please provide Metric and Deployment ID or database Query.</span>
-                </div>
+                </Message>
             );
         }
 
@@ -126,9 +130,12 @@ Stage.defineWidget({
         let {Graph} = Stage.Basic.Graphs;
         let label = widget.configuration.label;
         let type = widget.configuration.type;
+        let dataUnit = widget.configuration.dataUnit;
+        //let preparedData = this._prepareData(data.metrics[0].points, Graph.DEFAULT_X_DATA_KEY, metric, dataUnit);
         let preparedData = this._prepareData(data, Graph.DEFAULT_X_DATA_KEY);
 
         return (
+            //<Graph yDataKey={metric} yDataUnit={dataUnit} data={preparedData} label={label} type={type} />
             <Graph data={preparedData} xDataKey={Graph.DEFAULT_X_DATA_KEY} yDataKeys={metrics} type={type} />
         );
 

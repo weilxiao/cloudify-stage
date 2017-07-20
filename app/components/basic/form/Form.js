@@ -3,14 +3,14 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import {Form, Input as FormInput, TextArea, Radio as FormRadio,
+import {Form as FormSemanticUiReact, Input as FormInput, TextArea, Radio as FormRadio,
          Checkbox as FormCheckbox, Button as FormButton} from 'semantic-ui-react'
 import ErrorMessage from '../ErrorMessage'
 import FormField from './FormField'
 import FormGroup from './FormGroup'
 import FormDivider from './FormDivider'
-import FormFile from '../InputFile'
-import FormDateRange from '../InputDateRange'
+import FormFile from './InputFile'
+import FormDateRange from './InputDateRange'
 import FormDropdown from '../Dropdown'
 
 /**
@@ -27,6 +27,9 @@ import FormDropdown from '../Dropdown'
  *      ...
  * }
  * ```
+ *
+ * ## Access
+ * `Stage.Basic.Form`
  *
  * ## Usage
  * ### Form before submission (no errors: _.isEmpty(this.state.errors))
@@ -60,7 +63,7 @@ import FormDropdown from '../Dropdown'
  * ```
  *
  */
-export default class FormWrapper extends Component {
+export default class Form extends Component {
 
     /**
      * Form field, see {@link FormField}
@@ -169,13 +172,13 @@ export default class FormWrapper extends Component {
         }
 
         return (
-            <Form {...rest} onSubmit={this._handleSubmit.bind(this)} error={!_.isEmpty(errors)}>
+            <FormSemanticUiReact {...rest} onSubmit={this._handleSubmit.bind(this)} error={!_.isEmpty(errors)}>
                 {this.props.children}
 
                 <ErrorMessage header="Errors in the form" error={errors} onDismiss={this.props.onErrorsDismiss}/>
 
                 <input type='submit' name="submitFormBtn" style={{"display": "none"}} ref='submitFormBtn'/>
-            </Form>
+            </FormSemanticUiReact>
         );
     }
 }
