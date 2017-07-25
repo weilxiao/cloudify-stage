@@ -4,11 +4,12 @@
 
 import React, { Component, PropTypes } from 'react';
 import {Icon, Popup, Input, Checkbox, Dropdown, Form} from '../index'
+import EdiTable from './EdiTable';
 
 /**
  * GenericField is a generic component which can be used as different input fields in {@link FormWrapper} component
  *
- * It is used widely in widget coniguration modal. Constant values used for defining field type are described below.
+ * It is used widely in widget configuration modal. Constant values used for defining field type are described below.
  *
  * ## Access
  * `Stage.Basic.Form.GenericField`
@@ -77,7 +78,12 @@ import {Icon, Popup, Input, Checkbox, Dropdown, Form} from '../index'
  * <GenericField name="numberEditableListTest" type={GenericField.NUMBER_EDITABLE_LIST_TYPE}
  *               label="NUMBER_EDITABLE_LIST_TYPE" items={[1,2,3]} value={2}/>
  * ```
+ *
+ * TODO: Update documentation - add EDITABLE_TABLE_TYPE example
+ *
  */
+
+
 export default class GenericField extends Component {
 
     /**
@@ -126,6 +132,11 @@ export default class GenericField extends Component {
     static NUMBER_EDITABLE_LIST_TYPE = 'numberEditableList';
 
     /**
+     * dropdown editable numeric list
+     */
+    static EDITABLE_TABLE_TYPE = 'editableTable';
+
+    /**
      * propTypes
      * @property {string} label field's label to show above the field
      * @property {string} name name of the input field
@@ -164,14 +175,38 @@ export default class GenericField extends Component {
         min: 0
     };
 
+    constructor(props,context) {
+        super(props,context);
+
+        if (!_.isEmpty(this.props.items)) {
+            let valueAlreadyInOptions = false;
+            let options = _.map(this.props.items, item => {
+                if (!_.isObject(item)) {
+                    item = {name:item, value:item};
+                }
+
+                if (item.value === this.props.value) {
+                    valueAlreadyInOptions = true;
+                }
+                return { text: item.name, value: item.value}
+            });
+
+            if (!valueAlreadyInOptions) {
+                options.push({ text: this.props.value, value: this.props.value });
+            }
+
+            this.state = {options};
+        }
+    }
+
     static formatValue(type, value) {
         if (type === GenericField.MULTI_SELECT_LIST_TYPE) {
             value = _.split(value, ',');
         } else if (type === GenericField.BOOLEAN_TYPE) {
             value = (_.isBoolean(value) && value) || (_.isString(value) && value === "true");
         } else if (type === GenericField.NUMBER_TYPE ||
-            type === GenericField.NUMBER_LIST_TYPE ||
-            type === GenericField.NUMBER_EDITABLE_LIST_TYPE) {
+                   type === GenericField.NUMBER_LIST_TYPE ||
+                   type === GenericField.NUMBER_EDITABLE_LIST_TYPE) {
             value = parseInt(value) || 0;
         }
 
@@ -196,7 +231,7 @@ export default class GenericField extends Component {
 
             field = <Checkbox name={this.props.name} toggle={true}
                               checked={(_.isBoolean(this.props.value) && this.props.value) ||
-                                              (_.isString(this.props.value) && this.props.value === "true")}
+                                       (_.isString(this.props.value) && this.props.value === "true")}
                               onChange={(proxy, field)=>this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}/>
 
         } else if (this.props.type === GenericField.LIST_TYPE ||
@@ -205,36 +240,39 @@ export default class GenericField extends Component {
                    this.props.type === GenericField.EDITABLE_LIST_TYPE ||
                    this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE) {
 
-            let options = []
-            if (!_.isEmpty(this.props.items)) {
-                options = _.map(this.props.items, item => {
-                    if (!_.isObject(item)) {
-                        item = {name:item, value:item};
-                    }
-
-                    return { text: item.name, value: item.value}
-                });
-            }
-
             field = <Dropdown fluid selection value={this.props.value} name={this.props.name}
                               multiple={this.props.type === GenericField.MULTI_SELECT_LIST_TYPE}
-                              allowAdditions={this.props.type === GenericField.EDITABLE_LIST_TYPE || this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
-                              search={this.props.type === GenericField.EDITABLE_LIST_TYPE || this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
-                              placeholder={this.props.placeholder} options={options}
-                              onChange={(proxy, field)=>this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}/>;
+                              allowAdditions={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
+                                              this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
+                              search={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
+                                      this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
+                              placeholder={this.props.placeholder} options={this.state.options}
+                              onAddItem={(e, { value }) => {this.setState({options: [{ text: value, value }, ...this.state.options]})}}
+                              onChange={(proxy, field)=> { this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}} />;
+
+        } else if (this.props.type === GenericField.EDITABLE_TABLE_TYPE) {
+
+            field = <EdiTable name={this.props.name}
+                              value={this.props.value}
+                              rows={this.props.max}
+                              columns={this.props.items}
+                              onChange={(proxy, field)=>this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))} />;
         }
 
         return (
             <Form.Field className={this.props.name}>
-                <label>{this.props.label}&nbsp;
-                    {
-                        this.props.description &&
-                        <Popup>
-                            <Popup.Trigger><Icon name="help circle outline"/></Popup.Trigger>
-                            {this.props.description}
-                        </Popup>
-                    }
-                </label>
+                {
+                    this.props.label &&
+                    <label>{this.props.label}&nbsp;
+                        {
+                            this.props.description &&
+                            <Popup>
+                                <Popup.Trigger><Icon name="help circle outline"/></Popup.Trigger>
+                                {this.props.description}
+                            </Popup>
+                        }
+                    </label>
+                }
 
                 {field}
 

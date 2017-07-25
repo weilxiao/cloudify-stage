@@ -92,7 +92,7 @@ router.get('/byMetric/:deploymentId/:metrics',function(req,res,next){
                    .map(function(metric) { return `(${metric})`})
                    .join('|');
 
-    var query = 'select mean(value) from /'+req.params.deploymentId+'\\..*\\.('+metrics+')/  ' +
+    var query = 'select mean(value) from /'+req.params.deploymentId+'\\..*\\.('+metrics+')$/ ' +
                 'where time > '+fromTime+' and time < '+toTime+' group by time('+timeGrouping+')  order asc';
 
     logger.debug('Query: ',query);

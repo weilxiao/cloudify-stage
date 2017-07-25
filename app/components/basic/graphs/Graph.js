@@ -6,7 +6,7 @@ import React, { Component, PropTypes } from 'react';
 import {LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from 'recharts';
 let d3Format = require("d3-format");
 
-// TODO: Update documentation
+// TODO: Update documentation - update data syntax, component properties, add multichart examples
 /**
  * Graph is a component to present data in form of line or bar chart
  *
@@ -69,10 +69,6 @@ export default class Graph extends Component {
     /**
      *
      */
-    static MAX_NUMBER_OF_CHARTS = 5;
-    /**
-     *
-     */
     static LINE_CHART_TYPE = 'line';
     /**
      *
@@ -81,100 +77,69 @@ export default class Graph extends Component {
 
     /**
      * propTypes
-     * @property {object[]} data graph input data
+     * @property {object[]} data charts input data (see class description for the object details)
      * @property {string} type graph chart type ({@link Graph.LINE_CHART_TYPE} or {@link Graph.BAR_CHART_TYPE})
-     * @property {string} yDataKey Y-axis key name, must match key in data object
-     * @property {string} [yDataUnit=''] Y-axis unit, shown on the left side of the graph
-     * @property {string[]} yDataKeys Y-axis key names, must match keys used in data object
+     * @property {object[]} charts charts configuration (see class description for the object details)
      * @property {string} [xDataKey=Graph.DEFAULT_X_DATA_KEY] X-axis key name, must match key in data object
-     * @property {string} [label=this.props.yDataKey] graph label, shown under the graph
      */
     static propTypes = {
         data: PropTypes.array.isRequired,
         type: PropTypes.string.isRequired,
-        yDataKey: PropTypes.string.isRequired,
-        yDataUnit: PropTypes.string,
-        xDataKey: PropTypes.string,
-        label: PropTypes.string
+        charts: PropTypes.array.isRequired,
+        xDataKey: PropTypes.string
     };
 
     static defaultProps = {
-        yDataUnit: '',
-        xDataKey: Graph.DEFAULT_X_DATA_KEY,
-        label: '',
-        yDataKeys: PropTypes.array.isRequired
+        xDataKey: Graph.DEFAULT_X_DATA_KEY
     };
 
     render () {
+        const CHART_COMPONENTS = { [Graph.LINE_CHART_TYPE] : LineChart, [Graph.BAR_CHART_TYPE] : BarChart};
+        const DRAWING_COMPONENTS = { [Graph.LINE_CHART_TYPE] : Line, [Graph.BAR_CHART_TYPE] : Bar};
+        const COLORS = ["#000069","#28aae1","#21ba45","#fbbd08","#af41f4"];
+
+        const VALUE_FORMATTER = d3Format.format('.3s');
         const MARGIN = {top: 5, right: 30, left: 20, bottom: 5};
         const INTERPOLATION_TYPE = "monotone";
         const STROKE_DASHARRAY = "3 3";
-        const COLORS = ["#252ad8","#52f441","#cff400","#f40024","#af41f4"];
-
-        let valueFormatter = d3Format.format('.3s');
-        let label = this.props.label || this.props.yDataKey;
-
-        let numberOfMetrics = _.isArray(this.props.yDataKeys) && this.props.yDataKeys.length || 1;
-        if (numberOfMetrics > Graph.MAX_NUMBER_OF_CHARTS) {
-            numberOfMetrics = Graph.MAX_NUMBER_OF_CHARTS;
-        }
-        let graphComponents = [];
-        for(let i = 0; i < numberOfMetrics; i++) {
-            const STROKE = COLORS[i];
-            const Y_AXIS_FORMAT = {stroke: COLORS[i]};
-            let yDataKey = this.props.yDataKeys[i];
-
-            graphComponents.push(<YAxis key={yDataKey} dataKey={yDataKey} yAxisId={yDataKey}
-                                        axisLine={Y_AXIS_FORMAT} tick={Y_AXIS_FORMAT} tickLine={Y_AXIS_FORMAT}
-                                        tickFormatter={valueFormatter} label={<AxisLabel vertical>{this.props.yDataUnit}</AxisLabel>}/>);
-            {/*<XAxis dataKey={this.props.xDataKey} />*/}
-            {/*<CartesianGrid strokeDasharray={STROKE_DASHARRAY} />*/}
-            {/*<Tooltip formatter={valueFormatter} />*/}
-            if (this.props.type == Graph.LINE_CHART_TYPE) {
-                graphComponents.push(<Line key={yDataKey} isAnimationActive={false} name={yDataKey} type={INTERPOLATION_TYPE}
-                                           dataKey={yDataKey} stroke={STROKE} yAxisId={yDataKey} />)
-            } else {
-                graphComponents.push(<Bar key={yDataKey} isAnimationActive={false} name={yDataKey} type={INTERPOLATION_TYPE}
-                                           dataKey={yDataKey} fill={STROKE} yAxisId={yDataKey} />)
-            }
-        }
-
 
         // Code copied from re-charts GitHub, see: https://github.com/recharts/recharts/issues/184
-        const AxisLabel = ({ vertical, x, y, width, height, children }) => {
-            const CX = vertical ? x : x + (width / 2);
-            const CY = vertical ? (height / 2) + y : y + height;
+        const AxisLabel = ({ vertical, x, y, width, height, children, fill }) => {
+            const CX = vertical ? x + 20 : x + (width / 2);
+            const CY = vertical ? (height / 2) : y + height;
             const ROTATION = vertical ? `270 ${CX} ${CY}` : 0;
+            const STYLE = {fill: fill, stroke: fill};
             return (
-                <text x={CX} y={CY} transform={`rotate(${ROTATION})`} textAnchor="middle">
+                <text x={CX} y={CY} transform={`rotate(${ROTATION})`} textAnchor="middle" style={STYLE}>
                     {children}
                 </text>
             );
         };
 
+        let ChartComponent = CHART_COMPONENTS[this.props.type];
+        let DrawingComponent = DRAWING_COMPONENTS[this.props.type];
         return (
             <ResponsiveContainer width="100%" height="100%">
-                {
-                    this.props.type == Graph.LINE_CHART_TYPE
-                    ?
-                        <LineChart data={this.props.data}
-                                   margin={MARGIN}>
-                            <XAxis dataKey={this.props.xDataKey} />
-                            {graphComponents}
-                            <CartesianGrid strokeDasharray={STROKE_DASHARRAY} />
-                            <Tooltip formatter={valueFormatter} />
-                            <Legend />
-                        </LineChart>
-                    :
-                        <BarChart data={this.props.data}
-                                  margin={MARGIN}>
-                            <XAxis dataKey={this.props.xDataKey} />
-                            {graphComponents}
-                            <CartesianGrid strokeDasharray={STROKE_DASHARRAY} />
-                            <Tooltip formatter={valueFormatter} />
-                            <Legend />
-                        </BarChart>
-                }
+                <ChartComponent data={this.props.data} margin={MARGIN}>
+                    {
+                        _.map(this.props.charts, (chart, index)  => {
+                            const COLOR = COLORS[index];
+                            const STYLE = {stroke: COLOR};
+
+                            return [
+                                <YAxis key={chart.name} dataKey={chart.name} yAxisId={chart.name} width={80}
+                                       axisLine={STYLE} tick={STYLE} tickLine={STYLE} tickFormatter={VALUE_FORMATTER}
+                                       label={<AxisLabel vertical fill={COLOR}>{chart.unit}</AxisLabel>} />,
+                                <DrawingComponent key={chart.name} isAnimationActive={false} name={chart.label} type={INTERPOLATION_TYPE}
+                                                  dataKey={chart.name} stroke={COLOR} fill={COLOR} yAxisId={chart.name} />
+                            ];
+                        })
+                    }
+                    <CartesianGrid strokeDasharray={STROKE_DASHARRAY} />
+                    <XAxis dataKey={this.props.xDataKey} />
+                    <Tooltip formatter={VALUE_FORMATTER} />
+                    <Legend />
+                </ChartComponent>
             </ResponsiveContainer>
         );
     }
