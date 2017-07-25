@@ -7,7 +7,7 @@ import {Icon, Popup, Input, Checkbox, Dropdown, Form} from '../index'
 import EdiTable from './EdiTable';
 
 /**
- * GenericField is a generic component which can be used as different input fields in {@link FormWrapper} component
+ * GenericField is a generic component which can be used as different input fields in {@link Form} component
  *
  * It is used widely in widget configuration modal. Constant values used for defining field type are described below.
  *
@@ -79,8 +79,19 @@ import EdiTable from './EdiTable';
  *               label="NUMBER_EDITABLE_LIST_TYPE" items={[1,2,3]} value={2}/>
  * ```
  *
- * TODO: Update documentation - add EDITABLE_TABLE_TYPE example
- *
+ * ### Editable table field
+ * ![GenericField](manual/asset/form/GenericField_10.png)
+ * ```
+ * <GenericField name="editableTable" type={GenericField.EDITABLE_TABLE_TYPE}
+ *               label="EDITABLE_TABLE_TYPE"
+ *               items={[
+ *                 {name: "metric", label: 'Metric', default: "", type: Stage.Basic.GenericField.EDITABLE_LIST_TYPE, description: "Name of the metric to be presented on the graph",
+ *                  items: ["", "cpu_total_system", "cpu_total_user", "memory_MemFree", "memory_SwapFree", "loadavg_processes_running"]},
+ *                 {name: 'label', label: 'Label', default: "", type: Stage.Basic.GenericField.STRING_TYPE, description: "Chart label"},
+ *                 {name: 'unit', label: 'Unit', default: "", type: Stage.Basic.GenericField.STRING_TYPE, description: "Chart data unit"}
+ *               ]}
+ *               max={3} />
+ * ```
  */
 
 
@@ -145,10 +156,10 @@ export default class GenericField extends Component {
      * @property {string} [icon] additional icon in right side of the input field
      * @property {string} [description=''] fields description showed in popup when user hovers field
      * @property {object} [value=''] specifies the value of an <input> element
-     * @property {object[]} [items=[]] list of items (only for list fields)
+     * @property {object[]} [items=[]] list of items (for list types) or list of columns (for {@link GenericField.EDITABLE_TABLE_TYPE} type)
      * @property {function} [onChange=()=>{}] function called on input value change
-     * @property {number} [max=0] maximal value (valid only when type is set to {@link GenericField.NUMBER_TYPE})
-     * @property {number} [min=0] minimal value (valid only when type is set to {@link GenericField.NUMBER_TYPE})
+     * @property {number} [max=0] maximal value (for {@link GenericField.NUMBER_TYPE} type)
+     * @property {number} [min=0] minimal value (only for {@link GenericField.NUMBER_TYPE} type)
      */
     static propTypes = {
         label: PropTypes.string.isRequired,
@@ -178,24 +189,34 @@ export default class GenericField extends Component {
     constructor(props,context) {
         super(props,context);
 
-        if (!_.isEmpty(this.props.items)) {
+        this._initOptions(props);
+    }
+
+    _initOptions(props) {
+        if (!_.isEmpty(props.items)) {
             let valueAlreadyInOptions = false;
-            let options = _.map(this.props.items, item => {
+            let options = _.map(props.items, item => {
                 if (!_.isObject(item)) {
                     item = {name:item, value:item};
                 }
 
-                if (item.value === this.props.value) {
+                if (item.value === props.value) {
                     valueAlreadyInOptions = true;
                 }
                 return { text: item.name, value: item.value}
             });
 
-            if (!valueAlreadyInOptions) {
-                options.push({ text: this.props.value, value: this.props.value });
+            if (props.type !== GenericField.MULTI_SELECT_LIST_TYPE && !valueAlreadyInOptions) {
+                options.push({ text: props.value, value: props.value });
             }
 
             this.state = {options};
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps !== this.props && nextProps.items !== this.props.items) {
+            this._initOptions(nextProps);
         }
     }
 

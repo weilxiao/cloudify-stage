@@ -8,14 +8,23 @@ import Popup from '../Popup';
 import React, { Component, PropTypes } from 'react';
 
 /**
- *
+ * EdiTable is a component used in forms to get tabular data input
  *
  * ## Access
+ * `Stage.Basic.Form.Table`
  *
  * ## Usage
- * ![](manual/asset/form/  _0.png)
- *
+ * ![EdiTable](manual/asset/form/EdiTable_0.png)
  * ```
+ * <EdiTable name="editableTable" type={GenericField.EDITABLE_TABLE_TYPE}
+ *           label="EDITABLE_TABLE_TYPE"
+ *           columns={[
+ *             {name: "metric", label: 'Metric', default: "", type: Stage.Basic.GenericField.EDITABLE_LIST_TYPE, description: "Name of the metric to be presented on the graph",
+ *              items: ["", "cpu_total_system", "cpu_total_user", "memory_MemFree", "memory_SwapFree", "loadavg_processes_running"]},
+ *             {name: 'label', label: 'Label', default: "", type: Stage.Basic.GenericField.STRING_TYPE, description: "Chart label"},
+ *             {name: 'unit', label: 'Unit', default: "", type: Stage.Basic.GenericField.STRING_TYPE, description: "Chart data unit"}
+ *           ]}
+ *           rows={3} />
  * ```
  *
  */
@@ -29,7 +38,10 @@ export default class EdiTable extends Component {
 
     /**
      * propTypes
-     * @property
+     * @property {string} name name of the table
+     * @property {number} rows number of rows in table
+     * @property {object[]} columns rows configuration (see usage example for format details)
+     * @property {function} [onChange=()=>{}] function called on input value change
      */
     static propTypes = {
         name: PropTypes.string.isRequired,
@@ -39,6 +51,7 @@ export default class EdiTable extends Component {
     };
 
     static defaultProps = {
+        onChange: ()=>{}
     }
 
     static initialState = (props) => {
