@@ -204,7 +204,7 @@ a:hover {
   right: 0;
   top: 4rem;
   bottom: 0;
-  background-color: #39b9d4;
+  background-color: #000069;
 
   .ui.text.container.segment404 {
     max-width: 600px !important;
@@ -242,6 +242,15 @@ a:hover {
 
   .widgetsList .selectWidgetButton {
     margin-right:10px !important;
+  }
+
+// Force it to be v-centered
+  .addWidgetCheckbox {
+    margin-left: 10px;
+    margin-right: 20px;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: 20px;
   }
 }
 
@@ -481,6 +490,28 @@ code.hljs {
     .icon {
       font-size: 2em;
       margin-bottom:0px;
+    }
+  }
+
+  .row.bottomDivider {
+
+    img {
+      width: auto;
+      max-width: 150px !important;
+      height: 70px;
+      display: inline-block;
+    }
+
+    .ui.header {
+      margin-left: 2rem;
+      margin-top: auto !important;
+      vertical-align: middle !important;
+      display: inline-block;
+      max-width: calc(100% - 150px);
+
+      a {
+        color: inherit;
+      }
     }
   }
 }

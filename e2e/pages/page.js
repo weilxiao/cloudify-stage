@@ -33,8 +33,8 @@ module.exports = {
                 editModeMenuItem : '#editModeMenuItem'
             },
             props: {
-                editModeLabel: "Edit Mode",
-                exitModeLabel: "Exit Edit Mode"
+                editModeLabel: 'Edit Mode',
+                exitModeLabel: 'Exit Edit Mode'
             }
         },
         sidebar: {
@@ -45,7 +45,7 @@ module.exports = {
                 lastPageRemoveButton : '.pages .item:last-child .pageRemoveButton'
             },
             props: {
-                lastPageLabel: "Page_0"
+                lastPageLabel: 'Page_0'
             }
         },
         page: {
@@ -73,10 +73,13 @@ module.exports = {
 
             },
             commands: [{
-                clickAddWidget: function(widgetId) {
-                    return this.clickElement('.addWidgetModal .widgetsList .item[data-id="'+widgetId+'"] .selectWidgetButton')
+                selectAndAddWidget: function(widgetId) {
+                    this.clickElement('.addWidgetModal .widgetsList .item[data-id="'+widgetId+'"] .addWidgetCheckbox')
+                        .waitForElementPresent('.item[data-id="'+widgetId+'"] .addWidgetCheckbox.checked.checkbox');
+
+                    return this.clickElement('#addWidgetsBtn')
                         .waitForElementNotPresent('.addWidgetModal')
-                        .waitForElementPresent('.widget.' + widgetId + "Widget");
+                        .waitForElementPresent('.widget.' + widgetId + 'Widget');
                 },
 
                 isWidgetInstalled: function(widgetId, callback) {

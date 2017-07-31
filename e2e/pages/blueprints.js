@@ -81,12 +81,12 @@ module.exports = {
             },
             commands: [
                 {
-                    fillIn: function(blueprintFile, blueprintName, blueprintYamlFile = 'blueprint.yaml') {
+                    fillIn: function(blueprintUrl, blueprintName, blueprintYamlFile = 'blueprint.yaml') {
                         let blueprintFileOptionElement = `select[name="blueprintFileName"] option[value="${blueprintYamlFile}"]`;
                         return this
                             .waitForElementVisible(this.selector)
-                            .setValue('@blueprintFile',  blueprintFile)
-                            .setValue('@blueprintName', blueprintName)
+                            .setValue('@blueprintUrl', [blueprintUrl, this.api.Keys.TAB], (result) => this.log('setValueBlueprintUrl=',result))
+                            .setValue('@blueprintName', blueprintName, (result) => this.log('setValueBlueprintName=',result))
                             .waitForElementPresent(blueprintFileOptionElement)
                             .selectOptionInDropdown(this.elements.blueprintYamlFile.selector, blueprintYamlFile);
 
@@ -202,8 +202,9 @@ module.exports = {
         expandWidgetButton: 'div.blueprintsWidget .widgetViewButtons i.expand'
     },
     props: {
-        widgetId: "blueprints",
-        testBlueprint: "blueprint"
+        widgetId: 'blueprints',
+        testBlueprint: 'blueprint',
+        testBlueprintUrl: 'https://github.com/cloudify-cosmo/cloudify-hello-world-example/archive/master.zip'
     },
 
     commands: [

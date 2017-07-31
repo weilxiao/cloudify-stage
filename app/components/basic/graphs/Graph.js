@@ -143,12 +143,13 @@ export default class Graph extends Component {
     render () {
         const CHART_COMPONENTS = { [Graph.LINE_CHART_TYPE] : LineChart, [Graph.BAR_CHART_TYPE] : BarChart};
         const DRAWING_COMPONENTS = { [Graph.LINE_CHART_TYPE] : Line, [Graph.BAR_CHART_TYPE] : Bar};
-        const COLORS = ["#000069","#28aae1","#f4773c","#21ba45","#af41f4"];
+        const COLORS = ['#000069', '#28aae1', '#f4773c', '#21ba45', '#af41f4'];
 
         const VALUE_FORMATTER = d3format('.3s');
         const MARGIN = {top: 5, right: 30, left: 20, bottom: 5};
-        const INTERPOLATION_TYPE = "monotone";
-        const STROKE_DASHARRAY = "3 3";
+        const INTERPOLATION_TYPE = 'monotone';
+        const STROKE_DASHARRAY = '3 3';
+
 
         // Code copied from re-charts GitHub, see: https://github.com/recharts/recharts/issues/184
         const AxisLabel = ({ vertical, x, y, width, height, children, fill }) => {

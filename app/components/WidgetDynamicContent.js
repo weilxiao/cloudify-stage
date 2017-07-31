@@ -17,7 +17,8 @@ export default class WidgetDynamicContent extends Component {
         manager: PropTypes.object.isRequired,
         data: PropTypes.object.isRequired,
         onWidgetConfigUpdate: PropTypes.func,
-        fetchWidgetData: PropTypes.func.isRequired
+        fetchWidgetData: PropTypes.func.isRequired,
+        pageId: PropTypes.string.isRequired
     };
 
     constructor(props) {
@@ -32,7 +33,7 @@ export default class WidgetDynamicContent extends Component {
     }
 
     _getToolbox () {
-        return getToolbox(this._fetchData.bind(this), this._loadingIndicator.bind(this));
+        return getToolbox(this._fetchData.bind(this), this._loadingIndicator.bind(this), this._getCurrentPageId.bind(this));
     }
 
     _beforeFetch() {
@@ -59,6 +60,10 @@ export default class WidgetDynamicContent extends Component {
         if (this.state.loading) {
             this.setState({loading: false});
         }
+    }
+
+    _getCurrentPageId() {
+        return this.props.pageId;
     }
 
     _stopPolling() {
@@ -182,8 +187,8 @@ export default class WidgetDynamicContent extends Component {
 
     // In component will mount fetch the data if needed
     componentDidMount() {
-        $(window).on("focus", this._startPolling.bind(this));
-        $(window).on("blur", this._stopPolling.bind(this));
+        $(window).on('focus', this._startPolling.bind(this));
+        $(window).on('blur', this._stopPolling.bind(this));
 
         this.mounted = true;
 
@@ -194,8 +199,8 @@ export default class WidgetDynamicContent extends Component {
     }
 
     componentWillUnmount() {
-        $(window).off("focus", this._startPolling.bind(this));
-        $(window).off("blur", this._stopPolling.bind(this));
+        $(window).off('focus', this._startPolling.bind(this));
+        $(window).off('blur', this._stopPolling.bind(this));
 
         this.mounted = false;
 

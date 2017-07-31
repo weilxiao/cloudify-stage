@@ -5,7 +5,7 @@
 class JsonUtils {
     static stringify(value, indented = false) {
         if (_.isEmpty(value)) {
-            return "";
+            return '';
         }
 
         let stringifiedValue = value;
@@ -17,6 +17,17 @@ class JsonUtils {
 
         return _.trim(stringifiedValue, '"');
     }
+
+    // Attempts to parse string to json.
+    // Returns original value if failed
+    static stringToJson(value) {
+        try{
+            return JSON.parse(value);
+        } catch (err) {
+            return value;
+        }
+    }
+
 }
 
 Stage.defineCommon({

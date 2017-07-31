@@ -7,6 +7,7 @@ import * as types from './types';
 import { push } from 'react-router-redux';
 import {v4} from 'node-uuid';
 import {clearContext} from './context';
+import {popDrilldownContext} from './drilldownContext';
 import {addWidget} from './widgets';
 import {clearWidgetsData} from './WidgetData';
 
@@ -19,8 +20,9 @@ export function createPage(name, newPageId) {
 }
 
 export function addPage(name) {
-    return function (dispatch) {
-        var newPageId = v4();
+    return function (dispatch, getState) {
+        var newPageId = createPageId(name, getState().pages);
+
         dispatch(createPage(name, newPageId));
         dispatch(selectPage(newPageId,false))
     }
@@ -35,11 +37,39 @@ export function createDrilldownPage(newPageId,name) {
 
 }
 
-export function renamePage(pageId,newName) {
+export function renamePage(pageId, newName, newPageId) {
     return {
         type: types.RENAME_PAGE,
         pageId,
-        name: newName
+        name: newName,
+        newPageId
+    }
+}
+
+function createPageId(name, pages) {
+    //Add suffix to make URL unique if same page name already exists
+    var newPageId = _.snakeCase(name);
+    var suffix = 1;
+    _.each(pages,(p)=>{
+        if (p.id.startsWith(newPageId)) {
+            var index = parseInt(p.id.substring(newPageId.length)) || suffix;
+            suffix = Math.max(index + 1, suffix + 1);
+        }
+    });
+
+    if (suffix > 1) {
+        newPageId = newPageId + suffix;
+    }
+
+    return newPageId;
+}
+
+export function changePageName(page, newName) {
+    return function (dispatch,getState) {
+        var newPageId = createPageId(newName, getState().pages);
+
+        dispatch(renamePage(page.id, newName, newPageId));
+        dispatch(selectPage(newPageId,page.isDrillDown,page.context,newName));
     }
 }
 
@@ -53,7 +83,6 @@ export function updatePageDescription(pageId,newDescription) {
 }
 export function selectPage(pageId,isDrilldown,drilldownContext,drilldownPageName) {
     return function (dispatch,getState) {
-
         var state = getState();
         var dContext = state.drilldownContext || [];
 
@@ -70,16 +99,17 @@ export function selectPage(pageId,isDrilldown,drilldownContext,drilldownPageName
         }
 
         if (isDrilldown) {
-            location.query =
-            {
-                c : JSON.stringify([
+            if (drilldownPageName || drilldownContext) {
+                dContext = [
                     ...dContext,
                     {
                         context: drilldownContext || {},
                         pageName: drilldownPageName
                     }
-                ])
-            };
+                ];
+            }
+
+            location.query = {c : JSON.stringify(dContext)};
         }
 
         dispatch(push(location));
@@ -96,8 +126,6 @@ export function removePage(pageId) {
 export function createPageFromInitialTemplate(initialTemplate,templates,widgetDefinitions) {
     return function (dispatch) {
 
-        let idIndex = 0;
-
         _.each(initialTemplate,(templateName)=>{
             var template = templates[templateName];
             if (!template) {
@@ -105,13 +133,13 @@ export function createPageFromInitialTemplate(initialTemplate,templates,widgetDe
                 return;
             }
 
-            var currId = idIndex.toString();
-            dispatch(createPage(template.name,currId));
+
+            var pageId = _.snakeCase(template.name);
+            dispatch(createPage(template.name, pageId));
             _.each(template.widgets,(widget)=>{
                 var widgetDefinition = _.find(widgetDefinitions,{id:widget.definition});
-                dispatch(addWidget(currId,widget.name,widgetDefinition,widget.width,widget.height,widget.x,widget.y,widget.configuration));
+                dispatch(addWidget(pageId,widget.name,widgetDefinition,widget.width,widget.height,widget.x,widget.y,widget.configuration));
             });
-            idIndex++;
         });
     }
 }
@@ -121,5 +149,26 @@ export function reorderPage(pageIndex,newPageIndex) {
         type: types.REORDER_PAGE,
         pageIndex,
         newPageIndex
+    }
+}
+
+export function selectHomePage() {
+    return function (dispatch,getState) {
+        var homePageId = getState().pages[0].id;
+
+        dispatch(selectPage(homePageId));
+    }
+}
+
+export function selectParentPage(pageId) {
+    return function (dispatch,getState) {
+        var state = getState();
+        var page = _.find(state.pages, {'id': pageId});
+
+        if (page && page.isDrillDown && page.parent) {
+            var parentPage = _.find(state.pages, {'id': page.parent});
+            dispatch(popDrilldownContext());
+            dispatch(selectPage(parentPage.id, parentPage.isDrillDown));
+        }
     }
 }

@@ -18,8 +18,8 @@ export default class PagesList extends Component {
 
     componentDidMount() {
         $(this.refs.pages).sortable({
-            placeholder: "ui-sortable-placeholder",
-            helper: "clone",
+            placeholder: 'ui-sortable-placeholder',
+            helper: 'clone',
             forcePlaceholderSize: true,
             start: (event, ui)=>this.pageIndex = ui.item.index(),
             update: (event, ui)=>this.props.onPageReorder(this.pageIndex, ui.item.index())
@@ -34,17 +34,24 @@ export default class PagesList extends Component {
 
     _enableReorderInEditMode() {
         if (this.props.isEditMode) {
-            if ($(this.refs.pages).sortable( "option", "disabled" )) {
-                $(this.refs.pages).sortable("enable");
+            if ($(this.refs.pages).sortable( 'option', 'disabled' )) {
+                $(this.refs.pages).sortable('enable');
             }
         } else {
-            if (!$(this.refs.pages).sortable( "option", "disabled" )) {
-                $(this.refs.pages).sortable("disable");
+            if (!$(this.refs.pages).sortable( 'option', 'disabled' )) {
+                $(this.refs.pages).sortable('disable');
             }
         }
     }
 
     render() {
+        var pageCount = 0;
+        this.props.pages.map(p => {
+           if (!p.isDrillDown) {
+               pageCount++;
+           }
+        });
+
         return (
             <div className="pages" ref="pages">
                 {
@@ -52,7 +59,7 @@ export default class PagesList extends Component {
                         return <div key={page.id} className={'item link ' + (this.props.selected === page.id ? 'active' : '') + ' pageMenuItem'} onClick={(event) => {event.stopPropagation(); this.props.onPageSelected(page);} }>
                         {page.name}
                         {
-                            this.props.isEditMode && page.id != "0" ?
+                            this.props.isEditMode && pageCount > 1 ?
                                 <i className="remove link icon small pageRemoveButton" onClick={(event) => {event.stopPropagation(); this.props.onPageRemoved(page)}}/>
                             :
                             ''
