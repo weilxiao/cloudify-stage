@@ -220,6 +220,11 @@ export default class GenericField extends Component {
         }
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return JSON.stringify(this.props) !== JSON.stringify(nextProps)
+            || JSON.stringify(this.state) !== JSON.stringify(nextState);
+    }
+
     static formatValue(type, value) {
         if (type === GenericField.MULTI_SELECT_LIST_TYPE) {
             value = _.split(value, ',');

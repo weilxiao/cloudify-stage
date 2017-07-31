@@ -38,17 +38,25 @@ Stage.defineWidget({
     _prepareData: function(data, xDataKey) {
         const TIME_FORMAT = "HH:mm:ss";
         const MAX_NUMBER_OF_POINTS = 500;
+        const TIME_INDEX = 0;
+        const VALUE_INDEX = 1;
+        const REFERENCE_METRIC_INDEX = 0;
         const NUMBER_OF_METRICS = data.length;
-        const NUMBER_OF_POINTS = data[0].points.length;
+        const NUMBER_OF_POINTS = data[REFERENCE_METRIC_INDEX].points.length;
         let points = [];
 
         // Data conversion to recharts format
+        // As a reference time points list, metric no. REFERENCE_METRIC_INDEX is taken
         for (let i = 0; i < NUMBER_OF_POINTS; i++) {
-            let point = { [xDataKey]: Stage.Utils.formatTimestamp(data[0].points[i][0], TIME_FORMAT, null) };
+            let point = { [xDataKey]: Stage.Utils.formatTimestamp(data[REFERENCE_METRIC_INDEX].points[i][TIME_INDEX], TIME_FORMAT, null) };
             for (let j = 0; j < NUMBER_OF_METRICS; j++) {
-                let metricName = data[j].name;
-                let pointValue = data[j].points[i][1];
-                point[metricName] = pointValue;
+                if (data[j].points[i] &&
+                    data[REFERENCE_METRIC_INDEX].points[i][TIME_INDEX] === data[j].points[i][TIME_INDEX])
+                {
+                    let metricName = data[j].name;
+                    let pointValue = data[j].points[i][VALUE_INDEX];
+                    point[metricName] = pointValue;
+                }
             }
             points.push(point);
         }

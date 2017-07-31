@@ -184,7 +184,7 @@ export default class Graph extends Component {
                     }
                     <CartesianGrid strokeDasharray={STROKE_DASHARRAY} />
                     <XAxis dataKey={this.props.xDataKey} />
-                    <Tooltip formatter={VALUE_FORMATTER} />
+                    <Tooltip isAnimationActive={false} formatter={VALUE_FORMATTER} />
                     <Legend />
                 </ChartComponent>
             </ResponsiveContainer>

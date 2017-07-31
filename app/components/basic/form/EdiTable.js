@@ -41,16 +41,19 @@ export default class EdiTable extends Component {
      * @property {string} name name of the table
      * @property {number} rows number of rows in table
      * @property {object[]} columns rows configuration (see usage example for format details)
+     * @property {object} [value] serialized value of the whole table
      * @property {function} [onChange=()=>{}] function called on input value change
      */
     static propTypes = {
         name: PropTypes.string.isRequired,
         rows: PropTypes.number.isRequired,
         columns: PropTypes.array.isRequired,
+        value: PropTypes.object,
         onChange: PropTypes.func
     };
 
     static defaultProps = {
+        value: {},
         onChange: ()=>{}
     }
 
@@ -69,6 +72,17 @@ export default class EdiTable extends Component {
 
         return {fields};
     };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return JSON.stringify(this.props) !== JSON.stringify(nextProps)
+            || JSON.stringify(this.state) !== JSON.stringify(nextState);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (JSON.stringify(this.props.value) !== JSON.stringify(nextProps.value)) {
+            EdiTable.initialState(nextProps);
+        }
+    }
 
     _handleInputChange(proxy, field) {
         let [row,column] = _.split(field.name, '|');
