@@ -27,6 +27,15 @@ function getClient() {
     return influx(options);
 }
 
+function _isValidQuery(string) {
+    var result = true;
+    string.split(';').forEach((stmt) => {
+        if (!_.isEmpty(stmt) && stmt.indexOf('SELECT') !== 0)
+            result = false;
+    });
+    return result;
+}
+
 
 /**
  * End point to gets a list of available metrics per deployment
@@ -110,11 +119,18 @@ router.get('/byMetric/:deploymentId/:metrics',function(req,res,next){
 
 router.get('/query',function (req, res,next) {
     logger.debug('Running query',req.query.q);
+
+    if (!_isValidQuery(req.query.q)){
+        logger.error('Error: not a valid SELECT query');
+        res.status(403).send('Error: not a valid SELECT query');
+        return;
+    }
+
     getClient()
         .query(req.query.q, function(err,results){
             if (err) {
                 logger.error('Error connecting to influxDB', err);
-                res.status(500).send(err.message)
+                res.status(500).send(err.message);
             } else {
                 res.send(results);
             }
