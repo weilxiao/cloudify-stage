@@ -16,8 +16,8 @@ Stage.defineWidget({
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(2),
         Stage.GenericConfig.PAGE_SIZE_CONFIG(),
-        {id: "clickToDrillDown", name: "Enable click to drill down", default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
-        {id: "displayStyle",name: "Display style", items: [{name:'Table', value:'table'}, {name:'Catalog', value:'catalog'}],
+        {id: "clickToDrillDown", name: Stage.Lang.TOGGLE_CLICK_TO_DRILLDOWN, default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
+        {id: "displayStyle",name: Stage.Lang.DISPLAY_STYLE, items: [{name:'Table', value:'table'}, {name:'Catalog', value:'catalog'}],
             default: "table", type: Stage.Basic.GenericField.LIST_TYPE},
         Stage.GenericConfig.SORT_COLUMN_CONFIG('created_at'),
         Stage.GenericConfig.SORT_ASCENDING_CONFIG(false)

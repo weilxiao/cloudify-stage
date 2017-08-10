@@ -17,6 +17,7 @@ import 'cloudify-blueprint-topology';
 
 import * as BasicComponents from '../components/basic';
 import StageUtils from './stageUtils';
+import Lang from './Lang';
 import Pagination from '../components/basic/pagination/Pagination';
 
 import WidgetDefinition from './WidgetDefinition';
@@ -48,7 +49,8 @@ export default class WidgetDefinitionsLoader {
             defineCommon: (def) =>{
                 Stage.Common[def.name] = def.common;
             },
-            Utils: StageUtils
+            Utils: StageUtils,
+            Lang: new Lang()
         };
 
         window.moment = momentImport;
