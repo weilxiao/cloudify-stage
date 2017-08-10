@@ -29,8 +29,9 @@ function getClient() {
 
 function _isValidQuery(string) {
     var result = true;
-    string.split(';').forEach((stmt) => {
-        if (!_.isEmpty(stmt) && stmt.indexOf('SELECT') !== 0)
+    var lowerCase = string.toLowerCase();
+    lowerCase.split(';').forEach((stmt) => {
+        if (!_.isEmpty(stmt) && stmt.indexOf('select ') !== 0) // Prevent data modification via chaining ie: SELECT * FROM abc; DROP SERIES abc.abc;
             result = false;
     });
     return result;
