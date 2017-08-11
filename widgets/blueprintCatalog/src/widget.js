@@ -18,9 +18,9 @@ Stage.defineWidget({
     isReact: true,
     initialConfiguration: [
         Stage.GenericConfig.PAGE_SIZE_CONFIG(6),
-        {id: 'username', name: 'Fetch with username', placeHolder:"Type username", default:"cloudify-examples", type: Stage.Basic.GenericField.STRING_TYPE},
-        {id: 'filter', name: 'Optional blueprints filter', placeHolder:"Type filter for GitHub repositories", default:"blueprint in:name NOT local", type: Stage.Basic.GenericField.STRING_TYPE},
-        {id: "displayStyle",name: "Display style", items: [{name:'Table', value:'table'}, {name:'Catalog', value:'catalog'}],
+        {id: 'username', name: Stage.Lang.GIT_USERNAME_NAME, placeHolder:Stage.Lang.GIT_USERNAME_PLACEHOLDER, default:"cloudify-examples", type: Stage.Basic.GenericField.STRING_TYPE},
+        {id: 'filter', name: Stage.Lang.GIT_FILTER_NAME, placeHolder:Stage.Lang.GIT_FILTER_PLACEHOLDER, default:"blueprint in:name NOT local", type: Stage.Basic.GenericField.STRING_TYPE},
+        {id: "displayStyle",name: Stage.Lang.DISPLAY_STYLE, items: [{name:'Table', value:'table'}, {name:'Catalog', value:'catalog'}],
              default: "catalog", type: Stage.Basic.GenericField.LIST_TYPE},
         Stage.GenericConfig.SORT_COLUMN_CONFIG('created_at'),
         Stage.GenericConfig.SORT_ASCENDING_CONFIG(false)

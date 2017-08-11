@@ -32,10 +32,10 @@ export default class extends React.Component {
                        totalSize={this.props.data.total}
                        selectable={true}>
 
-                <DataTable.Column label="Name" width="30%"/>
-                <DataTable.Column label="Description" width="40%"/>
-                <DataTable.Column label="Created" width="12%"/>
-                <DataTable.Column label="Updated" width="12%"/>
+                <DataTable.Column label={Stage.Lang.NAME} width="30%"/>
+                <DataTable.Column label={Stage.Lang.DESCRIPTION} width="40%"/>
+                <DataTable.Column label={Stage.Lang.CREATED} width="12%"/>
+                <DataTable.Column label={Stage.Lang.UPDATED} width="12%"/>
                 <DataTable.Column width="6%"/>
 
                 {
@@ -47,7 +47,7 @@ export default class extends React.Component {
                                 <DataTable.Data>{item.created_at}</DataTable.Data>
                                 <DataTable.Data>{item.updated_at}</DataTable.Data>
                                 <DataTable.Data className="center aligned rowActions">
-                                    <Icon name="upload" link title="Upload blueprint" onClick={(event)=>{event.stopPropagation();this.props.onUpload(item.name)}} bordered/>
+                                    <Icon name="upload" link title={Stage.Lang.UPLOAD_BLUEPRINT} onClick={(event)=>{event.stopPropagation();this.props.onUpload(item.name)}} bordered/>
                                 </DataTable.Data>
                             </DataTable.Row>
                         );

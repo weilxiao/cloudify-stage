@@ -57,7 +57,7 @@ export default class extends React.Component{
                                 </Grid.Column>
                             </Grid>
 
-                            <Button icon="upload" content="Upload" className="uploadButton labeled icon"
+                            <Button icon="upload" content={Stage.Lang.UPLOAD} className="uploadButton labeled icon"
                                     onClick={(event)=>{event.stopPropagation(); this.props.onUpload(item.name)}}/>
                         </DataSegment.Item>
 

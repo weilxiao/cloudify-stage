@@ -31,4 +31,25 @@ export default class Lang {
     GRAPH_DATA_UNIT_NAME = 'Graph data unit';
     GRAPH_DATA_UNIT_PLACEHOLDER = 'Data unit to be shown on the left side of the graph';
     WARN_INVALID_CONFIG = 'Widget not configured properly. Please provide Metric and Deployment ID or database Query.';
+
+    // Blueprint Action Buttons
+    CONFIRM_BLUEPRINT_REMOVE = 'Are you sure you want to remove blueprint'; // blueprint name follows
+    CREATE_DEPLOYMENT = 'Create deployment';
+    DELETE_BLUEPRINT = 'Delete blueprint';
+
+    // Blueprint Catalog
+    GIT_USERNAME_NAME = 'Fetch with username';
+    GIT_USERNAME_PLACEHOLDER = 'Type username';
+    GIT_FILTER_NAME = 'Optional blueprints filter';
+    GIT_FILTER_PLACEHOLDER = 'Type filter for GitHub repositories';
+    WARN_MISSING_NAME = 'Please provide blueprint name';
+    PRIVATE_RESORCE = 'Private resource';
+    BLUEPRINT_NAME = 'Blueprint name';
+    BLUEPRINT_FILENAME = 'Blueprint filename';
+    NAME = 'Name';
+    DESCRIPTION = 'Description';
+    CREATED = 'Created';
+    UPDATED = 'Updated';
+    UPLOAD = 'Upload';
+    UPLOAD_BLUEPRINT = 'Upload blueprint';
 }

@@ -37,7 +37,7 @@ export default class UploadModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.blueprintName)) {
-            errors['blueprintName']='Please provide blueprint name';
+            errors['blueprintName']=Stage.Lang.WARN_MISSING_NAME;
         }
 
         if (!_.isEmpty(errors)) {
@@ -78,7 +78,7 @@ export default class UploadModal extends React.Component {
                 <Modal open={this.props.open}>
                     <Modal.Header>
                         <Icon name="upload"/> Upload blueprint from {files.repo}
-                        <PrivateField lock={this.state.privateResource} title="Private resource" className="rightFloated"
+                        <PrivateField lock={this.state.privateResource} title={Stage.Lang.PRIVATE_RESORCE} className="rightFloated"
                                  onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                     </Modal.Header>
 
@@ -86,12 +86,12 @@ export default class UploadModal extends React.Component {
                         <Form loading={this.state.loading} errors={this.state.errors}
                               onErrorsDismiss={() => this.setState({errors: {}})}>
                             <Form.Field error={this.state.errors.blueprintName}>
-                                <Form.Input name='blueprintName' placeholder="Blueprint name"
+                                <Form.Input name='blueprintName' placeholder={Stage.Lang.BLUEPRINT_NAME}
                                             value={this.state.blueprintName} onChange={this._handleInputChange.bind(this)}/>
                             </Form.Field>
 
                             <Form.Field>
-                                <Form.Dropdown placeholder='Blueprint filename' search selection options={options}
+                                <Form.Dropdown placeholder={Stage.Lang.BLUEPRINT_FILENAME} search selection options={options}
                                                name="blueprintFileName"
                                                value={this.state.blueprintFileName} onChange={this._handleInputChange.bind(this)}/>
                             </Form.Field>
