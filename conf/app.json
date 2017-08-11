@@ -1,13 +1,20 @@
 {
+  "contextPath": "/stage",
   "initialTemplate": {
-    "admin": "initial-template-admin",
-    "user": "initial-template",
-    "customer": "initial-template-customer"
+    "*": "initial-template",
+    "admin": {
+      "*": "initial-template-admin"
+    },
+    "user": {
+      "*": "initial-template"
+    },
+    "customer": "initial-template-customer",
+    "community": "initial-template-community"
   },
   "singleManager": true,
   "whiteLabel": {
     "enabled": false,
-    "logoUrl": "/app/images/Cloudify-icon.png",
+    "logoUrl": "/stage/app/images/Cloudify-icon.png",
     "mainColor": "black",
     "pagesLocation": "",
     "headerTextColor": "white",
