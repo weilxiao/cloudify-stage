@@ -14,24 +14,24 @@ Stage.defineWidget({
     color: "blue",
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(5),
-        {id: "deploymentId", name: "Deployment ID", placeHolder: "If not set, then will be taken from context", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
-        {id: "metric", name: "Metric", placeHolder: "Metric data to be presented on the graph", default: "memory_MemFree", type: Stage.Basic.GenericField.EDITABLE_LIST_TYPE,
+        {id: "deploymentId", name: Stage.Lang.DEPLOYMENT_ID_NAME, placeHolder: Stage.Lang.DEPLOYMENT_ID_PLACEHOLDER, default: "", type: Stage.Basic.GenericField.STRING_TYPE},
+        {id: "metric", name: Stage.Lang.METRIC_NAME, placeHolder: Stage.Lang.METRIC_PLACEHOLDER, default: "memory_MemFree", type: Stage.Basic.GenericField.EDITABLE_LIST_TYPE,
          items: [{name: "cpu_total_system", value: "cpu_total_system"}, {name: "cpu_total_user", value: "cpu_total_user"},
                  {name: "memory_MemFree", value: "memory_MemFree"}, {name: "memory_SwapFree", value: "memory_SwapFree"},
                  {name: "loadavg_processes_running", value: "loadavg_processes_running"}]},
-        {id: "from", name: "Time range start", placeHolder: "Start time for data to be presented", default: "now() - 15m", type: Stage.Basic.GenericField.LIST_TYPE,
+        {id: "from", name: Stage.Lang.TIME_RANGE_START_NAME, placeHolder: Stage.Lang.TIME_RANGE_START_PLACEHOLDER, default: "now() - 15m", type: Stage.Basic.GenericField.LIST_TYPE,
          items: [{name:'last 15 minutes', value:'now() - 15m'}, {name:'last hour', value:'now() - 1h'}, {name:'last day', value: 'now() - 1d'}]},
-        {id: "to", name: "Time range end", placeHolder: "End time for data to be presented", default: "now()", type: Stage.Basic.GenericField.LIST_TYPE,
+        {id: "to", name: Stage.Lang.TIME_RANGE_END_NAME, placeHolder: Stage.Lang.TIME_RANGE_END_PLACEHOLDER, default: "now()", type: Stage.Basic.GenericField.LIST_TYPE,
          items: [{name:'now', value:'now()'}]},
-        {id: "resolution", name: "Time resolution value",  placeHolder: "Time resolution value", default: "1", type: Stage.Basic.GenericField.NUMBER_TYPE,
+        {id: "resolution", name: Stage.Lang.TIME_RESOLUTION_VALUE_NAME,  placeHolder: Stage.Lang.TIME_RESOLUTION_VALUE_NAME, default: "1", type: Stage.Basic.GenericField.NUMBER_TYPE,
          min: Stage.Common.TimeConsts.MIN_TIME_RESOLUTION_VALUE, max: Stage.Common.TimeConsts.MAX_TIME_RESOLUTION_VALUE},
-        {id: "unit", name: "Time resolution unit", placeHolder: "Time resolution unit", default: "m", type: Stage.Basic.GenericField.LIST_TYPE,
+        {id: "unit", name: Stage.Lang.TIME_RESOLUTION_UNIT_NAME, placeHolder: Stage.Lang.TIME_RESOLUTION_UNIT_NAME, default: "m", type: Stage.Basic.GenericField.LIST_TYPE,
             items: Stage.Common.TimeConsts.TIME_RESOLUTION_UNITS},
-        {id: "query", name: "Database query", placeHolder: "InfluxQL query to fetch input data for the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
-        {id: "type", name: "Graph type", items: [{name:'Line chart', value:Stage.Basic.Graphs.Graph.LINE_CHART_TYPE}, {name:'Bar chart', value:Stage.Basic.Graphs.Graph.BAR_CHART_TYPE}],
+        {id: "query", name: Stage.Lang.DATABASE_QUERY_NAME, placeHolder: Stage.Lang.DATABASE_QUERY_PLACEHOLDER, default: "", type: Stage.Basic.GenericField.STRING_TYPE},
+        {id: "type", name: Stage.Lang.GRAPH_TYPE_NAME, items: [{name:'Line chart', value:Stage.Basic.Graphs.Graph.LINE_CHART_TYPE}, {name:'Bar chart', value:Stage.Basic.Graphs.Graph.BAR_CHART_TYPE}],
          default: Stage.Basic.Graphs.Graph.LINE_CHART_TYPE, type: Stage.Basic.GenericField.LIST_TYPE},
-        {id: "label", name: "Graph label",  placeHolder: "Data label to be shown below the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE},
-        {id: "dataUnit", name: "Graph data unit",  placeHolder: "Data unit to be shown on the left side of the graph", default: "", type: Stage.Basic.GenericField.STRING_TYPE}
+        {id: "label", name: Stage.Lang.GRAPH_LABEL_NAME,  placeHolder: Stage.Lang.GRAPH_LABEL_PLACEHOLDER, default: "", type: Stage.Basic.GenericField.STRING_TYPE},
+        {id: "dataUnit", name: Stage.Lang.GRAPH_DATA_UNIT_NAME,  placeHolder: Stage.Lang.GRAPH_DATA_UNIT_PLACEHOLDER, default: "", type: Stage.Basic.GenericField.STRING_TYPE}
     ],
 
     _prepareData: function(data, xDataKey, yDataKey, yDataUnit) {
@@ -106,7 +106,7 @@ Stage.defineWidget({
             return (
                 <Message>
                     <Icon name="ban" />
-                    <span>Widget not configured properly. Please provide Metric and Deployment ID or database Query.</span>
+                    <span>{Stage.Lang.WARN_INVALID_CONFIG}</span>
                 </Message>
             );
         }
