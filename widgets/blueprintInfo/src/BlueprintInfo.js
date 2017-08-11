@@ -21,7 +21,7 @@ export default class BlueprintInfo extends React.Component {
         if (!blueprint.id) {
             return (
                 <div>
-                    <Message info>No blueprint selected</Message>
+                    <Message info>{Stage.Lang.WARN_NO_BLUEPRINT_SELECTED}</Message>
                 </div>
             )
         }
@@ -37,7 +37,7 @@ export default class BlueprintInfo extends React.Component {
                             <h3 className="ui icon header verticalCenter">
                                 <a className="underline blueprintInfoName" href="javascript:void(0)">{blueprint.id}</a>
                             </h3>
-                            <PrivateMarker show={blueprint.private_resource} title="Private resource" className="rightFloated"/>
+                            <PrivateMarker show={blueprint.private_resource} title={Stage.Lang.PRIVATE_RESOURCE} className="rightFloated"/>
                         </Grid.Column>
                     </Grid.Row>
 
@@ -46,27 +46,27 @@ export default class BlueprintInfo extends React.Component {
                     </Grid.Column>
 
                     <Grid.Row className="noPadded">
-                        <Grid.Column width="7"><h5 className="ui icon header">Created</h5></Grid.Column>
+                        <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.CREATED}</h5></Grid.Column>
                         <Grid.Column width="9">{blueprint.created_at}</Grid.Column>
                     </Grid.Row>
 
                     <Grid.Row className="noPadded">
-                        <Grid.Column width="7"><h5 className="ui icon header">Updated</h5></Grid.Column>
+                        <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.UPDATED}</h5></Grid.Column>
                         <Grid.Column width="9">{blueprint.updated_at}</Grid.Column>
                     </Grid.Row>
 
                     <Grid.Row className="noPadded">
-                        <Grid.Column width="7"><h5 className="ui icon header">Creator</h5></Grid.Column>
+                        <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.CREATOR}</h5></Grid.Column>
                         <Grid.Column width="9">{blueprint.created_by}</Grid.Column>
                     </Grid.Row>
 
                     <Grid.Row className="noPadded">
-                        <Grid.Column width="7"><h5 className="ui icon header">Main Blueprint File</h5></Grid.Column>
+                        <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.MAIN_BLUEPRINT_FILE}</h5></Grid.Column>
                         <Grid.Column width="9">{blueprint.main_file_name}</Grid.Column>
                     </Grid.Row>
 
                     <Grid.Row className="noPadded">
-                        <Grid.Column width="7"><h5 className="ui icon header">Deployments</h5></Grid.Column>
+                        <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.DEPLOYMENTS}</h5></Grid.Column>
                         <Grid.Column width="9"><Label color="green" horizontal>{blueprint.deployments}</Label></Grid.Column>
                     </Grid.Row>
                 </Grid>

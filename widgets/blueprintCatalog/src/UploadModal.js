@@ -78,8 +78,8 @@ export default class UploadModal extends React.Component {
                 <Modal open={this.props.open}>
                     <Modal.Header>
                         <Icon name="upload"/> Upload blueprint from {files.repo}
-                        <PrivateField lock={this.state.privateResource} title={Stage.Lang.PRIVATE_RESORCE} className="rightFloated"
-                                 onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
+                        <PrivateField lock={this.state.privateResource} title={Stage.Lang.PRIVATE_RESOURCE} className="rightFloated"
+                                      onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                     </Modal.Header>
 
                     <Modal.Content>

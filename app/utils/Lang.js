@@ -32,24 +32,32 @@ export default class Lang {
     GRAPH_DATA_UNIT_PLACEHOLDER = 'Data unit to be shown on the left side of the graph';
     WARN_INVALID_CONFIG = 'Widget not configured properly. Please provide Metric and Deployment ID or database Query.';
 
-    // Blueprint Action Buttons
+    // BlueprintActionButtons
     CONFIRM_BLUEPRINT_REMOVE = 'Are you sure you want to remove blueprint'; // blueprint name follows
     CREATE_DEPLOYMENT = 'Create deployment';
     DELETE_BLUEPRINT = 'Delete blueprint';
 
-    // Blueprint Catalog
+    // BlueprintCatalog
     GIT_USERNAME_NAME = 'Fetch with username';
     GIT_USERNAME_PLACEHOLDER = 'Type username';
     GIT_FILTER_NAME = 'Optional blueprints filter';
     GIT_FILTER_PLACEHOLDER = 'Type filter for GitHub repositories';
     WARN_MISSING_NAME = 'Please provide blueprint name';
-    PRIVATE_RESORCE = 'Private resource';
-    BLUEPRINT_NAME = 'Blueprint name';
-    BLUEPRINT_FILENAME = 'Blueprint filename';
     NAME = 'Name';
     DESCRIPTION = 'Description';
+
+    // BlueprintInfo
+    BLUEPRINT_ID_NAME = 'Blueprint ID';
+    BLUEPRINT_ID_PLACEHOLDER = 'Enter the blueprint id you wish to show info';
     CREATED = 'Created';
+    CREATOR = 'Creator';
+    MAIN_BLUEPRINT_FILE = 'Main Blueprint File';
     UPDATED = 'Updated';
+    DEPLOYMENTS = 'Deployments';
     UPLOAD = 'Upload';
     UPLOAD_BLUEPRINT = 'Upload blueprint';
+    WARN_NO_BLUEPRINT_SELECTED = 'No blueprint selected';
+    PRIVATE_RESOURCE = 'Private resource';
+    BLUEPRINT_NAME = 'Blueprint name';
+    BLUEPRINT_FILENAME = 'Blueprint filename';
 }

@@ -16,7 +16,7 @@ Stage.defineWidget({
 
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(2),
-        {id: "blueprintId", name: "Blueprint ID", placeHolder: "Enter the blueprint id you wish to show info", type: Stage.Basic.GenericField.STRING_TYPE}
+        {id: "blueprintId", name: Stage.Lang.BLUEPRINT_ID_NAME, placeHolder: Stage.Lang.BLUEPRINT_ID_PLACEHOLDER, type: Stage.Basic.GenericField.STRING_TYPE}
     ],
 
     fetchParams: function(widget, toolbox) {
