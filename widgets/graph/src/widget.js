@@ -22,7 +22,7 @@ Stage.defineWidget({
             {name: 'unit', label: 'Unit', default: "", type: Stage.Basic.GenericField.STRING_TYPE, description: "Chart data unit"}
         ]
         },
-        {id: 'queries', name: 'Custom Influx Query',  description: 'Please note that below query builder overrides the series defined in "Charts Table"', default: '', type: Stage.Basic.GenericField.EDITABLE_TABLE_TYPE, max: 1, items: [
+        {id: 'queries', name: 'Custom Influx Query', description: 'Please note that below query builder overrides the series defined in "Charts table"', default: '', type: Stage.Basic.GenericField.EDITABLE_TABLE_TYPE, max: 1, items: [
             {name: 'qSelect', label: 'SELECT', default: '', type: Stage.Basic.GenericField.STRING_TYPE, description: ''},
             {name: 'qFrom', label: 'FROM', default: '', type: Stage.Basic.GenericField.STRING_TYPE, description: 'You can use ${deploymentId} token to inject dynamic deployment ID. Example: "/${deploymentId}\..*\.((memory_MemFree))$/"'},
             {name: 'qWhere', label: 'WHERE', default: '', type: Stage.Basic.GenericField.STRING_TYPE, description: 'You can use ${timeFilter} token to inject dynamic data/time ranges.'}
