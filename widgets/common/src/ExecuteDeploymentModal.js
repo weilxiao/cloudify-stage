@@ -54,7 +54,7 @@ export default class ExecuteDeploymentModal extends React.Component {
 
     _submitExecute () {
         if (!this.props.deployment || !this.props.workflow) {
-            this.setState({errors: {error: 'Missing workflow or deployment'}});
+            this.setState({errors: {error: Stage.Lang.WARN_MISSING_WORKFLOW_OR_DEPLOYMENT}});
             return false;
         }
 
@@ -117,7 +117,7 @@ export default class ExecuteDeploymentModal extends React.Component {
                         {
                             _.isEmpty(workflow.parameters)
                             &&
-                            <Message content="No parameters available for the execution"/>
+                            <Message content={Stage.Lang.WARN_NO_PARAMS_FOR_EXECUTION}/>
                         }
 
                         {
@@ -139,7 +139,7 @@ export default class ExecuteDeploymentModal extends React.Component {
 
                 <Modal.Actions>
                     <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
-                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Execute" icon="rocket" color="green"/>
+                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content={Stage.Lang.EXECUTE} icon="rocket" color="green"/>
                 </Modal.Actions>
             </Modal>
         );

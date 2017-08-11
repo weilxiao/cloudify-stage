@@ -109,7 +109,7 @@ export default class BlueprintSources extends React.Component {
                     </SplitterLayout>
                     :
                     <div>
-                        <Message content="Please select blueprint to display source files" info/>
+                        <Message content={Stage.Lang.WARN_SELECT_BLUEPRINT_FOR_SOURCES} info/>
                     </div>
                 }
 

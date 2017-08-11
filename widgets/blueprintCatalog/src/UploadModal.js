@@ -100,7 +100,7 @@ export default class UploadModal extends React.Component {
 
                     <Modal.Actions>
                         <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
-                        <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Upload" icon="upload" color="green"/>
+                        <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content={Stage.Lang.UPLOAD} icon="upload" color="green"/>
                     </Modal.Actions>
                 </Modal>
             </div>

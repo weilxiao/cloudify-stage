@@ -42,7 +42,7 @@ export default class BlueprintsCatalog extends React.Component{
                                     <Grid.Column width="16">
                                         <Image src={`/ba/image/${item.id}`}/>
                                         <Header><a href="javascript:void(0)">{item.id}</a></Header>
-                                        <PrivateMarker show={item.private_resource} title="Private resource" className="rightFloated"/>
+                                        <PrivateMarker show={item.private_resource} title={Stage.Lang.PRIVATE_RESOURCE} className="rightFloated"/>
                                     </Grid.Column>
                                 </Grid.Row>
 
@@ -51,27 +51,27 @@ export default class BlueprintsCatalog extends React.Component{
                                 </Grid.Column>
 
                                 <Grid.Row className="noPadded">
-                                    <Grid.Column width="7"><h5 className="ui icon header">Created</h5></Grid.Column>
+                                    <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.CREATED}</h5></Grid.Column>
                                     <Grid.Column width="9">{item.created_at}</Grid.Column>
                                 </Grid.Row>
 
                                 <Grid.Row className="noPadded">
-                                    <Grid.Column width="7"><h5 className="ui icon header">Updated</h5></Grid.Column>
+                                    <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.UPDATED}</h5></Grid.Column>
                                     <Grid.Column width="9">{item.updated_at}</Grid.Column>
                                 </Grid.Row>
 
                                 <Grid.Row className="noPadded">
-                                    <Grid.Column width="7"><h5 className="ui icon header">Creator</h5></Grid.Column>
+                                    <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.CREATOR}</h5></Grid.Column>
                                     <Grid.Column width="9">{item.created_by}</Grid.Column>
                                 </Grid.Row>
 
                                 <Grid.Row className="noPadded">
-                                    <Grid.Column width="7"><h5 className="ui icon header">Main Blueprint File</h5></Grid.Column>
+                                    <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.MAIN_BLUEPRINT_FILE}</h5></Grid.Column>
                                     <Grid.Column width="9">{item.main_file_name}</Grid.Column>
                                 </Grid.Row>
 
                                 <Grid.Row className="noPadded">
-                                    <Grid.Column width="7"><h5 className="ui icon header"># Deployments</h5></Grid.Column>
+                                    <Grid.Column width="7"><h5 className="ui icon header">{Stage.Lang.DEPLOYMENTS}</h5></Grid.Column>
                                     <Grid.Column width="9"><Label color="green" horizontal>{item.depCount}</Label></Grid.Column>
                                 </Grid.Row>
 
@@ -83,10 +83,10 @@ export default class BlueprintsCatalog extends React.Component{
                         </DataSegment.Item>
 
                         <div className="actionButtons">
-                            <Button icon="trash" content="Delete" className="icon" basic
+                            <Button icon="trash" content={Stage.Lang.DELETE} className="icon" basic
                                     onClick={(event)=>{event.stopPropagation(); this.props.onDeleteBlueprint(item)}}/>
 
-                            <Button icon="rocket" content="Deploy" className="labeled icon"
+                            <Button icon="rocket" content={Stage.Lang.DEPLOY} className="labeled icon"
                                     onClick={(event)=>{event.stopPropagation(); this.props.onCreateDeployment(item)}}/>
                         </div>
 

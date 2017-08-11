@@ -59,11 +59,11 @@ export default class DeployBlueprintModal extends React.Component {
         const EMPTY_STRING = '""';
 
         if (!this.props.blueprint) {
-            errors['error'] = 'Blueprint not selected';
+            errors['error'] = Stage.Lang.WARN_NO_BLUEPRINT_SELECTED;
         }
 
         if (_.isEmpty(this.state.deploymentName)) {
-            errors['deploymentName']='Please provide deployment name';
+            errors['deploymentName']=Stage.Lang.WARN_NO_DEPLOYMENT_SELECTED;
         }
 
         let deploymentInputs = {};
@@ -128,7 +128,7 @@ export default class DeployBlueprintModal extends React.Component {
             <Modal open={this.props.open} className="deployBlueprintModal">
                 <Modal.Header>
                     <Icon name="rocket"/> Deploy blueprint {blueprint.id}
-                    <PrivateField lock={this.state.privateResource} title="Private resource" className="rightFloated"
+                    <PrivateField lock={this.state.privateResource} title={Stage.Lang.PRIVATE_RESOURCE} className="rightFloated"
                              onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                 </Modal.Header>
 
@@ -137,7 +137,7 @@ export default class DeployBlueprintModal extends React.Component {
                           onErrorsDismiss={() => this.setState({errors: {}})}>
 
                         <Form.Field error={this.state.errors.deploymentName}>
-                            <Form.Input name='deploymentName' placeholder="Deployment name"
+                            <Form.Input name='deploymentName' placeholder={Stage.Lang.DEPLOYMENT_ID_NAME}
                                         value={this.state.deploymentName}
                                         onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
@@ -158,7 +158,7 @@ export default class DeployBlueprintModal extends React.Component {
                         {
                             blueprint.id && _.isEmpty(deploymentInputs)
                             &&
-                            <Message content="No inputs available for the blueprint"/>
+                            <Message content={Stage.Lang.WARN_NO_INPUTS_AVAILABLE}/>
                         }
                         {
                             _.map(deploymentInputs, (input) => {
@@ -179,7 +179,7 @@ export default class DeployBlueprintModal extends React.Component {
                                         </label>
                                         {
                                             !_.isNil(input.default)
-                                            ? <Popup trigger={formInput()} header="Default value"
+                                            ? <Popup trigger={formInput()} header={Stage.Lang.DEFAULT_VALUE}
                                                      content={this._stringify(input.default)}
                                                      position='top right' wide />
                                             : formInput()
@@ -190,21 +190,21 @@ export default class DeployBlueprintModal extends React.Component {
                         }
                         <Form.Field className='skipPluginsValidationCheckbox'>
                             <Form.Checkbox toggle
-                                           label="Skip plugins validation"
+                                           label={Stage.Lang.SKIP_PLUGIN_VALIDATION}
                                            name='skipPluginsValidation'
                                            checked={this.state.skipPluginsValidation}
                                            onChange={this._handleInputChange.bind(this)}
                             />
                         </Form.Field>
                         {
-                            this.state.skipPluginsValidation && <Message>The recommended path is uploading plugins as wagons to Cloudify. This option is designed for plugin development and advanced users only.</Message>
+                            this.state.skipPluginsValidation && <Message>{Stage.Lang.WARN_PLUGIN_ADVANCED_USERS}</Message>
                         }
                     </Form>
                 </Modal.Content>
 
                 <Modal.Actions>
                     <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
-                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Deploy" icon="rocket" color="green"/>
+                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content={Stage.Lang.DEPLOY} icon="rocket" color="green"/>
                 </Modal.Actions>
             </Modal>
         );

@@ -38,12 +38,12 @@ export default class BlueprintsTable extends React.Component{
                        selectable={true}
                        className={tableName}>
 
-                <DataTable.Column label="Name" name="id" width="20%"/>
-                <DataTable.Column label="Created" name="created_at" width="15%"/>
-                <DataTable.Column label="Updated" name="updated_at" width="15%"/>
-                <DataTable.Column label="Creator" name='created_by' width="15%"/>
-                <DataTable.Column label="Main Blueprint File" name='main_file_name' width="15%"/>
-                <DataTable.Column label="# Deployments" width="10%"/>
+                <DataTable.Column label={Stage.Lang.NAME} name="id" width="20%"/>
+                <DataTable.Column label={Stage.Lang.CREATED} name="created_at" width="15%"/>
+                <DataTable.Column label={Stage.Lang.UPDATED} name="updated_at" width="15%"/>
+                <DataTable.Column label={Stage.Lang.CREATOR} name='created_by' width="15%"/>
+                <DataTable.Column label={Stage.Lang.MAIN_BLUEPRINT_FILE} name='main_file_name' width="15%"/>
+                <DataTable.Column label={Stage.Lang.DEPLOYMENTS} width="10%"/>
                 <DataTable.Column width="10%"/>
 
                 {
@@ -52,7 +52,7 @@ export default class BlueprintsTable extends React.Component{
                             <DataTable.Row id={`${tableName}_${item.id}`} key={item.id} selected={item.isSelected} onClick={()=>this.props.onSelectBlueprint(item)}>
                                 <DataTable.Data>
                                     <Image src={`/ba/image/${item.id}`} width="30px" height="auto" inline/> <a className='blueprintName' href="javascript:void(0)">{item.id}</a>
-                                    <PrivateMarker show={item.private_resource} title="Private resource"/>
+                                    <PrivateMarker show={item.private_resource} title={Stage.Lang.PRIVATE_RESOURCE}/>
                                 </DataTable.Data>
                                 <DataTable.Data>{item.created_at}</DataTable.Data>
                                 <DataTable.Data>{item.updated_at}</DataTable.Data>
@@ -60,8 +60,8 @@ export default class BlueprintsTable extends React.Component{
                                 <DataTable.Data>{item.main_file_name}</DataTable.Data>
                                 <DataTable.Data><div className="ui green horizontal label">{item.depCount}</div></DataTable.Data>
                                 <DataTable.Data className="center aligned rowActions">
-                                    <i className="rocket icon link bordered" title="Create deployment" onClick={(event)=>{event.stopPropagation();this.props.onCreateDeployment(item)}}></i>
-                                    <i className="trash icon link bordered" title="Delete blueprint" onClick={(event)=>{event.stopPropagation();this.props.onDeleteBlueprint(item)}}></i>
+                                    <i className="rocket icon link bordered" title={Stage.Lang.CREATE_DEPLOYMENT} onClick={(event)=>{event.stopPropagation();this.props.onCreateDeployment(item)}}></i>
+                                    <i className="trash icon link bordered" title={Stage.Lang.DELETE_BLUEPRINT} onClick={(event)=>{event.stopPropagation();this.props.onDeleteBlueprint(item)}}></i>
                                 </DataTable.Data>
                             </DataTable.Row>
                         );

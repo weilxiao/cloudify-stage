@@ -80,7 +80,7 @@ export default class BlueprintActionButtons extends React.Component {
                                       onHide={this._hideModal.bind(this)}
                                       toolbox={this.props.toolbox}/>
 
-                <Confirm content={`${Stage.Lang.CONFIRM_BLUEPRINT_REMOVE} ${blueprintId}?`}
+                <Confirm content={`${Stage.Lang.CONFIRM_BLUEPRINT_REMOVE} [${blueprintId}]`}
                          open={this._isShowModal(BlueprintActionButtons.DELETE_ACTION)}
                          onConfirm={this._deleteBlueprint.bind(this, blueprintId)}
                          onCancel={this._hideModal.bind(this)} className="blueprintRemoveConfirm"/>

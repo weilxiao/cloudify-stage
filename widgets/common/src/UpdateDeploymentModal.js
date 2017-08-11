@@ -60,15 +60,15 @@ export default class UpdateDeploymentModal extends React.Component {
 
         let errors = {};
         if (_.isEmpty(this.state.blueprintUrl) && !blueprintFile) {
-            errors['blueprintUrl']='Please select blueprint file or url';
+            errors['blueprintUrl']=Stage.Lang.WARN_SELECT_BLUEPRINT_FILE;
         }
 
         if (!_.isEmpty(this.state.blueprintUrl) && blueprintFile) {
-            errors['blueprintUrl']='Either blueprint file or url must be selected, not both';
+            errors['blueprintUrl']=Stage.Lang.WARN_EITHER_URL_OR_FILE;
         }
 
         if (this.state.runWorkflow === CUSTOM_WORKFLOW && _.isEmpty(this.state.workflowId)) {
-            errors['workflowId']='Please provide workflow id';
+            errors['workflowId']=Stage.Lang.WARN_NO_WORKFLOW_ID;
         }
 
         if (!_.isEmpty(errors)) {
@@ -149,7 +149,7 @@ export default class UpdateDeploymentModal extends React.Component {
                           onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Group>
                             <Form.Field width="9" error={this.state.errors.blueprintUrl}>
-                                <Form.Input label="URL" placeholder="Enter new blueprint url" name="blueprintUrl"
+                                <Form.Input label="URL" placeholder={Stage.Lang.ENTER_BLUEPRINT_URL} name="blueprintUrl"
                                             value={this.state.blueprintUrl} onChange={this._handleInputChange.bind(this)}
                                             onBlur={this._onBlueprintUrlBlur.bind(this)} loading={this.state.urlLoading}
                                             icon={this.state.urlLoading?'search':false} disabled={this.state.urlLoading}/>
@@ -160,45 +160,45 @@ export default class UpdateDeploymentModal extends React.Component {
                                 </div>
                             </Form.Field>
                             <Form.Field width="8" error={this.state.errors.blueprintUrl}>
-                                <Form.File placeholder="Select new blueprint file" name="blueprintFile" ref="blueprintFile"
+                                <Form.File placeholder={Stage.Lang.SELECT_BLUEPRINT_FILE} name="blueprintFile" ref="blueprintFile"
                                            onChange={this._onBlueprintFileChange.bind(this)} loading={this.state.fileLoading}
                                            disabled={this.state.fileLoading}/>
                             </Form.Field>
                         </Form.Group>
 
                         <Form.Field>
-                            <Form.File placeholder="Select inputs file" name="inputsFile" ref="inputsFile"/>
+                            <Form.File placeholder={Stage.Lang.SELECT_INPUTS_FILE} name="inputsFile" ref="inputsFile"/>
                         </Form.Field>
 
                         <Form.Field>
-                            <Form.Dropdown placeholder='Blueprint filename' search selection options={options} name="applicationFileName"
+                            <Form.Dropdown placeholder={Stage.Lang.BLUEPRINT_FILENAME} search selection options={options} name="applicationFileName"
                                            value={this.state.applicationFileName} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
 
                         <Form.Divider>
-                            <Form.Radio label="Run default workflow" name="runWorkflow" checked={this.state.runWorkflow === DEFAULT_WORKFLOW}
+                            <Form.Radio label={Stage.Lang.RUN_DEFAULT_WORKFLOW} name="runWorkflow" checked={this.state.runWorkflow === DEFAULT_WORKFLOW}
                                         onChange={this._handleInputChange.bind(this)} value={DEFAULT_WORKFLOW}/>
                         </Form.Divider>
 
                         <Form.Field>
-                            <Form.Checkbox label="Run install workflow on added nodes"
+                            <Form.Checkbox label={Stage.Lang.RUN_INSTALL_WORKFLOW}
                                            name="installWorkflow" disabled={this.state.runWorkflow !== DEFAULT_WORKFLOW}
                                            checked={this.state.installWorkflow} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
 
                         <Form.Field>
-                            <Form.Checkbox label="Run uninstall workflow on removed nodes"
+                            <Form.Checkbox label={Stage.Lang.RUN_UNINSTALL_WORKFLOW}
                                            name="uninstallWorkflow" disabled={this.state.runWorkflow !== DEFAULT_WORKFLOW}
                                            checked={this.state.uninstallWorkflow} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
 
                         <Form.Divider>
-                            <Form.Radio label="Run custom workflow" name="runWorkflow" checked={this.state.runWorkflow === CUSTOM_WORKFLOW}
+                            <Form.Radio label={Stage.Lang.RUN_CUSTOM_WORKFLOW} name="runWorkflow" checked={this.state.runWorkflow === CUSTOM_WORKFLOW}
                                         onChange={this._handleInputChange.bind(this)} value={CUSTOM_WORKFLOW}/>
                         </Form.Divider>
 
                         <Form.Field error={this.state.errors.workflowId}>
-                            <Form.Input name='workflowId' placeholder="Workflow ID" disabled={this.state.runWorkflow !== CUSTOM_WORKFLOW}
+                            <Form.Input name='workflowId' placeholder={Stage.Lang.WORKFLOW_ID} disabled={this.state.runWorkflow !== CUSTOM_WORKFLOW}
                                         value={this.state.workflowId} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
                     </Form>

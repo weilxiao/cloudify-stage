@@ -52,7 +52,7 @@ export default class BlueprintList extends React.Component {
 
     _deleteBlueprint() {
         if (!this.state.item) {
-            this.setState({error: 'Something went wrong, no blueprint was selected for delete'});
+            this.setState({error: Stage.Lang.WARN_NO_BLUEPRINT_SELECTED});
             return;
         }
 
@@ -118,7 +118,7 @@ export default class BlueprintList extends React.Component {
 
                 }
 
-                <Confirm content='Are you sure you want to remove this blueprint?'
+                <Confirm content={Stage.Lang.CONFIRM_BLUEPRINT_REMOVE}
                          open={this.state.confirmDelete}
                          onConfirm={this._deleteBlueprint.bind(this)}
                          onCancel={()=>this.setState({confirmDelete : false})} />

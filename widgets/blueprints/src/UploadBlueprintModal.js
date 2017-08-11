@@ -48,15 +48,15 @@ export default class UploadModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.blueprintUrl) && !blueprintFile) {
-            errors['blueprintUrl']='Please select blueprint file or url';
+            errors['blueprintUrl']=Stage.Lang.WARN_SELECT_BLUEPRINT_FILE;
         }
 
         if (!_.isEmpty(this.state.blueprintUrl) && blueprintFile) {
-            errors['blueprintUrl']='Either blueprint file or url must be selected, not both';
+            errors['blueprintUrl']=Stage.Lang.WARN_EITHER_URL_OR_FILE;
         }
 
         if (_.isEmpty(this.state.blueprintName)) {
-            errors['blueprintName']='Please provide blueprint name';
+            errors['blueprintName']=Stage.Lang.WARN_MISSING_NAME;
         }
 
         if (!_.isEmpty(errors)) {
@@ -116,7 +116,7 @@ export default class UploadModal extends React.Component {
 
     render() {
         var {Modal, Button, Icon, Form, ApproveButton, CancelButton, PrivateField} = Stage.Basic;
-        const uploadButton = <Button content='Upload' icon='upload' labelPosition='left' className="uploadBlueprintButton"/>;
+        const uploadButton = <Button content={Stage.Lang.UPLOAD} icon='upload' labelPosition='left' className="uploadBlueprintButton"/>;
 
         var options = _.map(this.state.yamlFiles, item => { return {text: item, value: item} });
 
@@ -126,7 +126,7 @@ export default class UploadModal extends React.Component {
                        onClose={()=>this.setState({open:false})} className="uploadBlueprintModal">
                     <Modal.Header>
                         <Icon name="upload"/> Upload blueprint
-                        <PrivateField lock={this.state.privateResource} title="Private resource" className="rightFloated"
+                        <PrivateField lock={this.state.privateResource} title={Stage.Lang.PRIVATE_RESOURCE} className="rightFloated"
                                  onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                     </Modal.Header>
 
@@ -135,7 +135,7 @@ export default class UploadModal extends React.Component {
                               onErrorsDismiss={() => this.setState({errors: {}})}>
                             <Form.Group>
                                 <Form.Field width="9" error={this.state.errors.blueprintUrl}>
-                                    <Form.Input label="URL" placeholder="Enter blueprint url" name="blueprintUrl"
+                                    <Form.Input label={Stage.Lang.URL} placeholder={Stage.Lang.ENTER_BLUEPRINT_URL} name="blueprintUrl"
                                                 onChange={this._handleInputChange.bind(this)} value={this.state.blueprintUrl}
                                                 onBlur={this._onBlueprintUrlBlur.bind(this)} loading={this.state.urlLoading}
                                                 icon={this.state.urlLoading?'search':false} disabled={this.state.urlLoading} />
@@ -146,25 +146,25 @@ export default class UploadModal extends React.Component {
                                     </div>
                                 </Form.Field>
                                 <Form.Field width="8" error={this.state.errors.blueprintUrl}>
-                                    <Form.File placeholder="Select blueprint file" name="blueprintFile" ref="blueprintFile"
+                                    <Form.File placeholder={Stage.Lang.SELECT_BLUEPRINT_FILE} name="blueprintFile" ref="blueprintFile"
                                                onChange={this._onBlueprintFileChange.bind(this)} loading={this.state.fileLoading}
                                                disabled={this.state.fileLoading}/>
                                 </Form.Field>
                             </Form.Group>
 
                             <Form.Field error={this.state.errors.blueprintName}>
-                                <Form.Input name='blueprintName' placeholder="Blueprint name"
+                                <Form.Input name='blueprintName' placeholder={Stage.Lang.BLUEPRINT_ID_NAME}
                                             value={this.state.blueprintName} onChange={this._handleInputChange.bind(this)}/>
                             </Form.Field>
 
                             <Form.Field>
-                                <Form.Dropdown placeholder='Blueprint filename' search selection options={options} name="blueprintFileName"
+                                <Form.Dropdown placeholder={Stage.Lang.BLUEPRINT_FILENAME} search selection options={options} name="blueprintFileName"
                                                value={this.state.blueprintFileName} onChange={this._handleInputChange.bind(this)}/>
                             </Form.Field>
 
                             <Form.Group>
                                 <Form.Field width="9" error={this.state.errors.imageUrl}>
-                                    <Form.Input label="URL" placeholder="Enter image url" name="imageUrl"
+                                    <Form.Input label={Stage.Lang.URL} placeholder={Stage.Lang.ENTER_IMAGE_URL} name="imageUrl"
                                                 value={this.state.imageUrl} onChange={this._handleInputChange.bind(this)}
                                                 onBlur={()=>this.state.imageUrl ? this.refs.imageFile.reset() : ''}/>
                                 </Form.Field>
@@ -174,7 +174,7 @@ export default class UploadModal extends React.Component {
                                     </div>
                                 </Form.Field>
                                 <Form.Field width="8" error={this.state.errors.imageUrl}>
-                                    <Form.File placeholder="Select image file" name="imageFile" ref="imageFile"
+                                    <Form.File placeholder={Stage.Lang.SELECT_IMAGE_FILE} name="imageFile" ref="imageFile"
                                                onChange={(file)=>file ? this.setState({imageUrl: ''}) : ''}/>
                                 </Form.Field>
                             </Form.Group>
@@ -183,7 +183,7 @@ export default class UploadModal extends React.Component {
 
                     <Modal.Actions>
                         <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
-                        <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Upload" icon="upload" color="green"/>
+                        <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content={Stage.Lang.UPLOAD} icon="upload" color="green"/>
                     </Modal.Actions>
                 </Modal>
             </div>
