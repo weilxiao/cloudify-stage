@@ -63,7 +63,7 @@ export default class DeployBlueprintModal extends React.Component {
         }
 
         if (_.isEmpty(this.state.deploymentName)) {
-            errors['deploymentName']=Stage.Lang.WARN_NO_DEPLOYMENT_SELECTED;
+            errors['deploymentName']=Stage.Lang.WARN_NO_DEPLOYMENT_NAME;
         }
 
         let deploymentInputs = {};

@@ -19,7 +19,7 @@ Stage.defineWidget({
         return (
             <Button className="labeled icon" color="blue" fluid icon="external"
                     onClick={()=>{window.open(composerUrl, '_blank')}}
-                    content="Cloudify Composer"/>
+                    content={Stage.Lang.CLODIFY_COMPOSER}/>
         );
 
     }

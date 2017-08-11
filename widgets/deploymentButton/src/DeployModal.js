@@ -94,11 +94,11 @@ export default class DeployModal extends React.Component {
         const EMPTY_STRING = '""';
 
         if (_.isEmpty(this.state.deploymentName)) {
-            errors['deploymentName']='Please provide deployment name';
+            errors['deploymentName']=Stage.Lang.WARN_NO_DEPLOYMENT_NAME;
         }
 
         if (_.isEmpty(this.state.blueprint.id)) {
-            errors['blueprintName']='Please select blueprint from the list';
+            errors['blueprintName']=Stage.Lang.WARN_SELECT_BLUEPRINT_FROM_LIST;
         }
 
         let deploymentInputs = {};
@@ -147,8 +147,8 @@ export default class DeployModal extends React.Component {
         return (
             <Modal open={this.props.open}>
                 <Modal.Header>
-                    <Icon name="rocket"/> Create new deployment
-                    <PrivateField lock={this.state.privateResource} title="Private resource" className="rightFloated"
+                    <Icon name="rocket"/> {Stage.Lang.CREATE_DEPLOYMENT}
+                    <PrivateField lock={this.state.privateResource} title={Stage.Lang.PRIVATE_RESOURCE} className="rightFloated"
                              onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                 </Modal.Header>
 
@@ -157,12 +157,12 @@ export default class DeployModal extends React.Component {
                           onErrorsDismiss={() => this.setState({errors: {}})}>
 
                         <Form.Field error={this.state.errors.deploymentName}>
-                            <Form.Input name='deploymentName' placeholder="Deployment name"
+                            <Form.Input name='deploymentName' placeholder={Stage.Lang.DEPLOYMENT_ID_NAME}
                                         value={this.state.deploymentName} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
 
                         <Form.Field error={this.state.errors.blueprintName}>
-                            <Form.Dropdown search selection value={this.state.blueprint.id} placeholder="Select Blueprint"
+                            <Form.Dropdown search selection value={this.state.blueprint.id} placeholder={Stage.Lang.BLUEPRINT_NAME}
                                            name="blueprintName" options={options} onChange={this._selectBlueprint.bind(this)}/>
                         </Form.Field>
 
@@ -173,7 +173,7 @@ export default class DeployModal extends React.Component {
                                 <Header size="tiny">
                                     Deployment inputs
                                     <Header.Subheader>
-                                        Use "" for an empty string
+                                        {Stage.Lang.USE_PAR_FOR_EMPTY_STRING}
                                     </Header.Subheader>
                                 </Header>
                             </Form.Divider>
@@ -182,7 +182,7 @@ export default class DeployModal extends React.Component {
                         {
                             this.state.blueprint.id && _.isEmpty(this.state.blueprint.plan.inputs)
                             &&
-                            <Message content="No inputs available for the selected blueprint"/>
+                            <Message content={Stage.Lang.WARN_NO_INPUTS_AVAILABLE}/>
                         }
 
                         {
@@ -204,7 +204,7 @@ export default class DeployModal extends React.Component {
                                         </label>
                                         {
                                             !_.isNil(input.default)
-                                                ? <Popup trigger={formInput()} header="Default value"
+                                                ? <Popup trigger={formInput()} header={Stage.Lang.DEFAULT_VALUE}
                                                          content={this._stringify(input.default)}
                                                          position='top right' wide />
                                                 : formInput()
@@ -215,20 +215,20 @@ export default class DeployModal extends React.Component {
                         }
                         <Form.Field>
                             <Form.Checkbox toggle
-                                           label="Skip plugins validation"
+                                           label={Stage.Lang.SKIP_PLUGIN_VALIDATION}
                                            name='skipPluginsValidation'
                                            checked={this.state.skipPluginsValidation}
                                            onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
                         {
-                            this.state.skipPluginsValidation && <Message>The recommended path is uploading plugins as wagons to Cloudify. This option is designed for plugin development and advanced users only.</Message>
+                            this.state.skipPluginsValidation && <Message>{Stage.Lang.WARN_PLUGIN_ADVANCED_USERS}</Message>
                         }
                     </Form>
                 </Modal.Content>
 
                 <Modal.Actions>
                     <CancelButton onClick={this.onCancel.bind(this)} disabled={this.state.loading} />
-                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content="Deploy" icon="rocket" className="green"/>
+                    <ApproveButton onClick={this.onApprove.bind(this)} disabled={this.state.loading} content={Stage.Lang.DEPLOY} icon="rocket" className="green"/>
                 </Modal.Actions>
             </Modal>
         );

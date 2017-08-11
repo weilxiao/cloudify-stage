@@ -76,7 +76,7 @@ export default class Lang {
     WARN_SELECT_BLUEPRINT_FOR_SOURCES = 'Please select blueprint to display source files';
 
     // Common
-    WARN_NO_DEPLOYMENT_SELECTED = 'Please provide deployment name';
+    WARN_NO_DEPLOYMENT_NAME = 'Please provide deployment name';
     WARN_NO_INPUTS_AVAILABLE = 'No inputs available for the blueprint';
     DEFAULT_VALUE = 'Default value';
     SKIP_PLUGIN_VALIDATION = 'Skip plugins validation';
@@ -119,4 +119,17 @@ export default class Lang {
     RUN_CUSTOM_WORKFLOW = 'Run custom workflow';
     RUN_UNINSTALL_WORKFLOW = 'Run uninstall workflow on removed nodes';
     RUN_INSTALL_WORKFLOW = 'Run install workflow on added nodes';
+
+    // ComposerLink
+    CLODIFY_COMPOSER = 'Cloudify Composer';
+
+    // DeploymentActionButtons
+    EXECUTE_WORKFLOW = 'Execute workflow';
+    UPDATE_DEPLOYMENT = 'Update deployment';
+    DELETE_DEPLOYMENT = 'Delete deployment';
+    CONFIRM_DEPLOYMENT_REMOVE = 'Are you sure you want to remove this deployment?';
+
+    // DeploymentButton
+    WARN_SELECT_BLUEPRINT_FROM_LIST = 'Please select blueprint from the list';
+    USE_PAR_FOR_EMPTY_STRING = 'Use "" for an empty string';
 }

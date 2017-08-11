@@ -76,7 +76,7 @@ export default class DeploymentActionButtons extends React.Component {
                 <PopupMenu className="workflowAction" position="bottom center" offset={0}>
                     <Popup.Trigger>
                         <Button className="labeled icon" color="teal" icon="content" id="executeWorkflowButton"
-                                disabled={_.isEmpty(deploymentId) || this.state.loading} content="Execute workflow" />
+                                disabled={_.isEmpty(deploymentId) || this.state.loading} content={Stage.Lang.EXECUTE_WORKFLOW} />
                     </Popup.Trigger>
                     
                     <Menu vertical>
@@ -91,13 +91,13 @@ export default class DeploymentActionButtons extends React.Component {
 
                 <Button className="labeled icon" color="teal" icon="edit" disabled={_.isEmpty(deploymentId) || this.state.loading}
                         onClick={this._showModal.bind(this, DeploymentActionButtons.EDIT_ACTION)}
-                        content="Update deployment" id="updateDeploymentButton"/>
+                        content={Stage.Lang.UPDATE_DEPLOYMENT} id="updateDeploymentButton"/>
 
                 <Button className="labeled icon" color="teal" icon="trash" disabled={_.isEmpty(deploymentId) || this.state.loading}
                         onClick={this._showModal.bind(this, DeploymentActionButtons.DELETE_ACTION)}
-                        content="Delete deployment" id="deleteDeploymentButton"/>
+                        content={Stage.Lang.DELETE_DEPLOYMENT} id="deleteDeploymentButton"/>
 
-                <Confirm content={`Are you sure you want to remove deployment ${deploymentId}?`}
+                <Confirm content={`${Stage.Lang.CONFIRM_DEPLOYMENT_REMOVE} [${deploymentId}]`}
                          open={this._isShowModal(DeploymentActionButtons.DELETE_ACTION)}
                          onConfirm={this._deleteDeployment.bind(this)}
                          onCancel={this._hideModal.bind(this)} className="deploymentRemoveConfirm"/>
