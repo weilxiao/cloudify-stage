@@ -25,7 +25,7 @@ Stage.defineWidget({
         let KeyIndicator = Stage.Basic.KeyIndicator;
 
         return (
-            <KeyIndicator title="Deployments" icon="cube" number={num}/>
+            <KeyIndicator title={Stage.Lang.DEPLOYMENTS} icon="cube" number={num}/>
         );
     }
 });
