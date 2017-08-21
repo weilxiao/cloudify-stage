@@ -27,6 +27,7 @@ chai.use(require('chai-enzyme')());
 chai.use(require('sinon-chai'));
 
 require('../semantic/dist/semantic');
+require('./widgets/globals');
 
 function noop() {
     return {};
