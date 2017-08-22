@@ -18,11 +18,17 @@ class fetchMock {
   static metadata = [];
   static initialize () {
     // fetchMock_mock.get('*', fakeData);
-    fetchMockLib.get ('*', fetchMock.response);
+    fetchMockLib.once ('*', fetchMock.response);
   }
 
   static register (file, dir) {
     fetchMock.metadata[file] = dir;
+
+    file = path.join (dir, file);
+    if (fs.existsSync (file)) {
+      let data = fs.readFileSync (file).toString ();
+      return JSON.parse (data);
+    }
   }
 
   static response (matcher, response, options) {
@@ -150,3 +156,33 @@ process.on ('unhandledRejection', (reason, p) => {
   // console.log('Unhandled Rejection at:', p, 'reason:', reason);
   // application specific logging, throwing an error, or other logic here
 });
+
+// global.requestAnimationFrame = () => {}
+
+(function (window) {
+  var lastTime = 0;
+  var vendors = ['ms', 'moz', 'webkit', 'o'];
+  for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+    window.cancelAnimationFrame =
+      window[vendors[x] + 'CancelAnimationFrame'] ||
+      window[vendors[x] + 'CancelRequestAnimationFrame'];
+  }
+
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = function (callback, element) {
+      var currTime = new Date ().getTime ();
+      var timeToCall = Math.max (0, 16 - (currTime - lastTime));
+      var id = window.setTimeout (function () {
+        callback (currTime + timeToCall);
+      }, timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+  }
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function (id) {
+      clearTimeout (id);
+    };
+  }
+}) (global);

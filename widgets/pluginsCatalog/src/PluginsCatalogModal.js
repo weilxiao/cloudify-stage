@@ -98,7 +98,6 @@ export default class PluginsCatalogModal extends React.Component {
     } = Stage.Basic;
 
     return (
-      <div>
         <Modal open={this.props.open}>
           <Modal.Header>
             <Icon name="upload" /> Upload Plugin
@@ -138,7 +137,6 @@ export default class PluginsCatalogModal extends React.Component {
             />
           </Modal.Actions>
         </Modal>
-      </div>
     );
   }
 }
