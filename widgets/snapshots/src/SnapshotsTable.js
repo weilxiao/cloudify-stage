@@ -4,6 +4,7 @@
 import UploadModal from './UploadSnapshotModal';
 import CreateModal from './CreateSnapshotModal';
 import RestoreModal from './RestoreSnapshotModal.js';
+import ActiveExecutionStatus from './ActiveExecutionStatus';
 
 import Actions from './actions';
 
@@ -92,6 +93,17 @@ export default class extends React.Component {
         return this.props.toolbox.refresh(fetchParams);
     }
 
+    _cancelExecution(execution, action) {
+        let actions = new Stage.Common.ExecutionActions(this.props.toolbox);
+        actions.doCancel(execution, action).then(() => {
+            this.setState({error: null});
+            this.props.toolbox.getEventBus().trigger('snapshots:refresh');
+            this.props.toolbox.getEventBus().trigger('executions:refresh');
+        }).catch((err) => {
+            this.setState({error: err.message});
+        });
+    }
+
     render() {
         let {Confirm, ErrorMessage, DataTable, Icon, PrivateMarker} = Stage.Basic;
 
@@ -125,11 +137,19 @@ export default class extends React.Component {
                                     <DataTable.Data>{item.status}</DataTable.Data>
                                     <DataTable.Data>{item.created_by}</DataTable.Data>
                                     <DataTable.Data className="center aligned rowActions">
-                                        <Icon name='undo' title="Restore" bordered disabled={!isSnapshotUseful} link={isSnapshotUseful}
-                                              onClick={isSnapshotUseful ? this._restoreSnapshot.bind(this,item) : ()=>{}} />
-                                        <Icon name='download' title="Download" bordered disabled={!isSnapshotUseful} link={isSnapshotUseful}
-                                              onClick={isSnapshotUseful ? this._downloadSnapshot.bind(this,item) : ()=>{}} />
-                                        <Icon name='trash' link bordered title="Delete" onClick={this._deleteSnapshotConfirm.bind(this,item)} />
+                                        {
+                                            _.isEmpty(item.executions)
+                                            ?
+                                            <div>
+                                                <Icon name='undo' title="Restore" bordered disabled={!isSnapshotUseful} link={isSnapshotUseful}
+                                                onClick={isSnapshotUseful ? this._restoreSnapshot.bind(this,item) : ()=>{}} />
+                                                <Icon name='download' title="Download" bordered disabled={!isSnapshotUseful} link={isSnapshotUseful}
+                                                onClick={isSnapshotUseful ? this._downloadSnapshot.bind(this,item) : ()=>{}} />
+                                                <Icon name='trash' link bordered title="Delete" onClick={this._deleteSnapshotConfirm.bind(this,item)} />
+                                            </div>
+                                            :
+                                            <ActiveExecutionStatus item={item.executions[0]} onCancelExecution={this._cancelExecution.bind(this)}/>
+                                        }
                                     </DataTable.Data>
                                 </DataTable.Row>
                             );
