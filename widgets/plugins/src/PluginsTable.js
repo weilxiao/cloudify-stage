@@ -4,6 +4,7 @@
 
 import Actions from './actions';
 import UploadModal from './UploadPluginModal';
+import ActiveExecutionStatus from './ActiveExecutionStatus';
 
 export default class extends React.Component {
 
@@ -51,14 +52,17 @@ export default class extends React.Component {
             return;
         }
 
+        this.setState({confirmDelete: false});
+        this.props.toolbox.refresh();
+
         var actions = new Actions(this.props.toolbox);
         actions.doDelete(this.state.item)
             .then(()=> {
-                this.setState({confirmDelete: false, error: null});
+                this.setState({error: null});
                 this.props.toolbox.getEventBus().trigger('plugins:refresh');
             })
             .catch(err=>{
-                this.setState({confirmDelete: false, error: err.message});
+                this.setState({error: err.message});
             });
     }
 
@@ -76,6 +80,17 @@ export default class extends React.Component {
 
     fetchGridData(fetchParams) {
         return this.props.toolbox.refresh(fetchParams);
+    }
+
+    _cancelExecution(execution, action) {
+        let actions = new Stage.Common.ExecutionActions(this.props.toolbox);
+        actions.doCancel(execution, action).then(() => {
+            this.setState({error: null});
+            this.props.toolbox.getEventBus().trigger('plugins:refresh');
+            this.props.toolbox.getEventBus().trigger('executions:refresh');
+        }).catch((err) => {
+            this.setState({error: err.message});
+        });
     }
 
     render() {
@@ -119,8 +134,16 @@ export default class extends React.Component {
                                     <DataTable.Data>{item.uploaded_at}</DataTable.Data>
                                     <DataTable.Data>{item.created_by}</DataTable.Data>
                                     <DataTable.Data className="center aligned rowActions">
-                                        <i className="download icon link bordered" title="Download" onClick={this._downloadPlugin.bind(this,item)}></i>
-                                        <i className="trash icon link bordered" title="Delete" onClick={this._deletePluginConfirm.bind(this,item)}></i>
+                                        {
+                                            _.isEmpty(item.executions)
+                                            ?
+                                            <div>
+                                                <i className="download icon link bordered" title="Download" onClick={this._downloadPlugin.bind(this,item)}></i>
+                                                <i className="trash icon link bordered" title="Delete" onClick={this._deletePluginConfirm.bind(this,item)}></i>
+                                            </div>
+                                            :
+                                            <ActiveExecutionStatus item={item.executions[0]} onCancelExecution={this._cancelExecution.bind(this)}/>
+                                        }
                                     </DataTable.Data>
                                 </DataTable.Row>
                             );
