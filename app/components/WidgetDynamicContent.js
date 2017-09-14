@@ -195,8 +195,6 @@ export default class WidgetDynamicContent extends Component {
         this._paramsHandler = new WidgetParamsHandler(this.props.widget,this._getToolbox());
         this._fetchData();
 
-        
-
         // check if theirs a socket fetch and subscribe event to server and listen to client
         if (this.props.widget.definition.fetchSocket) {
             // init WidgetDataFetcher to parse params with querystring
@@ -213,6 +211,11 @@ export default class WidgetDynamicContent extends Component {
             // listen for server broadcasting for current widget
             Socket.listen(this.props.widget.id, function (data) {
                 if(this.mounted){
+                    console.group(`%cSocket Updated on ${this.props.widget.definition.id}`, 'background: #222; color: #bada55');
+                    console.log(`to: ${this.props.widget.definition.id}`);
+                    console.log(`id: ${this.props.widget.id}`);
+                    console.log('data', data);
+                    console.groupEnd();
                     this.setState({ socket: data });
                 }
             }, this);
