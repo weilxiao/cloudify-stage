@@ -49,12 +49,15 @@ import StatusPoller from './utils/StatusPoller';
 import UserAppDataAutoSaver from './utils/UserAppDataAutoSaver';
 import SplashLoadingScreen from './utils/SplashLoadingScreen';
 
+import Socket from './utils/Socket';
+
 const browserHistory = useRouterHistory(createHistory)({
     basename: Consts.CONTEXT_PATH
 });
 
 export default class app{
     static load (){
+        Socket.init();
         window.React = React;
 
         window.onerror = function (message, source, lineno, colno, error) {

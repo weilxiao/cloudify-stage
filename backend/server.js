@@ -42,6 +42,11 @@ logger.info('Server started in mode '+ServerSettings.settings.mode);
 var contextPath = config.get().app.contextPath;
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var socket = require('./socket');
+
+socket.init(io);
 
 app.use(contextPath, express.static(path.resolve(__dirname , '../dist'),{index: 'index.html'}));
 app.use(log4js.connectLogger(log4js.getLogger('http'), { level: 'INFO'}));
@@ -85,7 +90,7 @@ app.get('*',function (request, response){
     response.sendFile(path.resolve(__dirname, '../dist', 'index.html'));
 });
 
-app.listen(8088, function () {
+http.listen(8088, function () {
     logger.info('Stage runs on port 8088!');
 });
 

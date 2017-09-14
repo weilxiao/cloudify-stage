@@ -78,4 +78,27 @@ export default class WidgetDataFetcher {
         return new RegExp('\\[' + str + ':?(.*)\\]', 'i');
     }
 
+    parseParams(url) {
+        let params = {};
+        let paramsMatch = this._getUrlRegExString('params').exec(url);
+        if (!_.isNull(paramsMatch)) {
+            let [paramsString, allowedParams] = paramsMatch;
+
+            params = this._paramsHandler.buildParamsToSend(allowedParams);
+
+            url = _.replace(url, paramsString, '');
+        }
+        url = url + '&' + this._serializeQueryString(params);
+        return url
+    }
+
+    _serializeQueryString (obj) {
+        var str = [];
+        for (var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+            }
+        }
+        return str.join('&');
+    }
 }

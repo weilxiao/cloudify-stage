@@ -57,6 +57,11 @@ new WebpackDevServer(webpack(config), {
         '/stage/widgets': {
             target: 'http://localhost:8088',
             secure: false
+        },
+        '/socket.io': {
+            target: 'http://localhost:8088',
+            secure: false,
+            ws: true
         }
     }
 }).listen(4000, 'localhost', function (err, result) {

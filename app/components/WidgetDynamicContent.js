@@ -8,6 +8,9 @@ import {getToolbox} from '../utils/Toolbox';
 import {ErrorMessage} from './basic'
 import WidgetParamsHandler from '../utils/WidgetParamsHandler';
 
+import Socket from '../utils/Socket';
+import WidgetDataFetcher from '../utils/widgetDataFetcher';
+
 export default class WidgetDynamicContent extends Component {
     static propTypes = {
         widget: PropTypes.object.isRequired,
@@ -22,7 +25,8 @@ export default class WidgetDynamicContent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false
+            loading: false,
+            socket: null
         };
         this.loadingTimeout = null;
         this.pollingTimeout = null;
@@ -190,6 +194,29 @@ export default class WidgetDynamicContent extends Component {
 
         this._paramsHandler = new WidgetParamsHandler(this.props.widget,this._getToolbox());
         this._fetchData();
+
+        
+
+        // check if theirs a socket fetch and subscribe event to server and listen to client
+        if (this.props.widget.definition.fetchSocket) {
+            // init WidgetDataFetcher to parse params with querystring
+            const WDF = new WidgetDataFetcher(this.props.widget, this._getToolbox(), this._paramsHandler);
+            let interval = this.props.widget.configuration.pollingTime || 30;
+            let url = this.props.widget.definition.fetchSocket;
+            if (!Array.isArray(url)) { url = [url]; }
+            // build payload [{url, interval}]
+            let payload = url.map(link => {
+                return { url: WDF.parseParams(link), interval: interval * 1000 };
+            })
+            // subscribe with server to start fetching
+            Socket.subscribe(this.props.widget.id, payload, this.props.manager.tenants.selected);
+            // listen for server broadcasting for current widget
+            Socket.listen(this.props.widget.id, function (data) {
+                if(this.mounted){
+                    this.setState({ socket: data });
+                }
+            }, this);
+        }
     }
 
     componentWillUnmount() {
@@ -201,6 +228,9 @@ export default class WidgetDynamicContent extends Component {
         this._stopPolling();
 
         console.log(`Widget '${this.props.widget.name}' unmounts`);
+        if(this.props.widget.definition.fetchSocket) {
+            Socket.unsubscribe(this.props.widget.id);
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -227,7 +257,7 @@ export default class WidgetDynamicContent extends Component {
 
         if (this.props.widget.definition && this.props.widget.definition.render) {
             try {
-                return this.props.widget.definition.render(this.props.widget,this.props.data.data,this.props.data.error,this._getToolbox());
+                return this.props.widget.definition.render(this.props.widget,this.props.data.data,this.props.data.error,this._getToolbox(), this.state.socket);
             } catch (e) {
                 console.error('Error rendering widget - '+e.message,e.stack);
                 return <ErrorMessage error={`Error rendering widget: ${e.message}`}/>;
