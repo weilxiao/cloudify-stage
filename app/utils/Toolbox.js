@@ -11,6 +11,7 @@ import {selectPageByName, selectHomePage, selectParentPage} from '../actions/pag
 import EventBus from './EventBus';
 import Context from './Context';
 import Manager from './Manager';
+import Composer from './Composer';
 import External from './External';
 import Internal from './Internal';
 
@@ -30,6 +31,7 @@ class Toolbox {
         var state = this.store.getState();
         this.templates = state.templates || {templatesDef: {}};
         this._Manager = new Manager(state.manager || {});
+        this._Composer = new Composer(state.manager || {});
         this._Internal = new Internal(state.manager || {});
         this._Context = new Context(this.store);
         this.widgetDefinitions = state.widgetDefinitions || [];
@@ -60,6 +62,10 @@ class Toolbox {
         return this._Manager;
     }
 
+    getComposer() {
+        return this._Composer;
+    }
+
     getInternal() {
         return this._Internal;
     }
@@ -68,7 +74,7 @@ class Toolbox {
         return new External(basicAuth);
     }
 
-    // This is sometimes needed inorder to join a different manager (for cluster joining for example)
+    // This is sometimes needed in order to join a different manager (for cluster joining for example)
     getNewManager() {
         return new Manager();
     }
