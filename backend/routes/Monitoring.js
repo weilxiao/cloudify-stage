@@ -27,7 +27,6 @@ function getClient() {
     return influx(options);
 }
 
-
 /**
  * End point to gets a list of available metrics per deployment
  *
@@ -122,4 +121,47 @@ router.get('/query',function (req, res,next) {
 
 });
 
+function getClientNew() {
+    var options = {
+        host: config.app.influx.ip,
+        port: config.app.influx.port,
+        username: config.app.influx.user,
+        password: config.app.influx.password,
+        database: config.app.influx.database,
+        timeout: config.app.influx.timeout
+    };
+
+    logger.debug('Connecting to influx using ', options);
+    return new influx.InfluxDB(options);
+}
+
+router.get('/query1',function(req,res,next){
+    logger.debug('Running query : '+req.query.q);
+    getClientNew()
+        .query(req.query.q)
+            .then(function(results){
+                logger.debug('Influx got result '+results);
+                res.send(results);
+
+            })
+            .catch(function(err){
+                logger.error('Error connecting to influxDB', err);
+                res.status(500).send(err.message)
+            });
+});
+
+
+router.get('/measurements',function(req,res,next){
+    getClientNew()
+        .query('SHOW MEASUREMENTS',function(err,results){
+            if (err) {
+                logger.error('Error connecting to influxDB', err);
+                res.status(500).send(err.message)
+            } else {
+                res.send(results);
+            }
+        });
+});
+
+//router.get('/')
 module.exports = router;

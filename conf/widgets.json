@@ -1,3 +1,29 @@
 {
-  "remoteURL" : "1.1.1.1"
+  "remoteURL" : "1.1.1.1",
+  "monitoringGraphs" : {
+    "mem" : {
+      "name" : "Memory",
+      "fields" : ["used","free"]
+    },
+    "cpu" : {
+      "name" : "CPU",
+      "fields" : ["usage_system","usage_user","usage_idle"]
+    },
+    "processes" : {
+      "name" : "Processes",
+      "fields" : ["running","sleeping","stopped"]
+    },
+    "disk" : {
+      "name" : "Disk",
+      "fields" : ["used","free"]
+    },
+    "swap" : {
+      "name" : "Swap",
+      "fields" : ["used","free"]
+    },
+    "system" : {
+      "name" : "System",
+      "fields" : ["n_cpus","n_users"]
+    }
+  }
 }
