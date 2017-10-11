@@ -18,12 +18,27 @@ router.post('/login', (req, res) => {
     AuthHandler.getToken(req.headers.authorization).then((token) => {
         AuthHandler.getTenants(token.value).then((tenants) => {
             if(!!tenants && !!tenants.items && tenants.items.length > 0) {
-                res.cookie('XSRF-TOKEN', token.value);
-                res.send({
-                    role: token.role,
-                    serverVersion: config.manager.serverVersion
-                });
-            } else{
+                if(config.customerUrl) {
+                    AuthHandler.getCustomToken(req.headers.authorization).then((customToken) => {
+                        res.cookie('XSRF-CUSTOM-TOKEN', customToken.value);
+                        res.cookie('XSRF-TOKEN', token.value);
+                        res.send({
+                            role: token.role,
+                            serverVersion: config.manager.serverVersion
+                        });
+                    })
+                    .catch((err) => {
+                        logger.error(err);
+                        res.status(500).send({message: 'Failed to get custom token', error: err});
+                    });
+                } else {
+                    res.cookie('XSRF-TOKEN', token.value);
+                    res.send({
+                        role: token.role,
+                        serverVersion: config.manager.serverVersion
+                    });
+                }
+            } else {
                 res.status(403).send({message: 'User has no tenants'});
             }
         })

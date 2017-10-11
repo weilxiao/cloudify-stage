@@ -4,6 +4,7 @@
 'use strict';
 var config = require('../config').get();
 var ManagerHandler = require('./ManagerHandler');
+var CustomerHandler = require('./CustomerHandler');
 var logger = require('log4js').getLogger('AuthHandler');
 var fs = require('fs');
 var _ = require('lodash');
@@ -13,6 +14,13 @@ var authorizationCache = {};
 class AuthHandler {
     static getToken(basicAuth){
         return ManagerHandler.jsonRequest('GET', '/tokens', {
+                'Authorization': basicAuth
+            }
+        );
+    }
+
+    static getCustomToken(basicAuth){
+        return CustomerHandler.jsonRequest('GET', '/tokens', {
                 'Authorization': basicAuth
             }
         );
