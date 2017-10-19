@@ -9,7 +9,6 @@ class ExecutionActions {
 
     doCancel(execution,action) {
         return this.toolbox.getManager().doPost(`/executions/${execution.id}`, null, {
-            // 'deployment_id': execution.deployment_id, // no need for coz we use this function in snapshots too
             'action': action
         });
     }
