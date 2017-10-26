@@ -4,7 +4,7 @@
 import UploadModal from './UploadSnapshotModal';
 import CreateModal from './CreateSnapshotModal';
 import RestoreModal from './RestoreSnapshotModal.js';
-import ActiveExecutionStatus from './ActiveExecutionStatus';
+import ActiveExecutionStatus from '../../common/src/ActiveExecutionStatus';
 
 import Actions from './actions';
 

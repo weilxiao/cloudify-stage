@@ -3,7 +3,7 @@
  */
 
 import MenuAction from './MenuAction';
-import ActiveExecutionStatus from './ActiveExecutionStatus';
+import ActiveExecutionStatus from '../../common/src/ActiveExecutionStatus';
 
 let PropTypes = React.PropTypes;
 

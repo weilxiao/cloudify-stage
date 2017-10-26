@@ -4,7 +4,7 @@
 
 import Actions from './actions';
 import UploadModal from './UploadPluginModal';
-import ActiveExecutionStatus from './ActiveExecutionStatus';
+import ActiveExecutionStatus from '../../common/src/ActiveExecutionStatus';
 
 export default class extends React.Component {
 
