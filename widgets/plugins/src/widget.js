@@ -20,11 +20,11 @@ Stage.defineWidget({
         Stage.GenericConfig.PAGE_SIZE_CONFIG()
     ],
     fetchUrl: [
-        '[manager]/plugins?_include=id,package_name,package_version,supported_platform,distribution,distribution_release,uploaded_at,created_by,private_resource[params]',
+        '[manager]/plugins?_include=id,package_name,package_version,supported_platform,distribution,distribution_release,uploaded_at,created_by,resource_availability[params]',
         '[manager]/executions?_include=id,workflow_id,status,workflow_id,parameters&status=cancelled&status=force_cancelling&status=started&status=pending&is_system_workflow=true'
-     ], 
+     ],
 
-    fetchParams: (widget, toolbox) => 
+    fetchParams: (widget, toolbox) =>
         toolbox.getContext ().getValue ('onlyMyResources') ? {created_by: toolbox.getManager().getCurrentUsername()} : {},
         
     render: function(widget,data,error,toolbox) {

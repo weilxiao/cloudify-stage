@@ -22,14 +22,14 @@ Stage.defineWidget({
         Stage.GenericConfig.SORT_ASCENDING_CONFIG(false)
     ],
     fetchUrl: [
-        '[manager]/snapshots?_include=id,created_at,status,created_by,private_resource[params]',
+        '[manager]/snapshots?_include=id,created_at,status,created_by,resource_availability[params]',
         '[manager]/executions?_include=id,workflow_id,status,workflow_id,parameters&status=cancelled&status=force_cancelling&status=started&status=pending&is_system_workflow=true'
     ],
     fetchParams: (widget, toolbox) => 
         toolbox.getContext ().getValue ('onlyMyResources') ? {created_by: toolbox.getManager().getCurrentUsername()} : {},
 
     render: function(widget,data,error,toolbox) {
-        
+
         let snapshots = data[0];
 
         if (_.isEmpty(snapshots)) {
@@ -38,7 +38,7 @@ Stage.defineWidget({
 
         let executionsGroup = _.filter(data[1], item => item.workflow_id === 'create_snapshot');
         executionsGroup = _.groupBy(data[1].items, 'parameters.snapshot_id');
-        
+
         var selectedSnapshot = toolbox.getContext().getValue('snapshotId');
         var formattedData = Object.assign({},snapshots,{
             items: _.map (snapshots.items,(item)=>{
