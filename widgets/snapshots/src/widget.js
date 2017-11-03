@@ -30,12 +30,11 @@ Stage.defineWidget({
 
     render: function(widget,data,error,toolbox) {
 
-        let snapshots = data[0];
-
-        if (_.isEmpty(snapshots)) {
+        if (_.isEmpty(data) || _.isEmpty(data[0])) {
             return <Stage.Basic.Loading/>;
         }
 
+        let snapshots = data[0];
         let executionsGroup = _.filter(data[1], item => item.workflow_id === 'create_snapshot');
         executionsGroup = _.groupBy(data[1].items, 'parameters.snapshot_id');
 
