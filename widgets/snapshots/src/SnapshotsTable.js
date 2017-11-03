@@ -149,7 +149,10 @@ export default class extends React.Component {
                                                 <Icon name='trash' link bordered title="Delete" onClick={this._deleteSnapshotConfirm.bind(this,item)} />
                                             </div>
                                             :
-                                            <ActiveExecutionStatus item={item.executions[0]} onCancelExecution={this._cancelExecution.bind(this)}/>
+                                            <ActiveExecutionStatus item={item.executions[0]}
+                                                                   onCancelExecution={this._cancelExecution.bind(this)}
+                                                                   refreshInterval={2}
+                                                                   toolbox={this.props.toolbox} />
                                         }
                                     </DataTable.Data>
                                 </DataTable.Row>

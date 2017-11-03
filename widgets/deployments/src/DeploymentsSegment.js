@@ -12,6 +12,7 @@ export default class extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
         widget: PropTypes.object.isRequired,
+        toolbox: PropTypes.object.isRequired,
         fetchData: PropTypes.func,
         onSelectDeployment: PropTypes.func,
         onCancelExecution: PropTypes.func,
@@ -88,7 +89,10 @@ export default class extends React.Component {
                                             ?
                                             <MenuAction item={item} onSelectAction={this.props.onMenuAction}/>
                                             :
-                                            <ActiveExecutionStatus item={item.executions[0]} onCancelExecution={this.props.onCancelExecution}/>
+                                            <ActiveExecutionStatus item={item.executions[0]}
+                                                                   onCancelExecution={this.props.onCancelExecution}
+                                                                   refreshInterval={2}
+                                                                   toolbox={this.props.toolbox} />
                                         }
                                     </div>
                                 </div>

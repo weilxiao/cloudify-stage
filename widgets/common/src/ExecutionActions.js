@@ -12,6 +12,10 @@ class ExecutionActions {
             'action': action
         });
     }
+
+    getExecution(execution){
+        return this.toolbox.getManager().doGet(`/executions/${execution.id}`);
+    }
 }
 
 Stage.defineCommon({

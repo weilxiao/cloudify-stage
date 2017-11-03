@@ -127,19 +127,23 @@ export default class extends React.Component {
                 <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 {showTableComponent ?
-                    <DeploymentsTable widget={this.props.widget} data={this.props.data}
-                                     fetchData={this.fetchData.bind(this)}
-                                     onSelectDeployment={this._selectDeployment.bind(this)}
-                                     onMenuAction={this._showModal.bind(this)}
-                                     onCancelExecution={this._cancelExecution.bind(this)}
-                                     onError={this._setError.bind(this)} />
+                    <DeploymentsTable widget={this.props.widget}
+                                      data={this.props.data}
+                                      fetchData={this.fetchData.bind(this)}
+                                      onSelectDeployment={this._selectDeployment.bind(this)}
+                                      onMenuAction={this._showModal.bind(this)}
+                                      onCancelExecution={this._cancelExecution.bind(this)}
+                                      onError={this._setError.bind(this)}
+                                      toolbox={this.props.toolbox} />
                     :
-                    <DeploymentsSegment widget={this.props.widget} data={this.props.data}
-                                       fetchData={this.fetchData.bind(this)}
-                                       onSelectDeployment={this._selectDeployment.bind(this)}
-                                       onMenuAction={this._showModal.bind(this)}
-                                       onCancelExecution={this._cancelExecution.bind(this)}
-                                       onError={this._setError.bind(this)} />
+                    <DeploymentsSegment widget={this.props.widget}
+                                        data={this.props.data}
+                                        fetchData={this.fetchData.bind(this)}
+                                        onSelectDeployment={this._selectDeployment.bind(this)}
+                                        onMenuAction={this._showModal.bind(this)}
+                                        onCancelExecution={this._cancelExecution.bind(this)}
+                                        onError={this._setError.bind(this)}
+                                        toolbox={this.props.toolbox} />
                 }
 
                 <Confirm content={`Are you sure you want to remove deployment ${this.state.deployment.id}?`}
