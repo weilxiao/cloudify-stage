@@ -11,6 +11,8 @@ Stage.defineWidget({
     initialWidth: 8,
     initialHeight: 24,
     color : "purple",
+    categories: [Stage.GenericConfig.CATEGORY.DEPLOYMENTS],
+
     initialConfiguration:
         [
             Stage.GenericConfig.POLLING_TIME_CONFIG(2),
@@ -23,15 +25,20 @@ Stage.defineWidget({
             Stage.GenericConfig.SORT_ASCENDING_CONFIG(false)
         ],
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('deployments'),
 
     fetchParams: function(widget, toolbox) {
         var blueprintId = toolbox.getContext().getValue('blueprintId');
 
         blueprintId = _.isEmpty(widget.configuration.blueprintIdFilter) ? blueprintId : widget.configuration.blueprintIdFilter;
 
-        return {
+        let obj = {
             blueprint_id: blueprintId
         }
+        if(toolbox.getContext ().getValue ('onlyMyResources')){
+            obj.created_by = toolbox.getManager().getCurrentUsername();
+        }
+        return obj;
     },
 
     fetchData: function(widget,toolbox,params) {

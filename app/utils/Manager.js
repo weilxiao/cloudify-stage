@@ -23,19 +23,20 @@ export default class Manager extends Internal {
         return this._buildActualUrl(url,data);
     }
 
-    getApiVersion() {
-        return this._data.apiVersion;
-    }
-
     getSelectedTenant() {
         return _.get(this,'_data.tenants.selected', null);
+    }
+
+    getSystemRoles() {
+        var roles = _.get(this,'_data.roles', null);
+        return _.filter(roles, (role) => role.type === 'system_role');
     }
 
     _buildActualUrl(url,data) {
         let index = url.indexOf('[manager]');
         if (index >= 0) {
             let managerUrl = url.substring(index + '[manager]'.length);
-            var urlInServer = encodeURIComponent(`${this._data.apiVersion?'/api/'+this._data.apiVersion:''}${managerUrl}`);
+            var urlInServer = encodeURIComponent(managerUrl);
 
             url = url.substring(0, index);
 
@@ -45,7 +46,7 @@ export default class Manager extends Internal {
             return url + queryString;
         } else {
             var queryString =  data ? (url.indexOf('?') > 0?'&':'?') + $.param(data, true) : '';
-            var urlInServer = encodeURIComponent(`${this._data.apiVersion?'/api/'+this._data.apiVersion:''}${url}${queryString}`);
+            var urlInServer = encodeURIComponent(url + queryString);
 
             return StageUtils.url(`/sp/?su=${urlInServer}`);
         }

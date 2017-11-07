@@ -12,6 +12,9 @@ Stage.defineWidget({
     initialHeight: 20,
     color : 'blue',
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('nodes'),
+    categories: [Stage.GenericConfig.CATEGORY.EXECUTIONS_NODES],
+
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(10),
         Stage.GenericConfig.PAGE_SIZE_CONFIG(),

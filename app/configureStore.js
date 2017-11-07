@@ -8,14 +8,11 @@ import createLogger from 'redux-logger'
 import { createStore, applyMiddleware } from 'redux'
 
 import StatePersister from './utils/StatePersister';
-import InitialTemplate from './utils/InitialTemplate';
 import throttle from 'lodash/throttle';
 
 import reducers from './reducers';
 
-import {createPageFromInitialTemplate} from './actions/page';
-
-export default (history,templates,widgetDefinitions,config) => {
+export default (history,config) => {
 
     let initialState = StatePersister.load(config.mode);
 
@@ -26,11 +23,7 @@ export default (history,templates,widgetDefinitions,config) => {
             manager: {}
         }
     }
-    initialState = Object.assign({},initialState,{
-        templates,
-        widgetDefinitions,
-        config
-    });
+    initialState = Object.assign({},initialState,{config});
 
     // Clear login error if has any
     initialState.manager.err = null;
@@ -46,12 +39,6 @@ export default (history,templates,widgetDefinitions,config) => {
             createLogger() // neat middleware that logs actions
         )
     );
-
-    // If needed add the initial pages/widgets from the template
-    if (!hasInitState) {
-        var initialTemplate = templates[InitialTemplate.getName(config, initialState.manager)];
-        store.dispatch(createPageFromInitialTemplate(initialTemplate,templates,widgetDefinitions));
-    }
 
     // This saves the manager data in the local storage. This is good for when a user refreshes the page we can know if he is logged in or not, and save his login info - ip, username
     store.subscribe(throttle(()=>{StatePersister.save(store.getState(),config.mode);},1000));

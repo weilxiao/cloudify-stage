@@ -5,9 +5,9 @@
 
 var _ = require('lodash');
 var fs = require('fs-extra');
-var request = require('request');
 var config = require('../config').get();
 var logger = require('log4js').getLogger('ManagerHandler');
+var RequestHandler = require('./RequestHandler');
 
 module.exports = (function() {
 
@@ -20,38 +20,74 @@ module.exports = (function() {
     }
 
     function getUrl() {
-        return config.managerUrl;
+        return config.managerUrl + '/api/' + config.manager.apiVersion;
     }
 
-    function updateOptions(options, timeout, headers) {
+    function updateOptions(options, method, timeout, headers, data) {
         if (caFile) {
             logger.debug('Adding CA file to Agent Options. CA File =', caFile);
             options.agentOptions = {
                 ca: caFile
             };
         }
-        if (timeout) {
-            options.timeout = timeout;
-        }
+
+        options.timeout = timeout || config.app.proxy.timeouts[method.toLowerCase()];
+
         if (headers) {
             options.headers = headers;
         }
+
+        if(data){
+            options.json = data;
+        }
     }
 
-    function getRequest(url, headers, onSuccess, onError, timeout) {
-        var requestUrl = this.getUrl() + '/api/' + config.manager.apiVersion + url;
+    function request(method, url, headers, data, onSuccess, onError, timeout) {
+        var requestUrl = this.getUrl() + url;
         var requestOptions = {};
-        this.updateOptions(requestOptions, timeout, headers);
+        this.updateOptions(requestOptions, method, timeout, headers, data);
 
-        logger.debug('Calling GET request to:', requestUrl);
-        return request.get(requestUrl, requestOptions)
-                      .on('error', onError)
-                      .on('response', onSuccess);
+        logger.debug(`Preparing ${method} request to manager with options: ${JSON.stringify(requestOptions)}`);
+        return RequestHandler.request(method, requestUrl, requestOptions, onSuccess, onError);
+    }
+
+    // the request assumes the response is JSON
+    function jsonRequest(method, url, headers, data, timeout){
+        return new Promise((resolve, reject) => {
+            this.request(method, url, headers, data, (res) => {
+                var isSuccess = res.statusCode >= 200 && res.statusCode <300;
+                var body = '';
+                res.on('data', function(chunk) {
+                    body += chunk;
+                });
+                res.on('end', function() {
+                    try {
+                        var jsonResponse = JSON.parse(body);
+
+                        if (isSuccess) {
+                            resolve(jsonResponse)
+                        } else {
+                            reject(jsonResponse);
+                        }
+                    }
+                    catch(e) {
+                        if (isSuccess) {
+                            reject('response data could not be parsed to JSON: ', e);
+                        } else {
+                            reject(res.statusMessage);
+                        }
+                    }
+                });
+            }, (err) => {
+                reject(err);
+            }, timeout);
+        });
     }
 
     return {
         getUrl,
         updateOptions,
-        getRequest
+        request,
+        jsonRequest
     };
 })();

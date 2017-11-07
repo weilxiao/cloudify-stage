@@ -28,7 +28,7 @@ class Toolbox {
 
     _initFromStore () {
         var state = this.store.getState();
-        this.templates = state.templates || {};
+        this.templates = state.templates || {templatesDef: {}};
         this._Manager = new Manager(state.manager || {});
         this._Internal = new Internal(state.manager || {});
         this._Context = new Context(this.store);
@@ -37,7 +37,7 @@ class Toolbox {
     }
 
     drillDown(widget,defaultTemplate,drilldownContext,drilldownPageName) {
-        this.store.dispatch(drillDownToPage(widget,this.templates[defaultTemplate],this.widgetDefinitions,drilldownContext,drilldownPageName));
+        this.store.dispatch(drillDownToPage(widget,this.templates.pagesDef[defaultTemplate],this.widgetDefinitions,drilldownContext,drilldownPageName));
     }
 
     goToHomePage() {
@@ -45,7 +45,7 @@ class Toolbox {
     }
 
     goToParentPage() {
-        this.store.dispatch(selectParentPage(this._currentPageId()));
+        this.store.dispatch(selectParentPage());
     }
 
     goToPage(pageName) {
@@ -69,8 +69,8 @@ class Toolbox {
     }
 
     // This is sometimes needed inorder to join a different manager (for cluster joining for example)
-    getNewManager(ip) {
-        return new Manager({ip,apiVersion:'v3'});
+    getNewManager() {
+        return new Manager();
     }
 
     getContext() {
@@ -84,8 +84,6 @@ class Toolbox {
     refresh() {}
 
     loading(show) {}
-
-    _currentPageId() {return '';}
 }
 
 var toolbox = null;
@@ -94,15 +92,13 @@ let createToolbox = (store) =>{
     toolbox = new Toolbox(store);
 };
 
-let getToolbox  = (onRefresh, onLoading, getCurrentPageId)=>{
+let getToolbox  = (onRefresh, onLoading)=>{
     return new Proxy(toolbox,{
         get: (target, name)=> {
             if (name === 'refresh') {
                 return onRefresh;
             } else if (name === 'loading') {
                 return onLoading;
-            } else if (name === '_currentPageId') {
-                return getCurrentPageId;
             } else {
                 return target[name];
             }

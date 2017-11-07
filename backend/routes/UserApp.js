@@ -1,29 +1,27 @@
+
 /**
  * Created by kinneretzin on 13/02/2017.
  */
 var express = require('express');
-var request = require('request');
 var db = require('../db/Connection');
 var router = express.Router();
 var bodyParser = require('body-parser');
-var AuthMiddleware = require('./AuthMiddleware');
+var passport = require('passport');
 
-var logger = require('log4js').getLogger('UserAppRouter');
 var ServerSettings = require('../serverSettings');
 var config = require('../config').get();
 
-router.use(AuthMiddleware);
+router.use(passport.authenticate('token', {session: false}));
 router.use(bodyParser.json());
 
 /**
  * End point to get a request from the server. Assuming it has a url parameter 'su' - server url
  */
-router.get('/:username/:role', function (req, res, next) {
+router.get('/', function (req, res, next) {
     db.UserApp
         .findOne({ where: {
             managerIp: config.manager.ip,
-            username: req.params.username,
-            role: req.params.role,
+            username: req.user.username,
             mode: ServerSettings.settings.mode,
             tenant: req.headers.tenant
         } }).then(function(userApp) {
@@ -32,12 +30,11 @@ router.get('/:username/:role', function (req, res, next) {
         .catch(next);
 });
 
-router.post('/:username/:role', function (req, res, next) {
+router.post('/', function (req, res, next) {
     db.UserApp
         .findOrCreate({ where: {
             managerIp: config.manager.ip,
-            username: req.params.username,
-            role: req.params.role,
+            username: req.user.username,
             mode: ServerSettings.settings.mode,
             tenant: req.headers.tenant
         }, defaults: {appData: {},appDataVersion:req.body.version}})
@@ -45,6 +42,27 @@ router.post('/:username/:role', function (req, res, next) {
             userApp.update({ appData: req.body.appData,appDataVersion:req.body.version}, {fields: ['appData','appDataVersion']}).then(function(ua) {
                 res.send(ua);
             })
+        })
+        .catch(next);
+});
+
+router.get('/clear-pages', function (req, res, next) {
+    db.UserApp
+        .findOne({ where: {
+            managerIp: config.manager.ip,
+            username: req.user.username,
+            mode: ServerSettings.settings.mode,
+            tenant: req.query.tenant
+        }})
+        .then(function(userApp) {
+            if (userApp) {
+                return userApp.update({appData: {pages: []}});
+            } else {
+                return Promise.reject('Could not clear pages. Row not found');
+            }
+        })
+        .then(function() {
+            res.send({status:'ok'})
         })
         .catch(next);
 });

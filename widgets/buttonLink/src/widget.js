@@ -10,11 +10,14 @@ Stage.defineWidget({
     initialHeight: 4,
     showHeader: false,
     showBorder: false,
+    categories: [Stage.GenericConfig.CATEGORY.BUTTONS_AND_FILTERS],
+
     initialConfiguration: [
         {id: "label",name: "Button label", default: "Button Link", type: Stage.Basic.GenericField.STRING},
         {id: "url",name: "URL address", default: "", type: Stage.Basic.GenericField.STRING}
     ],
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('buttonLink'),
 
     render: function(widget,data,error,toolbox) {
         var Button = Stage.Basic.Button;

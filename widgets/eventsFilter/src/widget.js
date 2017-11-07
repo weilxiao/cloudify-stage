@@ -13,6 +13,8 @@ Stage.defineWidget({
     color: "pink",
     showHeader: false,
     showBorder: false,
+    categories: [Stage.GenericConfig.CATEGORY.BUTTONS_AND_FILTERS],
+    
     fetchData:(widget,toolbox,params)=>{
         return Promise.all([
             toolbox.getManager().doGetFull('/blueprints?_include=id'),
@@ -27,6 +29,7 @@ Stage.defineWidget({
         });
     },
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('eventsFilter'),
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(5)
     ],
@@ -42,7 +45,10 @@ Stage.defineWidget({
                 items: data.deployments.items
             },
             eventTypes:{
-                items: _.uniqBy(data.types.items, 'event_type')
+                items: _.chain(data.types.items)
+                        .uniqBy('event_type')
+                        .filter((eventType) => !_.isEmpty(eventType))
+                        .value()
             }
         });
 

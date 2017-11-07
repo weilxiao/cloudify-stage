@@ -13,6 +13,8 @@ Stage.defineWidget({
     initialHeight: 14,
     color: "orange",
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('blueprintInfo'),
+    categories: [Stage.GenericConfig.CATEGORY.BLUEPRINTS, Stage.GenericConfig.CATEGORY.CHARTS_AND_STATISTICS],
 
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(2),

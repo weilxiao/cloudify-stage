@@ -14,39 +14,63 @@ function requestLogin() {
     }
 }
 
-function receiveLogin(ip,username,role,token,apiVersion,serverVersion,tenants) {
+function receiveLogin() {
     return {
         type: types.RES_LOGIN,
-        ip,
-        username,
-        role,
-        token,
-        apiVersion,
-        serverVersion,
-        tenants,
         receivedAt: Date.now()
     }
 }
 
-function errorLogin(ip,username,err) {
+function errorLogin(username,err) {
     return {
         type: types.ERR_LOGIN,
-        ip,
         username,
         error: err,
         receivedAt: Date.now()
     }
 }
 
-export function login (ip,username,password) {
+export function login (username, password, redirect) {
     return function (dispatch) {
         dispatch(requestLogin());
-        return Auth.login(ip,username,password)
-                    .then(data => {
-                        dispatch(receiveLogin(ip, username, data.role, data.token, data.apiVersion, data.serverVersion, data.tenants));
-                        dispatch(push('/'));
+        return Auth.login(username,password)
+                    .then(() => {
+                        if(redirect){
+                            window.location = redirect;
+                        } else{
+                            dispatch(receiveLogin());
+                            dispatch(push('/'));
+                        }
                     })
-                    .catch(err => dispatch(errorLogin(ip,username,err)));
+                    .catch((err) => {
+                        console.log(err);
+                        if(err.status === 403){
+                            dispatch(errorLogin(username));
+                            dispatch(push({pathname: '/noTenants', search: redirect ? '?redirect='+redirect : ''}));
+                        } else{
+                            dispatch(errorLogin(username, err));
+                        }
+                    });
+    }
+}
+
+
+function responseUserData(username, systemRole, tenantsRoles, serverVersion){
+    return {
+        type: types.SET_USER_DATA,
+        username,
+        role: systemRole,
+        tenantsRoles,
+        serverVersion
+    }
+}
+
+export function getUserData() {
+    return function (dispatch, getState) {
+        return Auth.getUserData(getState().manager)
+            .then(data => {
+                dispatch(responseUserData(data.username, data.role, data.tenantsRoles, data.serverVersion));
+            });
     }
 }
 
@@ -57,12 +81,33 @@ function doLogout(err) {
         receivedAt: Date.now()
     }
 }
-export function logout(err) {
-    return function(dispatch) {
-        dispatch(clearContext());
-        dispatch(doLogout(err));
-        dispatch(push('login'));
+export function logout(err, path) {
+    return function (dispatch, getState) {
+        var localLogout = () => {
+            dispatch(push(path || (err ? 'error' : 'logout')));
+            dispatch(clearContext());
+            dispatch(doLogout(err));
+        };
+
+        return Auth.logout(getState().manager).then(localLogout, localLogout);
     }
+}
+
+export function storeRBAC(RBAC) {
+    return {
+        type: types.STORE_RBAC,
+        roles: RBAC.roles,
+        permissions: RBAC.permissions
+    }
+}
+
+export function getRBACConfig() {
+    return function (dispatch, getState) {
+        return Auth.getRBACConfig(getState().manager)
+            .then(RBAC => {
+                dispatch(storeRBAC(RBAC));
+            });
+    };
 }
 
 export function setStatus(status, maintenance, services) {

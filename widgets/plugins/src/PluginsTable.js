@@ -83,7 +83,7 @@ export default class extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} />
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchGridData.bind(this)}
                            totalSize={this.props.data.total}
@@ -107,8 +107,9 @@ export default class extends React.Component {
                         this.props.data.items.map((item)=>{
                             return (
                                 <DataTable.Row key={item.id} selected={item.isSelected} onClick={this._selectPlugin.bind(this, item)}>
-                                    <DataTable.Data><a className='pluginName' href="javascript:void(0)">{item.id}</a>
-                                        <PrivateMarker show={item.private_resource} title="Private resource"/>
+                                    <DataTable.Data>
+                                        {item.id}
+                                        <PrivateMarker availability={item.resource_availability} title="Private resource"/>
                                     </DataTable.Data>
                                     <DataTable.Data>{item.package_name}</DataTable.Data>
                                     <DataTable.Data>{item.package_version}</DataTable.Data>

@@ -11,6 +11,7 @@ var ReactDOMServer = require('react-dom/server');
 
 import 'd3';
 import momentImport from 'moment';
+import markdownImport from 'markdown';
 
 import 'cloudify-blueprint-topology';
 
@@ -49,14 +50,15 @@ export default class WidgetDefinitionsLoader {
             },
             Utils: StageUtils
         };
-
+        
         window.moment = momentImport;
+        window.markdown = markdownImport;
     }
 
-    static _loadWidgets() {
+    static _loadWidgets(manager) {
         console.log('Load widgets');
 
-        var internal = new Internal();
+        var internal = new Internal(manager);
         return Promise.all([
                 new ScriptLoader('/widgets/common/common.js').load(), // Commons has to load before the widgets
                 internal.doGet('/widgets/list') // We can load the list of widgets in the meanwhile
@@ -117,8 +119,8 @@ export default class WidgetDefinitionsLoader {
         return Promise.resolve(loadedWidgetDefinitions);
     }
 
-    static load() {
-        return WidgetDefinitionsLoader._loadWidgets()
+    static load(manager) {
+        return WidgetDefinitionsLoader._loadWidgets(manager)
             .then((widgets) => WidgetDefinitionsLoader._loadWidgetsResources(widgets))
             .then(() => WidgetDefinitionsLoader._initWidgets())
             .catch((e)=>{
@@ -132,10 +134,10 @@ export default class WidgetDefinitionsLoader {
 
         if (widgetUrl) {
             console.log('Install widget from url', widgetUrl);
-            return internal.doPut('/widgets/install',{url: widgetUrl, username: manager.username});
+            return internal.doPut('/widgets/install', {url: widgetUrl});
         } else {
             console.log('Install widget from file');
-            return internal.doUpload('/widgets/install',{username: manager.username},{widget:widgetFile});
+            return internal.doUpload('/widgets/install', {}, {widget:widgetFile});
         }
     }
 
@@ -223,4 +225,30 @@ class GenericConfig {
                 default: sortAscending,
                 hidden: true}
     };
+    
+    static get CATEGORY ()  {
+        return {
+            BLUEPRINTS: 'Blueprints',
+            DEPLOYMENTS: 'Deployments',
+            BUTTONS_AND_FILTERS: 'Buttons and Filters',
+            CHARTS_AND_STATISTICS: 'Charts and Statistics',
+            EXECUTIONS_NODES: 'Executions/Nodes',
+            SYSTEM_RESOURCES: 'System Resources',
+            OTHERS: 'Others',
+            ALL: 'All'
+        };
+    }
+
+    static get CUSTOM_WIDGET_PERMISSIONS () {
+        return {
+            CUSTOM_ADMIN_ONLY: 'widget_custom_admin',
+            CUSTOM_SYS_ADMIN_ONLY: 'widget_custom_sys_admin',
+            CUSTOM_ALL: 'widget_custom_all'
+        };
+    }
+
+    static WIDGET_PERMISSION = (widgetId) => {
+        return 'widget_'+widgetId
+    }
 }
+

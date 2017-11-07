@@ -16,6 +16,7 @@
     "StageUtils": true,
     "$": true,
     "moment": true,
+    "markdown": true,
     "d3": true,
     "React": true,
     "describe": true,
@@ -25,7 +26,7 @@
     "after": true,
     "afterEach": true,
     "angular": true,
-    "cloudifyTopology" : true
+    "cloudifyTopology": true
   },
   "parser": "babel-eslint",
   "rules": {

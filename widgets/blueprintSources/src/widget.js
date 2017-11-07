@@ -13,7 +13,10 @@ Stage.defineWidget({
     initialHeight: 20,
     color : "orange",
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('blueprintSources'),
     hasStyle: true,
+    categories: [Stage.GenericConfig.CATEGORY.BLUEPRINTS],
+
     initialConfiguration: [
         {id: "contentPaneWidth", name: "Content pane initial width in %", default: 65, type: Stage.Basic.GenericField.NUMBER_TYPE}
     ],

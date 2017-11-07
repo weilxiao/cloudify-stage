@@ -11,6 +11,9 @@ Stage.defineWidget({
     color : "red",
     showHeader: false,
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('serversNum'),
+    categories: [Stage.GenericConfig.CATEGORY.CHARTS_AND_STATISTICS],
+    
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(5)
     ],
