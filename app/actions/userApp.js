@@ -47,7 +47,7 @@ export function resetPages(){
         dispatch(setPages([]));
         return dispatch(createPagesFromTemplate())
             .then(() => {
-                dispatch(setAppLoading(false))
+                dispatch(setAppLoading(false));
                 dispatch(push('/'));
             })
             .catch(err => {
@@ -69,6 +69,9 @@ export function loadOrCreateUserAppData() {
                 if (userApp &&
                     userApp.appDataVersion === CURRENT_APP_DATA_VERSION &&
                     userApp.appData.pages && userApp.appData.pages.length > 0) {
+                   if (!_.find(userApp.appData.pages, {id: getState().app.currentPageId})) {
+                       dispatch(push('/'));
+                   }
                     return dispatch(setPages(userApp.appData.pages));
                 } else {
                     return dispatch(resetPages());
