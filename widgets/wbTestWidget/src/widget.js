@@ -4,6 +4,7 @@
 
 import RequestServiceDemo from './RequestServiceDemo';
 import ManagerServiceDemo from './ManagerServiceDemo';
+import DatabaseServiceDemo from './DatabaseServiceDemo';
 
 Stage.defineWidget({
     id: 'wbTest',
@@ -20,7 +21,8 @@ Stage.defineWidget({
         {id: 'service', name: 'Service', default: 'manager', type: Stage.Basic.GenericField.LIST_TYPE,
             items: [
                 {name: 'Manager', value: 'manager'},
-                {name: 'Request', value: 'request'}
+                {name: 'Request', value: 'request'},
+                {name: 'Database', value: 'database'}
             ]
         }
     ],
@@ -28,6 +30,11 @@ Stage.defineWidget({
     render: function(widget,data,error,toolbox) {
 
         switch(widget.configuration.service) {
+            case 'database':
+                return (
+                    <DatabaseServiceDemo widgetBackend={toolbox.getWidgetBackend()}/>
+                );
+                break;
             case 'manager':
                 return (
                     <ManagerServiceDemo widgetBackend={toolbox.getWidgetBackend()}/>
