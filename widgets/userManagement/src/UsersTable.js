@@ -15,8 +15,9 @@ export default class UsersTable extends React.Component {
         super(props, context);
 
         this.state = {
+            error: null,
             showModal: false,
-            modalType: "",
+            modalType: '',
             user: {},
             tenants: {},
             groups: {}
@@ -24,8 +25,8 @@ export default class UsersTable extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -42,7 +43,7 @@ export default class UsersTable extends React.Component {
     }
 
     fetchData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     _selectUser(userName) {
@@ -55,7 +56,7 @@ export default class UsersTable extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doGetTenants().then((tenants)=>{
-            this.setState({user, tenants, modalType: value, showModal: true});
+            this.setState({error: null, user, tenants, modalType: value, showModal: true});
             this.props.toolbox.loading(false);
         }).catch((err)=> {
             this.setState({error: err.message});
@@ -68,7 +69,7 @@ export default class UsersTable extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doGetGroups().then((groups)=>{
-            this.setState({user, groups, modalType: value, showModal: true});
+            this.setState({error: null, user, groups, modalType: value, showModal: true});
             this.props.toolbox.loading(false);
         }).catch((err)=> {
             this.setState({error: err.message});
@@ -118,8 +119,15 @@ export default class UsersTable extends React.Component {
         });
     }
 
+    componentWillReceiveProps(nextProps){
+        if(!_.isEqual(this.props.data, nextProps.data)){
+            this.setState({activateLoading: false});
+        }    
+    }
+    
     _activateUser(user) {
         this.props.toolbox.loading(true);
+        this.setState({activateLoading: user.username})
 
         var actions = new Actions(this.props.toolbox);
         actions.doActivate(user.username).then(()=>{
@@ -127,7 +135,7 @@ export default class UsersTable extends React.Component {
             this.props.toolbox.loading(false);
             this.props.toolbox.refresh();
         }).catch((err)=>{
-            this.setState({error: err.message});
+            this.setState({error: err.message, activateLoading: false});
             this.props.toolbox.loading(false);
         });
 
@@ -135,6 +143,7 @@ export default class UsersTable extends React.Component {
 
     _deactivateUser(user) {
         this.props.toolbox.loading(true);
+        this.setState({activateLoading: user.username})
 
         var actions = new Actions(this.props.toolbox);
         actions.doDeactivate(user.username).then(()=>{
@@ -146,24 +155,25 @@ export default class UsersTable extends React.Component {
                 this.props.toolbox.refresh();
             }
         }).catch((err)=>{
-            this.setState({error: err.message});
+            this.setState({error: err.message, activateLoading: false});
             this.props.toolbox.loading(false);
         });
     }
 
     render() {
-        let {ErrorMessage, DataTable, Checkmark, Label, Confirm} = Stage.Basic;
+        let {ErrorMessage, DataTable, Loader, Checkbox, Label, Confirm} = Stage.Basic;
+        let tableName = 'usersTable';
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchData.bind(this)}
                            totalSize={this.props.data.total}
                            pageSize={this.props.widget.configuration.pageSize}
                            sortColumn={this.props.widget.configuration.sortColumn}
                            sortAscending={this.props.widget.configuration.sortAscending}
-                           className="usersTable">
+                           className={tableName}>
 
                     <DataTable.Column label="Username" name="username" width="32%" />
                     <DataTable.Column label="Last login" name="last_login_at" width="18%" />
@@ -176,11 +186,23 @@ export default class UsersTable extends React.Component {
                         this.props.data.items.map((item) => {
                             return (
                                 <DataTable.RowExpandable key={item.username} expanded={item.isSelected}>
-                                    <DataTable.Row key={item.username} selected={item.isSelected} onClick={this._selectUser.bind(this, item.username)}>
+                                    <DataTable.Row id={`${tableName}_${item.username}`} key={item.username} selected={item.isSelected} onClick={this._selectUser.bind(this, item.username)}>
                                         <DataTable.Data>{item.username}</DataTable.Data>
                                         <DataTable.Data>{item.last_login_at}</DataTable.Data>
                                         <DataTable.Data>{item.role}</DataTable.Data>
-                                        <DataTable.Data><Checkmark value={item.active}/></DataTable.Data>
+                                        <DataTable.Data className="center aligned">
+                                        {this.state.activateLoading === item.username ? 
+                                            <Loader active inline size='mini'></Loader> :
+                                            <Checkbox 
+                                                checked={item.active}
+                                                onChange={() => 
+                                                    item.active 
+                                                    ? this._showModal(MenuAction.DEACTIVATE_ACTION, item) 
+                                                    : this._showModal(MenuAction.ACTIVATE_ACTION, item) 
+                                                }
+                                                onClick={(e)=>{e.stopPropagation();}}
+                                            />}
+                                        </DataTable.Data>
                                         <DataTable.Data><Label className="green" horizontal>{item.groupCount}</Label></DataTable.Data>
                                         <DataTable.Data><Label className="blue" horizontal>{item.tenantCount}</Label></DataTable.Data>
                                         <DataTable.Data className="center aligned">
@@ -195,7 +217,7 @@ export default class UsersTable extends React.Component {
                         })
                     }
                     <DataTable.Action>
-                        <CreateModal toolbox={this.props.toolbox}/>
+                        <CreateModal roles={this.props.roles} toolbox={this.props.toolbox}/>
                     </DataTable.Action>
                 </DataTable>
 
@@ -207,6 +229,7 @@ export default class UsersTable extends React.Component {
 
                 <RoleModal
                     open={this.state.modalType === MenuAction.SET_ROLE_ACTION && this.state.showModal}
+                    roles={this.props.roles}
                     user={this.state.user}
                     onHide={this._hideModal.bind(this)}
                     toolbox={this.props.toolbox}/>

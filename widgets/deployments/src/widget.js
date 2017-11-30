@@ -7,15 +7,17 @@ import DeploymentsList from './DeploymentsList';
 Stage.defineWidget({
     id: "deployments",
     name: 'Blueprint deployments',
-    description: 'blah blah blah',
+    description: 'Shows blueprint deployments list',
     initialWidth: 8,
     initialHeight: 24,
     color : "purple",
+    categories: [Stage.GenericConfig.CATEGORY.DEPLOYMENTS],
+
     initialConfiguration:
         [
             Stage.GenericConfig.POLLING_TIME_CONFIG(2),
             Stage.GenericConfig.PAGE_SIZE_CONFIG(),
-            {id: "clickToDrillDown", name: "Should click to drilldown", default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
+            {id: "clickToDrillDown", name: "Enable click to drill down", default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
             {id: "blueprintIdFilter", name: "Blueprint ID to filter by", placeHolder: "Enter the blueprint id you wish to filter by", type: Stage.Basic.GenericField.STRING_TYPE},
             {id: "displayStyle", name: "Display style", items: [{name:'Table', value:'table'}, {name:'List', value:'list'}],
                 default: "table", type: Stage.Basic.GenericField.LIST_TYPE},
@@ -23,15 +25,20 @@ Stage.defineWidget({
             Stage.GenericConfig.SORT_ASCENDING_CONFIG(false)
         ],
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('deployments'),
 
     fetchParams: function(widget, toolbox) {
         var blueprintId = toolbox.getContext().getValue('blueprintId');
 
         blueprintId = _.isEmpty(widget.configuration.blueprintIdFilter) ? blueprintId : widget.configuration.blueprintIdFilter;
 
-        return {
+        let obj = {
             blueprint_id: blueprintId
         }
+        if(toolbox.getContext ().getValue ('onlyMyResources')){
+            obj.created_by = toolbox.getManager().getCurrentUsername();
+        }
+        return obj;
     },
 
     fetchData: function(widget,toolbox,params) {

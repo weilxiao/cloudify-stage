@@ -11,13 +11,14 @@ export default class extends React.Component {
         super(props,context);
 
         this.state = {
+            error: null,
             confirmDelete: false
         }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -40,6 +41,7 @@ export default class extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doDownload(item)
+               .then(() => {this.setState({error: null})})
                .catch((err) => {this.setState({error: err.message})});
     }
 
@@ -52,11 +54,25 @@ export default class extends React.Component {
         var actions = new Actions(this.props.toolbox);
         actions.doDelete(this.state.item)
             .then(()=> {
-                this.setState({confirmDelete: false});
+                this.setState({confirmDelete: false, error: null});
                 this.props.toolbox.getEventBus().trigger('plugins:refresh');
             })
             .catch(err=>{
                 this.setState({confirmDelete: false, error: err.message});
+            });
+    }
+
+    _setGlobalPlugin(item) {
+        var actions = new Actions(this.props.toolbox);
+        this.props.toolbox.loading(true);
+        actions.doSetGlobal(item)
+            .then(()=> {
+                this.props.toolbox.loading(false);
+                this.props.toolbox.refresh();
+            })
+            .catch((err)=>{
+                this.props.toolbox.loading(false);
+                this.setState({error: err.message});
             });
     }
 
@@ -73,17 +89,15 @@ export default class extends React.Component {
     }
 
     fetchGridData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     render() {
-        var Confirm = Stage.Basic.Confirm;
-        var ErrorMessage = Stage.Basic.ErrorMessage;
-        var DataTable = Stage.Basic.DataTable;
+        var {Confirm, ErrorMessage, DataTable, ResourceAvailability} = Stage.Basic;
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchGridData.bind(this)}
                            totalSize={this.props.data.total}
@@ -107,7 +121,10 @@ export default class extends React.Component {
                         this.props.data.items.map((item)=>{
                             return (
                                 <DataTable.Row key={item.id} selected={item.isSelected} onClick={this._selectPlugin.bind(this, item)}>
-                                    <DataTable.Data><a className='pluginName' href="javascript:void(0)">{item.id}</a></DataTable.Data>
+                                    <DataTable.Data>
+                                        {item.id}
+                                        <ResourceAvailability availability={item.resource_availability} onSetGlobal={this._setGlobalPlugin.bind(this, item)} className="rightFloated"/>
+                                    </DataTable.Data>
                                     <DataTable.Data>{item.package_name}</DataTable.Data>
                                     <DataTable.Data>{item.package_version}</DataTable.Data>
                                     <DataTable.Data>{item.supported_platform}</DataTable.Data>

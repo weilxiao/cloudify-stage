@@ -26,8 +26,8 @@ export default class SecretsTable extends React.Component {
     static UPDATE_SECRET_ACTION = 'update';
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -45,7 +45,7 @@ export default class SecretsTable extends React.Component {
     }
 
     fetchGridData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     _onDeleteSecret(secret) {
@@ -86,18 +86,32 @@ export default class SecretsTable extends React.Component {
         });
     }
 
+    _setGlobalSecret(secret) {
+        var actions = new Actions(this.props.toolbox);
+        this.props.toolbox.loading(true);
+        actions.doSetGlobal(secret.key)
+            .then(()=> {
+                this.props.toolbox.loading(false);
+                this.props.toolbox.refresh();
+            })
+            .catch((err)=>{
+                this.props.toolbox.loading(false);
+                this.setState({error: err.message});
+            });
+    }
+
     _hideModal() {
         this.setState({showModal: false});
     }
 
     render() {
-        let {ErrorMessage, DataTable, Icon, Label} = Stage.Basic;
+        let {ErrorMessage, DataTable, Icon, ResourceAvailability} = Stage.Basic;
         let DeleteModal = Stage.Basic.Confirm;
         let data = this.props.data;
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchGridData.bind(this)}
                            totalSize={data.total}
@@ -118,15 +132,18 @@ export default class SecretsTable extends React.Component {
                         data.items.map((secret)=>{
                             return (
                                 <DataTable.Row key={secret.key}>
-                                    <DataTable.Data>{secret.key}</DataTable.Data>
+                                    <DataTable.Data>
+                                        {secret.key}
+                                        <ResourceAvailability availability={secret.resource_availability} onSetGlobal={this._setGlobalSecret.bind(this, secret)} className="rightFloated"/>
+                                    </DataTable.Data>
                                     <DataTable.Data className="center aligned rowActions">
                                         {
                                             this.state.showSecretKey === secret.key
                                                 ? this.state.showSecretLoading
                                                     ? <Icon name="spinner" loading />
                                                     : <div>
-                                                        <Label>{this.state.showSecretValue}</Label>
-                                                        <Icon bordered link name="hide" title="Hide secret valeu" onClick={this._onHideSecret.bind(this)} />
+                                                        <pre className="forceMaxWidth">{this.state.showSecretValue}</pre>
+                                                        <Icon bordered link name="hide" title="Hide secret value" onClick={this._onHideSecret.bind(this)} />
                                                       </div>
                                                 : <Icon bordered link name="unhide" title="Show secret value" onClick={this._onShowSecret.bind(this, secret)} />
                                         }

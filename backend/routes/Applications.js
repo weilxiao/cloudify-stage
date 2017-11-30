@@ -6,11 +6,13 @@
 
 var bodyParser = require('body-parser');
 var express = require('express');
-var router = express.Router();
+var passport = require('passport');
 
+var router = express.Router();
 var logger = require('log4js').getLogger('Applications');
 var db = require('../db/Connection');
 
+router.use(passport.authenticate('token', {session: false}));
 router.use(bodyParser.json());
 
 router.get('/', (req, res, next) => {

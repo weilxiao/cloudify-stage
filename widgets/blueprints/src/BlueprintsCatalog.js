@@ -15,19 +15,20 @@ export default class BlueprintsCatalog extends React.Component{
         fetchData: PropTypes.func,
         onSelectBlueprint: PropTypes.func,
         onDeleteBlueprint: PropTypes.func,
-        onCreateDeployment: PropTypes.func
-
+        onCreateDeployment: PropTypes.func,
+        onSetGlobal: PropTypes.func
     };
 
     static defaultProps = {
         fetchData: ()=>{},
         onSelectBlueprint: ()=>{},
         onDeleteBlueprint: ()=>{},
-        onCreateDeployment: ()=>{}
+        onCreateDeployment: ()=>{},
+        onSetGlobal: ()=>{}
     };
 
     render(){
-        var {DataSegment, Grid, Image, Button, Label} = Stage.Basic;
+        var {DataSegment, Grid, Image, Button, Label, ResourceAvailability, Header} = Stage.Basic;
 
         var index=0;
         var blueprintsItems =
@@ -35,17 +36,20 @@ export default class BlueprintsCatalog extends React.Component{
                 return (
                     <Grid.Column key={item.id}>
 
-                        <DataSegment.Item selected={item.isSelected} className="fullHeight"
+                        <DataSegment.Item selected={item.isSelected} className={`fullHeight ${item.id}`}
                                           onClick={(event)=>{event.stopPropagation(); this.props.onSelectBlueprint(item)}}>
                             <Grid>
                                 <Grid.Row className="bottomDivider">
-                                    <Grid.Column width="4"><Image src={`/ba/image/${item.id}`} centered={true}/></Grid.Column>
-                                    <Grid.Column width="12">
-                                        <h3 className="ui icon header verticalCenter">
-                                            <a className="underline" href="javascript:void(0)">{item.id}</a>
-                                        </h3>
+                                    <Grid.Column width="16">
+                                        <Image src={Stage.Utils.url(`/ba/image/${item.id}`)}/>
+                                        <Header><a href="javascript:void(0)" className="breakWord">{item.id}</a></Header>
+                                        <ResourceAvailability availability={item.resource_availability} onSetGlobal={()=>this.props.onSetGlobal(item)} className="rightFloated"/>
                                     </Grid.Column>
                                 </Grid.Row>
+
+                                <Grid.Column width="16">
+                                    {item.description}
+                                </Grid.Column>
 
                                 <Grid.Row className="noPadded">
                                     <Grid.Column width="7"><h5 className="ui icon header">Created</h5></Grid.Column>
@@ -61,6 +65,12 @@ export default class BlueprintsCatalog extends React.Component{
                                     <Grid.Column width="7"><h5 className="ui icon header">Creator</h5></Grid.Column>
                                     <Grid.Column width="9">{item.created_by}</Grid.Column>
                                 </Grid.Row>
+
+                                <Grid.Row className="noPadded">
+                                    <Grid.Column width="7"><h5 className="ui icon header">Main Blueprint File</h5></Grid.Column>
+                                    <Grid.Column width="9">{item.main_file_name}</Grid.Column>
+                                </Grid.Row>
+
                                 <Grid.Row className="noPadded">
                                     <Grid.Column width="7"><h5 className="ui icon header"># Deployments</h5></Grid.Column>
                                     <Grid.Column width="9"><Label color="green" horizontal>{item.depCount}</Label></Grid.Column>
@@ -69,7 +79,7 @@ export default class BlueprintsCatalog extends React.Component{
                             </Grid>
 
                             <Grid.Column width="16">
-                                <div style={{height:"50px"}}></div>
+                                <div style={{height:'50px'}}></div>
                             </Grid.Column>
                         </DataSegment.Item>
 

@@ -10,49 +10,63 @@ new WebpackDevServer(webpack(config), {
     publicPath: config.output.publicPath,
     hot: true,
     inline: true,
-    historyApiFallback: true,
+    historyApiFallback: {
+        index:'/stage/index.html'
+    },
     proxy: {
-        '/sp': {
+        '/stage/sp': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/config': {
+        '/stage/auth': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/ua': {
+        '/stage/config': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/source': {
+        '/stage/ua': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/ba': {
+        '/stage/source': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/clientConfig': {
+        '/stage/ba': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/monitor': {
+        '/stage/clientConfig': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/github': {
+        '/stage/monitor': {
             target: 'http://localhost:8088',
             secure: false
         },
-        '/style': {
+        '/stage/github': {
+            target: 'http://localhost:8088',
+            secure: false
+        },
+        '/stage/style': {
+            target: 'http://localhost:8088',
+            secure: false
+        },
+        '/stage/widgets': {
+            target: 'http://localhost:8088',
+            secure: false
+        },
+        '/stage/templates': {
             target: 'http://localhost:8088',
             secure: false
         }
     }
-}).listen(3000, 'localhost', function (err, result) {
+}).listen(4000, 'localhost', function (err, result) {
         if (err) {
             return console.log(err);
         }
 
-        console.log('Listening at http://localhost:3000/');
+        console.log('Listening at http://localhost:4000/');
     });

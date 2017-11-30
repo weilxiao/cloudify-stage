@@ -6,15 +6,15 @@ var express = require('express');
 var path = require('path');
 var fs = require('fs');
 var ejs = require('ejs');
+var config = require('../config').get();
 
 var router = express.Router();
 
-var configuration = require('../../conf/app.json');
 var styleTemplateFile = path.resolve(__dirname, '../templates', 'style.ejs');
 
 var DEFAULT_MAIN_COLOR = '#000069';
 var DEFAULT_HEADER_TEXT_COLOR = '#d8e3e8';
-var DEFAULT_LOGO_URL = '/app/images/Cloudify-logo.png';
+var DEFAULT_LOGO_URL = config.app.contextPath + '/app/images/Cloudify-logo.png';
 var DEFAULT_SIDEBAR_COLOR = '#d8e3e8';
 var DEFAULT_SIDEBAR_TEXT_COLOR = '#000000';
 
@@ -24,11 +24,11 @@ function shadeColor(color, percent) {
     var p=percent<0?percent*-1:percent;
     var R=num>>16,G=num>>8&0x00FF,B=num&0x0000FF; // extract the RGB
     var newR = Math.round((t-R)*p)+R,newG = Math.round((t-G)*p)+G,newB = Math.round((t-B)*p)+B;
-    return "#"+(0x1000000+(newR)*0x10000+(newG)*0x100+(newB)).toString(16).slice(1);
+    return '#'+(0x1000000+(newR)*0x10000+(newG)*0x100+(newB)).toString(16).slice(1);
 }
 
 router.get('/', function(req, res, next) {
-    var whiteLabel = configuration.whiteLabel;
+    var whiteLabel = config.app.whiteLabel;
     var stylesheetTemplate = fs.readFileSync(styleTemplateFile, 'utf8');
 
     var stylesheet = ejs.render(stylesheetTemplate, {
@@ -40,7 +40,7 @@ router.get('/', function(req, res, next) {
         sidebarTextColor: whiteLabel.enabled && whiteLabel.sidebarTextColor || DEFAULT_SIDEBAR_TEXT_COLOR
     });
 
-    res.header("content-type", "text/css");
+    res.header('content-type', 'text/css');
     res.send(stylesheet);
 });
 

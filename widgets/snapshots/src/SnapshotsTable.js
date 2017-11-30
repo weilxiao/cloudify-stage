@@ -20,8 +20,8 @@ export default class extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -53,6 +53,7 @@ export default class extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doDownload(item)
+               .then(() => {this.setState({error: null})})
                .catch((err) => {this.setState({error: err.message})});
     }
 
@@ -64,7 +65,7 @@ export default class extends React.Component {
 
         var actions = new Actions(this.props.toolbox);
         actions.doDelete(this.state.item).then(()=>{
-            this.setState({confirmDelete: false});
+            this.setState({confirmDelete: false, error: null});
             this.props.toolbox.refresh();
         }).catch((err)=>{
             this.setState({confirmDelete: false, error: err.message});
@@ -88,15 +89,15 @@ export default class extends React.Component {
     }
 
     fetchGridData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     render() {
-        let {Confirm, ErrorMessage, DataTable, Icon} = Stage.Basic;
+        let {Confirm, ErrorMessage, DataTable, Icon, ResourceAvailability} = Stage.Basic;
 
         return (
             <div className="snapshotsTableDiv">
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchGridData.bind(this)}
                            totalSize={this.props.data.total}
@@ -117,7 +118,10 @@ export default class extends React.Component {
                             let isSnapshotUseful = this._isSnapshotUseful(item);
                             return (
                                 <DataTable.Row key={item.id} selected={item.isSelected} onClick={this._selectSnapshot.bind(this, item)}>
-                                    <DataTable.Data><a className='snapshotName' href="javascript:void(0)">{item.id}</a></DataTable.Data>
+                                    <DataTable.Data>
+                                        {item.id}
+                                        <ResourceAvailability availability={item.resource_availability} className="rightFloated"/>
+                                    </DataTable.Data>
                                     <DataTable.Data>{item.created_at}</DataTable.Data>
                                     <DataTable.Data>{item.status}</DataTable.Data>
                                     <DataTable.Data>{item.created_by}</DataTable.Data>

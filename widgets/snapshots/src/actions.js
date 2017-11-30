@@ -13,13 +13,13 @@ export default class {
 
     }
 
-    doRestore(snapshot,shouldForceRestore,newTenantName) {
+    doRestore(snapshot,shouldForceRestore) {
         return this.toolbox.getManager().doPost(`/snapshots/${snapshot.id}/restore`,null,
-            {force: shouldForceRestore, recreate_deployments_envs: false, tenant_name: newTenantName});
+            {force: shouldForceRestore, recreate_deployments_envs: false, tenant_name: ''});
     }
 
-    doUpload(snapshotUrl, snapshotId, file) {
-        var params = {};
+    doUpload(snapshotUrl, snapshotId, file, privateResource=false) {
+        var params = {private_resource: privateResource};
 
         if (!_.isEmpty(snapshotUrl)) {
             params['snapshot_archive_url'] = snapshotUrl;
@@ -40,11 +40,12 @@ export default class {
         return this.toolbox.getManager().doDownload(snapshotDownloadUrl, snapshotFileName);
     }
 
-    doCreate(snapshotId, includeMetrics=false, includeCredentials=false){
+    doCreate(snapshotId, includeMetrics=false, includeCredentials=false, privateResource=false){
         snapshotId = encodeURIComponent(snapshotId);
         return this.toolbox.getManager().doPut(`/snapshots/${snapshotId}`, null, {
             include_metrics: includeMetrics,
-            include_credentials: includeCredentials
+            include_credentials: includeCredentials,
+            private_resource: privateResource
         });
     }
 }

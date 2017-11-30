@@ -13,7 +13,10 @@ Stage.defineWidget({
     initialHeight: 20,
     color : "orange",
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('blueprintSources'),
     hasStyle: true,
+    categories: [Stage.GenericConfig.CATEGORY.BLUEPRINTS],
+
     initialConfiguration: [
         {id: "contentPaneWidth", name: "Content pane initial width in %", default: 65, type: Stage.Basic.GenericField.NUMBER_TYPE}
     ],
@@ -43,10 +46,7 @@ Stage.defineWidget({
             blueprintId = blueprint_id;
 
             if (blueprintId) {
-                return actions.doGetBlueprintDetails(blueprintId).then(data => {
-                    var lastUpdate = Stage.Utils.formatTimestamp(data.updated_at, 'DDMMYYYYHHmm');
-                    return actions.doGetFilesTree(blueprintId, lastUpdate).then(tree => Promise.resolve({tree, blueprintId}));
-                });
+                return actions.doGetFilesTree(blueprintId).then(tree => Promise.resolve({tree, blueprintId}));
             } else {
                 return Promise.resolve({tree:{}});
             }

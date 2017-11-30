@@ -1,0 +1,55 @@
+{
+  "name": "Dashboard",
+  "widgets": [
+    {
+      "name": "Widget_0",
+      "width": 2,
+      "height": 8,
+      "definition": "deploymentNum",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "name": "Widget_1",
+      "width": 2,
+      "height": 8,
+      "definition": "serversNum",
+      "x": 4,
+      "y": 0
+    },
+    {
+      "name": "Widget_2",
+      "width": 2,
+      "height": 8,
+      "definition": "pluginsNum",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "name": "Filter",
+      "definition": "filter",
+      "x": 0,
+      "y": 8,
+      "configuration": {
+        "filterByExecutions":false
+      }
+    },
+    {
+      "name": "Executions",
+      "width": 12,
+      "height": 25,
+      "definition": "executions",
+      "x": 0,
+      "y": 12
+    },
+    {
+      "name": "Events/Logs",
+      "width": 12,
+      "height": 25,
+      "definition": "events",
+      "x": 0,
+      "y": 37
+    }
+
+  ]
+}

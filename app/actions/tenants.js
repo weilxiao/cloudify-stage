@@ -4,6 +4,10 @@
 
 import * as types from './types';
 import Manager from '../utils/Manager';
+import {setAppLoading} from './app';
+import {clearContext} from './context';
+import {reloadUserAppData} from './userApp';
+import { push } from 'react-router-redux';
 
 function requestTenants() {
     return {
@@ -38,6 +42,7 @@ export function getTenants (manager) {
             }).catch((err)=>{
                 console.error(err);
                 dispatch(errorTenants(err.message));
+                return Promise.reject(err);
             });
     }
 }
@@ -46,5 +51,14 @@ export function selectTenant (tenantName) {
     return {
         type: types.SELECT_TENANT,
         tenant: tenantName
+    }
+}
+
+export function changeTenant (tenantName) {
+    return function(dispatch) {
+        dispatch(setAppLoading(true));
+        dispatch(clearContext());
+        dispatch(selectTenant(tenantName));
+        dispatch(reloadUserAppData());
     }
 }

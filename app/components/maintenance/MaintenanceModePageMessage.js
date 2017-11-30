@@ -17,7 +17,8 @@ export default class MaintenanceModePageMessage extends Component {
     }
 
     static propTypes = {
-        manager: PropTypes.object.isRequired
+        manager: PropTypes.object.isRequired,
+        canMaintenanceMode: PropTypes.bool.isRequired
     };
 
 
@@ -38,9 +39,9 @@ export default class MaintenanceModePageMessage extends Component {
     render () {
         var {Label,Icon} = Stage.Basic;
         return (
-            <div className='maintenancePage ui segment basic inverted teal'>
+            <div className='maintenancePage ui segment basic'>
                 <div className="logo">
-                    <img src="/app/images/Cloudify-logo.png" />
+                    <img src={Stage.Utils.url('/app/images/Cloudify-logo.png')}/>
                 </div>
 
                 <div className="ui raised very padded text container segment center aligned maintenanceContainer">
@@ -49,7 +50,7 @@ export default class MaintenanceModePageMessage extends Component {
                     <p>Server is on maintenance mode and is not available at the moment.</p>
 
                     {
-                        this.props.manager.auth.role === Consts.ROLE_ADMIN &&
+                        this.props.canMaintenanceMode &&
                         <Label as='a' onClick={()=> this.setState({showMaintenanceModal: true})}>
                             <Icon name='doctor'/>
                             Deactivate maintenance mode
@@ -59,7 +60,7 @@ export default class MaintenanceModePageMessage extends Component {
                 </div>
 
                 {
-                    this.props.manager.auth.role === Consts.ROLE_ADMIN &&
+                    this.props.canMaintenanceMode &&
                     <MaintenanceMode show={this.state.showMaintenanceModal}
                                      onHide={()=> this.setState({showMaintenanceModal: false})}/>
 

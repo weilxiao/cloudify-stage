@@ -14,19 +14,21 @@ export default class BlueprintsTable extends React.Component{
         fetchGridData: PropTypes.func,
         onSelectBlueprint: PropTypes.func,
         onDeleteBlueprint: PropTypes.func,
-        onCreateDeployment: PropTypes.func
-
+        onCreateDeployment: PropTypes.func,
+        onSetGlobal: PropTypes.func
     };
 
     static defaultProps = {
         fetchGridData: ()=>{},
         onSelectBlueprint: ()=>{},
         onDeleteBlueprint: ()=>{},
-        onCreateDeployment: ()=>{}
+        onCreateDeployment: ()=>{},
+        onSetGlobal: ()=>{}
     };
 
     render(){
-        var {DataTable, Image} = Stage.Basic;
+        var {DataTable, Image, ResourceAvailability} = Stage.Basic;
+        let tableName = 'blueprintsTable';
 
         return (
             <DataTable fetchData={this.props.fetchGridData}
@@ -35,23 +37,28 @@ export default class BlueprintsTable extends React.Component{
                        sortColumn={this.props.widget.configuration.sortColumn}
                        sortAscending={this.props.widget.configuration.sortAscending}
                        selectable={true}
-                       className="blueprintsTable">
+                       className={tableName}>
 
-                <DataTable.Column label="Name" name="id" width="30%"/>
+                <DataTable.Column label="Name" name="id" width="20%"/>
                 <DataTable.Column label="Created" name="created_at" width="15%"/>
                 <DataTable.Column label="Updated" name="updated_at" width="15%"/>
                 <DataTable.Column label="Creator" name='created_by' width="15%"/>
-                <DataTable.Column label="# Deployments" width="15%"/>
+                <DataTable.Column label="Main Blueprint File" name='main_file_name' width="15%"/>
+                <DataTable.Column label="# Deployments" width="10%"/>
                 <DataTable.Column width="10%"/>
 
                 {
                     this.props.data.items.map((item)=>{
                         return (
-                            <DataTable.Row key={item.id} selected={item.isSelected} onClick={()=>this.props.onSelectBlueprint(item)}>
-                                <DataTable.Data><Image src={`/ba/image/${item.id}`} width="30px" height="auto" inline/> <a className='blueprintName' href="javascript:void(0)">{item.id}</a></DataTable.Data>
+                            <DataTable.Row id={`${tableName}_${item.id}`} key={item.id} selected={item.isSelected} onClick={()=>this.props.onSelectBlueprint(item)}>
+                                <DataTable.Data>
+                                    <Image src={Stage.Utils.url(`/ba/image/${item.id}`)} width="30px" height="auto" inline/> <a className='blueprintName' href="javascript:void(0)">{item.id}</a>
+                                    <ResourceAvailability availability={item.resource_availability} onSetGlobal={()=>this.props.onSetGlobal(item)} className="rightFloated"/>
+                                </DataTable.Data>
                                 <DataTable.Data>{item.created_at}</DataTable.Data>
                                 <DataTable.Data>{item.updated_at}</DataTable.Data>
                                 <DataTable.Data>{item.created_by}</DataTable.Data>
+                                <DataTable.Data>{item.main_file_name}</DataTable.Data>
                                 <DataTable.Data><div className="ui green horizontal label">{item.depCount}</div></DataTable.Data>
                                 <DataTable.Data className="center aligned rowActions">
                                     <i className="rocket icon link bordered" title="Create deployment" onClick={(event)=>{event.stopPropagation();this.props.onCreateDeployment(item)}}></i>

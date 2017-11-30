@@ -4,8 +4,8 @@
 
 let PropTypes = React.PropTypes;
 
-const DEFAULT_WORKFLOW = "default";
-const CUSTOM_WORKFLOW = "custom";
+const DEFAULT_WORKFLOW = 'default';
+const CUSTOM_WORKFLOW = 'custom';
 
 export default class UpdateDeploymentModal extends React.Component {
 
@@ -20,10 +20,13 @@ export default class UpdateDeploymentModal extends React.Component {
         runWorkflow: DEFAULT_WORKFLOW,
         installWorkflow: true,
         uninstallWorkflow: true,
-        applicationFileName: "",
-        blueprintUrl: "",
-        workflowId: "",
-        errors: {}
+        applicationFileName: '',
+        blueprintUrl: '',
+        workflowId: '',
+        errors: {},
+        urlLoading: false,
+        fileLoading: false,
+        yamlFiles: []
     }
 
     static propTypes = {
@@ -57,15 +60,15 @@ export default class UpdateDeploymentModal extends React.Component {
 
         let errors = {};
         if (_.isEmpty(this.state.blueprintUrl) && !blueprintFile) {
-            errors["blueprintUrl"]="Please select blueprint file or url";
+            errors['blueprintUrl']='Please select blueprint file or url';
         }
 
         if (!_.isEmpty(this.state.blueprintUrl) && blueprintFile) {
-            errors["blueprintUrl"]="Either blueprint file or url must be selected, not both";
+            errors['blueprintUrl']='Either blueprint file or url must be selected, not both';
         }
 
         if (this.state.runWorkflow === CUSTOM_WORKFLOW && _.isEmpty(this.state.workflowId)) {
-            errors["workflowId"]="Please provide workflow id";
+            errors['workflowId']='Please provide workflow id';
         }
 
         if (!_.isEmpty(errors)) {
@@ -85,7 +88,7 @@ export default class UpdateDeploymentModal extends React.Component {
                          this.state.uninstallWorkflow,
                          this.state.workflowId,
                          blueprintFile, inputsFile).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.refresh();
             this.props.onHide();
         }).catch((err)=>{
@@ -97,21 +100,59 @@ export default class UpdateDeploymentModal extends React.Component {
         this.setState(Stage.Basic.Form.fieldNameValue(field));
     }
 
+    _onBlueprintUrlBlur() {
+        if (!this.state.blueprintUrl) {
+            this.setState({yamlFiles: [], errors: {}});
+            return;
+        }
+
+        this.setState({urlLoading: true});
+        this.refs.blueprintFile.reset();
+
+        var actions = new Stage.Common.BlueprintActions(this.props.toolbox);
+        actions.doListYamlFiles(this.state.blueprintUrl).then((yamlFiles)=>{
+            this.setState({yamlFiles, errors: {}, urlLoading: false});
+        }).catch((err)=>{
+            this.setState({errors: {error: err.message}, urlLoading: false});
+        });
+    }
+
+    _onBlueprintFileChange(file) {
+        if (!file) {
+            this.setState({yamlFiles: [], errors: {}});
+            return;
+        }
+
+        this.setState({fileLoading: true, blueprintUrl: ''});
+
+        var actions = new Stage.Common.BlueprintActions(this.props.toolbox);
+        actions.doListYamlFiles(null, file).then((yamlFiles)=>{
+            this.setState({yamlFiles, errors: {}, fileLoading: false});
+        }).catch((err)=>{
+            this.setState({errors: {error: err.message}, fileLoading: false});
+        });
+    }
+
     render() {
         var {Modal, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
 
+        var options = _.map(this.state.yamlFiles, item => { return {text: item, value: item} });
+
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()} className="updateDeploymentModal">
                 <Modal.Header>
                     <Icon name="edit"/> Update deployment {this.props.deployment.id}
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Group>
                             <Form.Field width="9" error={this.state.errors.blueprintUrl}>
                                 <Form.Input label="URL" placeholder="Enter new blueprint url" name="blueprintUrl"
-                                            value={this.state.blueprintUrl} onChange={this._handleInputChange.bind(this)}/>
+                                            value={this.state.blueprintUrl} onChange={this._handleInputChange.bind(this)}
+                                            onBlur={this._onBlueprintUrlBlur.bind(this)} loading={this.state.urlLoading}
+                                            icon={this.state.urlLoading?'search':false} disabled={this.state.urlLoading}/>
                             </Form.Field>
                             <Form.Field width="1" style={{position:'relative'}}>
                                 <div className="ui vertical divider">
@@ -119,7 +160,9 @@ export default class UpdateDeploymentModal extends React.Component {
                                 </div>
                             </Form.Field>
                             <Form.Field width="8" error={this.state.errors.blueprintUrl}>
-                                <Form.File placeholder="Select new blueprint file" name="blueprintFile" ref="blueprintFile"/>
+                                <Form.File placeholder="Select new blueprint file" name="blueprintFile" ref="blueprintFile"
+                                           onChange={this._onBlueprintFileChange.bind(this)} loading={this.state.fileLoading}
+                                           disabled={this.state.fileLoading}/>
                             </Form.Field>
                         </Form.Group>
 
@@ -128,8 +171,8 @@ export default class UpdateDeploymentModal extends React.Component {
                         </Form.Field>
 
                         <Form.Field>
-                            <Form.Input name='applicationFileName' placeholder="Blueprint filename e.g. blueprint"
-                                        value={this.state.applicationFileName} onChange={this._handleInputChange.bind(this)}/>
+                            <Form.Dropdown placeholder='Blueprint filename' search selection options={options} name="applicationFileName"
+                                           value={this.state.applicationFileName} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
 
                         <Form.Divider>

@@ -3,7 +3,7 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import { Popup } from 'semantic-ui-react';
+import { Popup as PopupSemanticUiReact } from 'semantic-ui-react';
 
 class Wrapper extends Component {
 
@@ -16,11 +16,35 @@ class Wrapper extends Component {
     }
 }
 
-export default class PopupWrapper extends Component {
+/**
+ * Popup is a component which wraps [Popup](https://react.semantic-ui.com/modules/popup) used to
+ * display additional information popup.
+ *
+ * See [Popup](https://react.semantic-ui.com/modules/popup) component from Semantic-UI-React for details about props.
+ *
+ * ## Access
+ * `Stage.Basic.Popup`
+ *
+ * ## Usage
+ * ```
+ * <Popup>
+ *   <Popup.Trigger><Label icon="comment">Popup trigger</Label></Popup.Trigger>
+ *   <div>Popup content</div>
+ * </Popup>
+ * ```
+ *
+ * ### Popup - closed (only popup trigger)
+ * ![Popup](manual/asset/Popup_0.png)
+ *
+ * ### Popup - opened (mouse over trigger)
+ * ![Popup](manual/asset/Popup_1.png)
+ *
+ */
+export default class Popup extends Component {
 
     static Trigger = Wrapper;
-    static Content = Popup.Content;
-    static Header = Popup.Header;
+    static Content = PopupSemanticUiReact.Content;
+    static Header = PopupSemanticUiReact.Header;
 
     static propTypes = Popup.propTypes;
 
@@ -30,16 +54,16 @@ export default class PopupWrapper extends Component {
         let children = this.props.children;
 
         React.Children.forEach(this.props.children, function (child) {
-            if (child.type && child.type.name === "Wrapper") {
+            if (child.type && child.type === Wrapper) {
                 trigger = child.props.children;
                 children = _.without(props.children, child);
             }
         });
 
         return (
-            <Popup {...this.props} trigger={trigger}>
+            <PopupSemanticUiReact {...this.props} trigger={trigger}>
                 {children}
-            </Popup>
+            </PopupSemanticUiReact>
         );
     }
 }

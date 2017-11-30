@@ -24,8 +24,8 @@ export default class DeploymentActionButtons extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.deployment, nextProps.deployment);
     }
 
@@ -38,6 +38,8 @@ export default class DeploymentActionButtons extends React.Component {
             this._hideModal();
             this.props.toolbox.loading(false);
             this.props.toolbox.getEventBus().trigger('deployments:refresh');
+
+            this.props.toolbox.goToParentPage();
         }).catch((err) => {
             this.setState({loading: false, error: err.message});
             this._hideModal();
@@ -69,11 +71,11 @@ export default class DeploymentActionButtons extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <PopupMenu className="workflowAction" position="bottom center" offset={0}>
                     <Popup.Trigger>
-                        <Button className="labeled icon" color="teal" icon="content"
+                        <Button className="labeled icon" color="teal" icon="content" id="executeWorkflowButton"
                                 disabled={_.isEmpty(deploymentId) || this.state.loading} content="Execute workflow" />
                     </Popup.Trigger>
                     
@@ -89,16 +91,16 @@ export default class DeploymentActionButtons extends React.Component {
 
                 <Button className="labeled icon" color="teal" icon="edit" disabled={_.isEmpty(deploymentId) || this.state.loading}
                         onClick={this._showModal.bind(this, DeploymentActionButtons.EDIT_ACTION)}
-                        content="Update deployment"/>
+                        content="Update deployment" id="updateDeploymentButton"/>
 
                 <Button className="labeled icon" color="teal" icon="trash" disabled={_.isEmpty(deploymentId) || this.state.loading}
                         onClick={this._showModal.bind(this, DeploymentActionButtons.DELETE_ACTION)}
-                        content="Delete deployment"/>
+                        content="Delete deployment" id="deleteDeploymentButton"/>
 
                 <Confirm content={`Are you sure you want to remove deployment ${deploymentId}?`}
                          open={this._isShowModal(DeploymentActionButtons.DELETE_ACTION)}
                          onConfirm={this._deleteDeployment.bind(this)}
-                         onCancel={this._hideModal.bind(this)} />
+                         onCancel={this._hideModal.bind(this)} className="deploymentRemoveConfirm"/>
 
                 <ExecuteDeploymentModal
                     open={this._isShowModal(DeploymentActionButtons.WORKFLOW_ACTION)}

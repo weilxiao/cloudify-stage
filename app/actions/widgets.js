@@ -5,7 +5,24 @@
 
 import * as types from './types';
 import {createDrilldownPage,selectPage} from './page';
+import {drillDownWarning} from './templateManagement';
 import {v4} from 'node-uuid';
+import widgetDefinitionLoader from '../utils/widgetDefinitionsLoader';
+import Internal from '../utils/Internal';
+
+export function storeWidgetDefinitions(widgetDefinitions) {
+    return {
+        type: types.STORE_WIDGETS,
+        widgetDefinitions
+    }
+}
+
+export function loadWidgetDefinitions() {
+    return function (dispatch, getState) {
+        return widgetDefinitionLoader.load(getState().manager)
+            .then(result => dispatch(storeWidgetDefinitions(result)));
+    }
+}
 
 export function addWidget(pageId,name,widgetDefinition,width,height,x,y,configuration) {
     return {
@@ -96,11 +113,17 @@ export function addWidgetDrilldownPage(widgetId,drillDownName,drillDownPageId) {
 
 export function drillDownToPage(widget,defaultTemplate,widgetDefinitions,drilldownContext,drilldownPageName) {
 
-    return function (dispatch) {
+    return function (dispatch, getState) {
+        var isPageEditMode = _.get(getState().templateManagement, 'isPageEditMode');
+        if (!_.isUndefined(isPageEditMode)) {
+            return dispatch(drillDownWarning(true));
+        }
 
-        var pageId =  widget.drillDownPages[defaultTemplate.name];
+        var pageId = widget.drillDownPages[defaultTemplate.name];
         if (!pageId) {
-            var newPageId = v4();
+            var currentPage = _.replace(window.location.pathname, '/page/', '');
+            var newPageId = _.snakeCase(currentPage + ' ' + defaultTemplate.name);
+
             dispatch(createDrilldownPage(newPageId,defaultTemplate.name));
             _.each(defaultTemplate.widgets,(widget)=>{
                 var widgetDefinition = _.find(widgetDefinitions,{id:widget.definition});
@@ -111,7 +134,56 @@ export function drillDownToPage(widget,defaultTemplate,widgetDefinitions,drilldo
             pageId = newPageId;
         }
 
-
         dispatch(selectPage(pageId,true,drilldownContext,drilldownPageName));
+    }
+}
+
+export function setInstallWidget(widgetDefinitions) {
+    return {
+        type: types.INSTALL_WIDGET,
+        widgetDefinitions
+    };
+}
+
+export function installWidget(widgetFile, widgetUrl) {
+    return function(dispatch,getState) {
+        return widgetDefinitionLoader.install(widgetFile, widgetUrl, getState().manager)
+            .then(widgetDefinitions => dispatch(setInstallWidget(widgetDefinitions)));
+    }
+}
+
+export function setUninstallWidget(widgetId) {
+    return {
+        type: types.UNINSTALL_WIDGET,
+        widgetId
+    };
+}
+
+export function uninstallWidget(widgetId) {
+    return function(dispatch,getState) {
+        return widgetDefinitionLoader.uninstall(widgetId, getState().manager)
+            .then(() => dispatch(setUninstallWidget(widgetId)));
+    }
+}
+
+export function setUpdateWidget(widgetDefinitions, widgetId) {
+    return {
+        type: types.UPDATE_WIDGET,
+        widgetDefinitions,
+        widgetId
+    };
+}
+
+export function updateWidget(widgetId, widgetFile, widgetUrl) {
+    return function(dispatch,getState) {
+        return widgetDefinitionLoader.update(widgetId, widgetFile, widgetUrl, getState().manager)
+            .then(widgetDefinitions => dispatch(setUpdateWidget(widgetDefinitions, widgetId)));
+    }
+}
+
+export function checkIfWidgetIsUsed(widgetId) {
+    return function(dispatch,getState) {
+        var internal = new Internal(getState().manager);
+        return internal.doGet(`/widgets/${widgetId}/used`);
     }
 }

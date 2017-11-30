@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PagesList from '../components/PagesList';
 import {selectPage, removePage, reorderPage} from '../actions/page';
+import {toogleSidebar} from '../actions/app';
 
 const findSelectedRootPage = (pagesMap,selectedPageId) => {
     var _r = (page) => {
@@ -19,14 +20,16 @@ const findSelectedRootPage = (pagesMap,selectedPageId) => {
 };
 
 const mapStateToProps = (state, ownProps) => {
-    var pagesMap = _.keyBy(state.pages,'id');
+    var pages = state.pages;
+    var pagesMap = _.keyBy(pages,'id');
     var page = pagesMap[ownProps.pageId];
-    var pageId = page? page.id : "0";
-    var selected = state.pages && state.pages.length > 0 ? findSelectedRootPage(pagesMap,pageId) : null;
+    var homePageId = pages[0].id;
+    var pageId = page ? page.id : homePageId;
+    var selected = pages && pages.length > 0 ? findSelectedRootPage(pagesMap,pageId) : null;
 
     return {
-        pages: state.pages,
-        selected :selected
+        pages,
+        selected
     };
 };
 
@@ -40,11 +43,14 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
             // If user removes current page, then navigate to home page
             if (ownProps.pageId === page.id) {
-                dispatch(selectPage(0,false));
+                dispatch(selectPage(ownProps.homePageId,false));
             }
         },
         onPageReorder: (pageIndex, newPageIndex) => {
             dispatch(reorderPage(pageIndex, newPageIndex));
+        },
+        onSidebarClose: () => {
+            dispatch(toogleSidebar());
         }
     }
 };

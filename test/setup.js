@@ -7,6 +7,7 @@
 import jsdom from 'jsdom';
 import _ from 'lodash';
 import $ from 'jquery';
+import d3 from 'd3';
 import chai from 'chai';
 
 global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
@@ -20,6 +21,7 @@ Object.keys(document.defaultView).forEach((property) => {
 
 global.$ = global.jQuery = global.window.$ = global.window.jQuery = $(window);
 global._ = _;
+global.d3 = d3;
 
 chai.use(require('chai-enzyme')());
 chai.use(require('sinon-chai'));
@@ -35,4 +37,4 @@ require.extensions['.css'] = noop;
 require.extensions['.svg'] = noop;
 
 // For the window.location to work...
-jsdom.changeURL(window, "http://myhost:8088/");
+jsdom.changeURL(window, 'http://myhost:8088/');

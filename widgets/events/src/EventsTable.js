@@ -8,12 +8,17 @@ export default class EventsTable extends React.Component {
         super(props, context);
 
         this.state = {
+            error: null
         }
+
+        this.actions = new Stage.Common.EventActions();
     }
 
+    static MAX_MESSAGE_LENGTH = 200;
+
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -30,7 +35,7 @@ export default class EventsTable extends React.Component {
     }
 
     fetchGridData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     _selectEvent(eventId) {
@@ -42,9 +47,13 @@ export default class EventsTable extends React.Component {
         let {ErrorMessage, DataTable, Popup, HighlightText} = Stage.Basic;
         let {JsonUtils} = Stage.Common;
 
+        let fieldsToShow = this.props.widget.configuration.fieldsToShow;
+        let colorLogs = this.props.widget.configuration.colorLogs;
+        let maxMessageLength = this.props.widget.configuration.maxMessageLength || EventsTable.MAX_MESSAGE_LENGTH;
+
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchGridData.bind(this)}
                            totalSize={this.props.data.total}
@@ -53,36 +62,47 @@ export default class EventsTable extends React.Component {
                            sortAscending={this.props.widget.configuration.sortAscending}
                            className="eventsTable">
 
-                    <DataTable.Column label="Blueprint" name="blueprint_id" width="10%" show={!this.props.data.blueprintId &&
-                                                                                                      !this.props.data.deploymentId &&
-                                                                                                      !this.props.data.executionId} />
-                    <DataTable.Column label="Deployment" name="deployment_id" width="10%" show={!this.props.data.deploymentId && !this.props.data.executionId} />
-                    <DataTable.Column label="Workflow" name="workflow_id" width="10%" show={!this.props.data.executionId} />
-                    <DataTable.Column label="Event Type" name="event_type" width={this.props.widget.configuration.showLogs ? '10%': '20%'}/>
-                    <DataTable.Column label="Log Level" name="level" width="10%" show={this.props.widget.configuration.showLogs}/>
-                    <DataTable.Column label="Timestamp" name="timestamp" width="10%"/>
-                    <DataTable.Column label="Operation" name="operation" width="10%"/>
-                    <DataTable.Column label="Node Name" name="node_name" width="10%"/>
-                    <DataTable.Column label="Node Id" name="node_instance_id" width="10%"/>
-                    <DataTable.Column label="Message" name="message" width="10%"/>
+                    <DataTable.Column label="" width="40px" show={fieldsToShow.indexOf('Icon') >= 0}/>
+                    <DataTable.Column label="Timestamp" width="10%" show={fieldsToShow.indexOf('Timestamp') >= 0}/>
+                    <DataTable.Column label="Type" show={fieldsToShow.indexOf('Type') >= 0}/>
+                    <DataTable.Column label="Blueprint" show={!this.props.data.blueprintId && !this.props.data.deploymentId &&
+                                            !this.props.data.executionId && fieldsToShow.indexOf('Blueprint') >= 0} />
+                    <DataTable.Column label="Deployment" show={!this.props.data.deploymentId && !this.props.data.executionId &&
+                                            fieldsToShow.indexOf('Deployment') >= 0} />
+                    <DataTable.Column label="Workflow" show={!this.props.data.executionId && fieldsToShow.indexOf('Workflow') >= 0} />
+                    <DataTable.Column label="Operation" show={fieldsToShow.indexOf('Operation') >= 0}/>
+                    <DataTable.Column label="Node Name" show={fieldsToShow.indexOf('Node Name') >= 0}/>
+                    <DataTable.Column label="Node Id" show={fieldsToShow.indexOf('Node Id') >= 0}/>
+                    <DataTable.Column label="Message" show={fieldsToShow.indexOf('Message') >= 0}/>
 
                     {
-                        this.props.data.items.map((item) => {
+                        this.props.data.items.map((item, index) => {
+                            let event = this.actions.getEventDef(item.event_type || item.level);
+                            let rowClassName = 'verticalAlignTop' + (colorLogs ? ` ${event.class}` : '');
+                            const TRUNCATE_OPTIONS = {'length': maxMessageLength};
+
                             return (
-                                <DataTable.Row key={item.id} selected={item.isSelected} onClick={this._selectEvent.bind(this, item.id)}>
+                                <DataTable.Row key={item.id + index} selected={item.isSelected}
+                                               onClick={this._selectEvent.bind(this, item.id)} className={rowClassName}>
+                                    <DataTable.Data className="alignCenter"><i className={`eventsType ${event.icon}`} title={event.text}></i></DataTable.Data>
+                                    <DataTable.Data className="alignCenter noWrap">{item.timestamp}</DataTable.Data>
+                                    <DataTable.Data>{event.text}</DataTable.Data>
                                     <DataTable.Data>{item.blueprint_id}</DataTable.Data>
                                     <DataTable.Data>{item.deployment_id}</DataTable.Data>
                                     <DataTable.Data>{item.workflow_id}</DataTable.Data>
-                                    <DataTable.Data>{item.event_type}</DataTable.Data>
-                                    <DataTable.Data>{item.level}</DataTable.Data>
-                                    <DataTable.Data>{item.timestamp}</DataTable.Data>
                                     <DataTable.Data>{item.operation}</DataTable.Data>
                                     <DataTable.Data>{item.node_name}</DataTable.Data>
                                     <DataTable.Data>{item.node_instance_id}</DataTable.Data>
                                     <DataTable.Data>
                                         {item.message &&
                                             <Popup position='top left' hoverable wide="very">
-                                                <Popup.Trigger><span>{JsonUtils.stringify(item.message, false)}</span></Popup.Trigger>
+                                                <Popup.Trigger>
+                                                    <span>
+                                                        {
+                                                            _.truncate(JsonUtils.stringify(item.message, false), TRUNCATE_OPTIONS)
+                                                        }
+                                                    </span>
+                                                </Popup.Trigger>
                                                 <HighlightText>{JsonUtils.stringify(item.message, true)}</HighlightText>
                                             </Popup>
                                         }

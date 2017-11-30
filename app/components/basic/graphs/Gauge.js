@@ -8,7 +8,48 @@ function deg2rad(deg) {
     return deg * Math.PI / 180;
 }
 
+/**
+ * Gauge is a component to present value in graphical form
+ *
+ * ## Access
+ * `Stage.Basic.Graphs.Gauge`
+ *
+ * ## Usage
+ *
+ * ### Gauge with default angles
+ * ![Gauge 0](manual/asset/graphs/Gauge_0.png)
+ *
+ * ```
+ * <Gauge value={10} min={0} max={20} high={15} low={5} />
+ * ```
+ *
+ * ### Gauge with defined angles and value below low marker
+ * ![Gauge 1](manual/asset/graphs/Gauge_1.png)
+ *
+ * ```
+ * <Gauge minAngle={-90} maxAngle={0} value={3} min={0} max={20} high={15} low={5} />
+ * ```
+ *
+ * ### Gauge with defined angles and value above high marker
+ * ![Gauge 2](manual/asset/graphs/Gauge_2.png)
+ *
+ * ```
+ * <Gauge minAngle={-45} maxAngle={90} value={18} min={0} max={20} high={15} low={5} />
+ * ```
+ *
+ */
 export default class Gauge extends Component {
+
+    /**
+     * propTypes
+     * @property {number} value actual value to be marked on the gauge
+     * @property {number} min minimal value to be presented
+     * @property {number} max maximum value to be presented
+     * @property {number} [high] value above which the colour of the gauge bar changes to green
+     * @property {number} [low] value below which the colour of the gauge bar changes to red
+     * @property {number} [minAngle=-90] minimum angle of the gauge chart, associated with minimum value
+     * @property {number} [maxAngle=90] maximum angle of the gauge chart, associated with maximum value
+     */
     static propTypes = {
         value: PropTypes.number.isRequired,
         min : PropTypes.number.isRequired,
@@ -23,7 +64,6 @@ export default class Gauge extends Component {
         minAngle: -90,
         maxAngle: 90
     };
-
 
     _buildProps (svgComponent) {
         var width = svgComponent.clientWidth;
@@ -73,9 +113,8 @@ export default class Gauge extends Component {
             textSize,
             tickTextSize
         }
-
-
     }
+
     componentDidMount() {
         this._initGauge(this.refs.svg);
         $(window).resize(()=>this._initGauge(this.refs.svg));

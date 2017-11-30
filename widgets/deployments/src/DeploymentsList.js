@@ -13,7 +13,7 @@ export default class extends React.Component {
 
         this.state = {
             error: null,
-            modalType: "",
+            modalType: '',
             showModal: false,
             deployment: {},
             workflow: {}
@@ -21,8 +21,8 @@ export default class extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -47,7 +47,7 @@ export default class extends React.Component {
         this._hideModal();
 
         if (!this.state.deployment) {
-            this._handleError('Something went wrong, no deployment was selected for delete');
+            this._setError('Something went wrong, no deployment was selected for delete');
             return;
         }
 
@@ -55,10 +55,11 @@ export default class extends React.Component {
 
         var actions = new Stage.Common.DeploymentActions(this.props.toolbox);
         actions.doDelete(this.state.deployment).then(() => {
+            this._setError(null);
             this.props.toolbox.getEventBus().trigger('deployments:refresh');
             this.props.toolbox.loading(false);
         }).catch((err) => {
-            this._handleError(err.message);
+            this._setError(err.message);
             this.props.toolbox.loading(false);
         });
     }
@@ -67,7 +68,7 @@ export default class extends React.Component {
         this._hideModal();
 
         if (!this.state.deployment) {
-            this._handleError('Something went wrong, no deployment was selected for delete');
+            this._setError('Something went wrong, no deployment was selected for delete');
             return;
         }
 
@@ -75,10 +76,11 @@ export default class extends React.Component {
 
         var actions = new Stage.Common.DeploymentActions(this.props.toolbox);
         actions.doForceDelete(this.state.deployment).then(() => {
+            this._setError(null);
             this.props.toolbox.getEventBus().trigger('deployments:refresh');
             this.props.toolbox.loading(false);
         }).catch((err) => {
-            this._handleError(err.message);
+            this._setError(err.message);
             this.props.toolbox.loading(false);
         });
     }
@@ -86,10 +88,11 @@ export default class extends React.Component {
     _cancelExecution(execution, action) {
         let actions = new Stage.Common.ExecutionActions(this.props.toolbox);
         actions.doCancel(execution, action).then(() => {
+            this._setError(null);
             this.props.toolbox.getEventBus().trigger('deployments:refresh');
             this.props.toolbox.getEventBus().trigger('executions:refresh');
         }).catch((err) => {
-            this._handleError(err.message);
+            this._setError(err.message);
         });
     }
 
@@ -106,12 +109,12 @@ export default class extends React.Component {
         this.setState({showModal: false});
     }
 
-    _handleError(errorMessage) {
+    _setError(errorMessage) {
         this.setState({error: errorMessage});
     }
 
     fetchData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     render() {
@@ -121,7 +124,7 @@ export default class extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 {showTableComponent ?
                     <DeploymentsTable widget={this.props.widget} data={this.props.data}
@@ -129,14 +132,14 @@ export default class extends React.Component {
                                      onSelectDeployment={this._selectDeployment.bind(this)}
                                      onMenuAction={this._showModal.bind(this)}
                                      onCancelExecution={this._cancelExecution.bind(this)}
-                                     onError={this._handleError.bind(this)} />
+                                     onError={this._setError.bind(this)} />
                     :
                     <DeploymentsSegment widget={this.props.widget} data={this.props.data}
                                        fetchData={this.fetchData.bind(this)}
                                        onSelectDeployment={this._selectDeployment.bind(this)}
                                        onMenuAction={this._showModal.bind(this)}
                                        onCancelExecution={this._cancelExecution.bind(this)}
-                                       onError={this._handleError.bind(this)} />
+                                       onError={this._setError.bind(this)} />
                 }
 
                 <Confirm content={`Are you sure you want to remove deployment ${this.state.deployment.id}?`}

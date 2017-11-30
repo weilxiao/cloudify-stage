@@ -21,8 +21,8 @@ export default class BlueprintActionButtons extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.blueprint, nextProps.blueprint);
     }
 
@@ -47,6 +47,8 @@ export default class BlueprintActionButtons extends React.Component {
             this.setState({loading: false, error: null});
             this._hideModal();
             this.props.toolbox.loading(false);
+
+            this.props.toolbox.goToParentPage();
         }).catch((err)=>{
             this.setState({loading: false, error: err.message});
             this._hideModal();
@@ -63,15 +65,15 @@ export default class BlueprintActionButtons extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <Button className="labeled icon" color="teal" icon="rocket" disabled={_.isEmpty(blueprintId) || this.state.loading}
                         onClick={this._showModal.bind(this, BlueprintActionButtons.DEPLOY_ACTION)}
-                        content="Create deployment"/>
+                        content="Create deployment" id="createDeploymentButton"/>
 
                 <Button className="labeled icon" color="teal" icon="trash" disabled={_.isEmpty(blueprintId) || this.state.loading}
                         onClick={this._showModal.bind(this, BlueprintActionButtons.DELETE_ACTION)}
-                        content="Delete blueprint"/>
+                        content="Delete blueprint"  id="deleteBlueprintButton"/>
 
                 <DeployBlueprintModal open={this._isShowModal(BlueprintActionButtons.DEPLOY_ACTION)}
                                       blueprint={this.props.blueprint}
@@ -81,7 +83,7 @@ export default class BlueprintActionButtons extends React.Component {
                 <Confirm content={`Are you sure you want to remove blueprint ${blueprintId}?`}
                          open={this._isShowModal(BlueprintActionButtons.DELETE_ACTION)}
                          onConfirm={this._deleteBlueprint.bind(this, blueprintId)}
-                         onCancel={this._hideModal.bind(this)} />
+                         onCancel={this._hideModal.bind(this)} className="blueprintRemoveConfirm"/>
 
             </div>
         );

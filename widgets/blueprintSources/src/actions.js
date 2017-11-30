@@ -12,17 +12,12 @@ export default class {
         return this.toolbox.getManager().doGet(`/deployments/${deploymentId}?_include=id,blueprint_id`);
     }
 
-    doGetBlueprintDetails(blueprintId) {
-        return this.toolbox.getManager().doGet(`/blueprints/${blueprintId}?_include=updated_at`);
-    }
-
-    doGetFilesTree(blueprintId, lastUpdate) {
-        return this.toolbox.getManager().doGet(`/source/browse?[manager]/blueprints/${blueprintId}/archive`,
-                                               {last_update: lastUpdate});
+    doGetFilesTree(blueprintId) {
+        return this.toolbox.getInternal().doGet(`/source/browse/${blueprintId}/archive`);
     }
 
     doGetFileContent(path) {
-        return this.toolbox.getExternal().doGet("/source/browse/file",{path});
+        return this.toolbox.getInternal().doGet('/source/browse/file',{path});
     }
 
 }

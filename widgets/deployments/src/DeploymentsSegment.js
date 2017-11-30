@@ -28,7 +28,7 @@ export default class extends React.Component {
     };
 
     render() {
-        let { DataSegment } = Stage.Basic;
+        let {DataSegment, ResourceAvailability} = Stage.Basic;
 
         return (
             <DataSegment totalSize={this.props.data.total}
@@ -37,11 +37,12 @@ export default class extends React.Component {
                 {
                     this.props.data.items.map((item) => {
                         return (
-                            <DataSegment.Item key={item.id} selected={item.isSelected}
+                            <DataSegment.Item key={item.id} selected={item.isSelected} className={item.id}
                                           onClick={()=>this.props.onSelectDeployment(item)}>
                                 <div className="ui grid">
                                     <div className="three wide center aligned column rightDivider">
-                                        <h3 className="ui icon header verticalCenter">{item.id}</h3>
+                                        <h3 className="ui icon header verticalCenter breakWord">{item.id}</h3>
+                                        <ResourceAvailability availability={item.resource_availability} className="topRightCorner"/>
                                     </div>
                                     <div className="two wide column">
                                         <h5 className="ui icon header">Blueprint</h5>

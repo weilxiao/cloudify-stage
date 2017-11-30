@@ -23,7 +23,9 @@ export default class DeployModal extends React.Component {
         loading: false,
         blueprint: EMPTY_BLUEPRINT,
         deploymentName: '',
-        deploymentInputs: []
+        deploymentInputs: [],
+        privateResource: false,
+        skipPluginsValidation: false
     }
 
     static propTypes = {
@@ -92,11 +94,11 @@ export default class DeployModal extends React.Component {
         const EMPTY_STRING = '""';
 
         if (_.isEmpty(this.state.deploymentName)) {
-            errors["deploymentName"]="Please provide deployment name";
+            errors['deploymentName']='Please provide deployment name';
         }
 
         if (_.isEmpty(this.state.blueprint.id)) {
-            errors["blueprintName"]="Please select blueprint from the list";
+            errors['blueprintName']='Please select blueprint from the list';
         }
 
         let deploymentInputs = {};
@@ -122,9 +124,9 @@ export default class DeployModal extends React.Component {
         this.setState({loading: true});
 
         var actions = new Actions(this.props.toolbox);
-        actions.doDeploy(this.state.blueprint.id, this.state.deploymentName, deploymentInputs)
+        actions.doDeploy(this.state.blueprint.id, this.state.deploymentName, deploymentInputs, this.state.privateResource, this.state.skipPluginsValidation)
             .then((/*deployment*/)=> {
-                this.setState({loading: false});
+                this.setState({loading: false, errors: {}});
                 this.props.toolbox.getEventBus().trigger('deployments:refresh');
                 this.props.onHide();
             })
@@ -134,7 +136,7 @@ export default class DeployModal extends React.Component {
     }
 
     render() {
-        var {Modal, Icon, Form, Message, Popup, ApproveButton, CancelButton} = Stage.Basic;
+        var {Modal, Icon, Form, Message, Popup, ApproveButton, CancelButton, PrivateField, Header} = Stage.Basic;
 
         let blueprints = Object.assign({},{items:[]}, this.props.blueprints);
         let options = _.map(blueprints.items, blueprint => { return { text: blueprint.id, value: blueprint.id } });
@@ -143,13 +145,16 @@ export default class DeployModal extends React.Component {
                                         [(input => !_.isNil(input.default)), 'name']);
 
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()}>
                 <Modal.Header>
                     <Icon name="rocket"/> Create new deployment
+                    <PrivateField lock={this.state.privateResource} className="rightFloated"
+                                  onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
 
                         <Form.Field error={this.state.errors.deploymentName}>
                             <Form.Input name='deploymentName' placeholder="Deployment name"
@@ -207,6 +212,16 @@ export default class DeployModal extends React.Component {
                                     </Form.Field>
                                 );
                             })
+                        }
+                        <Form.Field>
+                            <Form.Checkbox toggle
+                                           label="Skip plugins validation"
+                                           name='skipPluginsValidation'
+                                           checked={this.state.skipPluginsValidation}
+                                           onChange={this._handleInputChange.bind(this)}/>
+                        </Form.Field>
+                        {
+                            this.state.skipPluginsValidation && <Message>The recommended path is uploading plugins as wagons to Cloudify. This option is designed for plugin development and advanced users only.</Message>
                         }
                     </Form>
                 </Modal.Content>

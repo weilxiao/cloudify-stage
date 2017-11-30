@@ -26,10 +26,11 @@ class DeploymentActions {
         });
     }
 
-    doExecute(deployment,workflow,params) {
+    doExecute(deployment, workflow, params, force) {
         return this.toolbox.getManager().doPost('/executions',null,{
             'deployment_id': deployment.id,
             'workflow_id' : workflow.name,
+            force,
             parameters: params
         });
     }
@@ -38,7 +39,7 @@ class DeploymentActions {
              installWorkflow, uninstallWorkflow, workflowId, blueprintArchive, inputs) {
         var params = {};
         if (!_.isEmpty(applicationFileName)) {
-            params['application_file_name'] = applicationFileName + ".yaml";
+            params['application_file_name'] = applicationFileName;
         }
         if (!_.isEmpty(blueprintArchiveUrl)) {
             params['blueprint_archive_url'] = blueprintArchiveUrl;

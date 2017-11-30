@@ -71,7 +71,7 @@ export default class UpdateModal extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doUpdate(this.props.secret.key, this.state.secretValue).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.onHide();
             this.props.toolbox.refresh();
         }).catch((err)=> {
@@ -88,16 +88,17 @@ export default class UpdateModal extends React.Component {
 
         return (
             <div>
-                <Modal open={this.props.open}>
+                <Modal open={this.props.open} onClose={()=>this.props.onHide()}>
                     <Modal.Header>
                         <Icon name='edit' /> Update secret {this.props.secret.key}
                     </Modal.Header>
 
                     <Modal.Content>
-                        <Form loading={this.state.loading} errors={this.state.errors}>
+                        <Form loading={this.state.loading} errors={this.state.errors}
+                              onErrorsDismiss={() => this.setState({errors: {}})}>
                             <Form.Field error={this.state.errors.secretValue}>
-                                <Form.Input name='secretValue' placeholder='Secret value'
-                                            value={this.state.secretValue} onChange={this._handleInputChange.bind(this)}/>
+                                <Form.TextArea name='secretValue' placeholder='Secret value' autoHeight
+                                               value={this.state.secretValue} onChange={this._handleInputChange.bind(this)}/>
                             </Form.Field>
                         </Form>
                     </Modal.Content>

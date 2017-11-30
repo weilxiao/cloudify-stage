@@ -8,14 +8,22 @@ import { logout } from '../actions/managers';
 import { setEditMode } from '../actions/config';
 import { minimizeWidgets } from '../actions/widgets';
 import Consts from '../utils/consts';
+import Auth from '../utils/auth';
+import { push } from 'react-router-redux';
 
 const mapStateToProps = (state, ownProps) => {
-    var canEditTheUi = state.manager.auth.role === Consts.ROLE_ADMIN ?
-                            true :
-                            state.config.clientConfig.canUserEdit || false;
+    var isTemplateManagementActive = !!state.templateManagement.templates || !!state.templateManagement.page;
+
+    var canEditMode = !isTemplateManagementActive && Auth.isUserAuthorized(Consts.permissions.STAGE_EDIT_MODE, state.manager);
+    var canMaintenanceMode = !isTemplateManagementActive && Auth.isUserAuthorized(Consts.permissions.STAGE_MAINTENANCE_MODE, state.manager);
+    var canConfigure = Auth.isUserAuthorized(Consts.permissions.STAGE_CONFIGURE, state.manager);
+    var canTemplateManagement = state.config.mode === Consts.MODE_MAIN && Auth.isUserAuthorized(Consts.permissions.STAGE_TEMPLATE_MANAGEMENT, state.manager);
     return {
-        isEditMode: canEditTheUi ? (state.config.isEditMode || false) : false,
-        canEditTheUi
+        isEditMode: canEditMode ? (state.config.isEditMode || false) : false,
+        canEditMode,
+        canMaintenanceMode,
+        canConfigure,
+        canTemplateManagement
     }
 };
 
@@ -29,6 +37,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         },
         onLogout: () => {
             dispatch(logout());
+        },
+        onTemplates: () => {
+            dispatch(push('template_management'));
         },
         onReset: ownProps.onReset,
         onMaintenance: ownProps.onMaintenance,

@@ -5,13 +5,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import {addPage} from '../actions/page'
-import AddButton from '../components/AddButton'
-
-//const mapStateToProps = (state, ownProps) => {
-//    return {
-//        active: ownProps.filter === state.visibilityFilter
-//    }
-//};
+import {Button} from '../components/basic/index'
 
 let nameIndex = 0;
 
@@ -25,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
 let AddPageButton = ({onClick}) => {
     return (
-        <AddButton onClick={onClick}>Add Page</AddButton>
+        <Button icon="file text outline" labelPosition='left' basic onClick={onClick} content='Add Page' className='addPageBtn' />
     );
 };
 

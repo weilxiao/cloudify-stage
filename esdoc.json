@@ -1,0 +1,31 @@
+{
+  "source": "./app/components/basic",
+  "destination": "./doc/www",
+  "plugins": [
+    {
+      "name": "esdoc-standard-plugin",
+      "option": {
+        "undocumentIdentifier": {"enable": false},
+        "brand": {
+          "title": "Cloudify UI Basic Components"
+        },
+        "manual": {
+          "index": "./doc/index.md",
+          "asset": "./doc/asset",
+          "files": ["./doc/index.md"]
+        }
+      }
+    },
+    {
+      "name": "esdoc-ecmascript-proposal-plugin",
+      "option": {"all": true}
+    },
+    {
+      "name": "esdoc-jsx-plugin",
+      "option": {"enable": true}
+    }
+  ],
+
+  "index": "./doc/index.md"
+
+}

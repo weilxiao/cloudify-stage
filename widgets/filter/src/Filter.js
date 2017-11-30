@@ -7,12 +7,13 @@ export default class Filter extends React.Component {
         super(props, context);
 
         this.state = {
+            error: null
         }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -106,23 +107,23 @@ export default class Filter extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <Form>
                     <Form.Group widths='equal'>
                         <Form.Field>
                             <Form.Dropdown search selection value={this.props.data.blueprintId || ''} placeholder="Select Blueprint"
-                                           options={blueprintOptions} onChange={this._selectBlueprint.bind(this)}/>
+                                           options={blueprintOptions} onChange={this._selectBlueprint.bind(this)} id="blueprintFilterField"/>
                         </Form.Field>
                         <Form.Field>
                             <Form.Dropdown search selection value={this.props.data.deploymentId || ''} placeholder="Select Deployment"
-                                           options={deploymentOptions} onChange={this._selectDeployment.bind(this)}/>
+                                           options={deploymentOptions} onChange={this._selectDeployment.bind(this)} id="deploymentFilterField"/>
                         </Form.Field>
                         {
                             this.props.widget.configuration.filterByExecutions &&
                             <Form.Field>
                                 <Form.Dropdown search selection value={this.props.data.executionId || ''} placeholder="Select Execution"
-                                               options={executionOptions} onChange={this._selectExecution.bind(this)}/>
+                                               options={executionOptions} onChange={this._selectExecution.bind(this)} id="executionFilterField"/>
                             </Form.Field>
                         }
                     </Form.Group>

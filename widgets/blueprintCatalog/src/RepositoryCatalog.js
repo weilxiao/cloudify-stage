@@ -11,7 +11,9 @@ export default class extends React.Component{
         widget: PropTypes.object.isRequired,
         fetchData: PropTypes.func,
         onSelect: PropTypes.func,
-        onUpload: PropTypes.func
+        onUpload: PropTypes.func,
+        onReadme: PropTypes.func,
+        readmeLoading: PropTypes.string
     };
 
     static defaultProps = {
@@ -21,7 +23,7 @@ export default class extends React.Component{
     };
 
     render(){
-        var {DataSegment, Grid, Image, Button} = Stage.Basic;
+        var {DataSegment, Grid, Image, Button, Header} = Stage.Basic;
 
         var index=0;
         var catalogItems =
@@ -30,13 +32,11 @@ export default class extends React.Component{
                     <Grid.Column key={item.id}>
 
                         <DataSegment.Item selected={item.isSelected} onClick={(event)=>{event.stopPropagation(); this.props.onSelect(item)}} className="fullHeight">
-                            <Grid>
+                            <Grid className="contentBlock">
                                 <Grid.Row className="bottomDivider">
-                                    <Grid.Column width="4"><Image src={item.image_url} centered={true}/></Grid.Column>
-                                    <Grid.Column width="12">
-                                        <h3 className="ui icon header verticalCenter">
-                                            <a className="underline" href={item.html_url} target="_blank">{item.name}</a>
-                                        </h3>
+                                    <Grid.Column width="16">
+                                        <Image src={Stage.Utils.url(item.image_url)}/>
+                                        <Header><a href={item.html_url} target="_blank">{item.name}</a></Header>
                                     </Grid.Column>
                                 </Grid.Row>
 
@@ -54,13 +54,26 @@ export default class extends React.Component{
                                     <Grid.Column width="12">{item.updated_at}</Grid.Column>
                                 </Grid.Row>
 
-                                <Grid.Column width="16">
-                                    <div style={{height:"30px"}}></div>
-                                </Grid.Column>
                             </Grid>
-
-                            <Button icon="upload" content="Upload" className="uploadButton labeled icon"
-                                    onClick={(event)=>{event.stopPropagation(); this.props.onUpload(item.name)}}/>
+                            <div>
+                                <Button
+                                    circular
+                                    icon="info"
+                                    loading={this.props.readmeLoading === item.name}
+                                    className="readmeButton icon"
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        this.props.onReadme(item.name);
+                                    }}/>
+                                <Button
+                                    icon="upload"
+                                    content="Upload"
+                                    className="uploadButton labeled icon"
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        this.props.onUpload(item.name);
+                                    }}/>
+                            </div>
                         </DataSegment.Item>
 
                     </Grid.Column>
@@ -93,7 +106,8 @@ export default class extends React.Component{
                 <DataSegment fetchSize={this.props.data.items.length}
                              totalSize={this.props.data.total}
                              pageSize={this.props.widget.configuration.pageSize}
-                             fetchData={this.props.fetchData}>
+                             fetchData={this.props.fetchData}
+                             className="repositoryCatalog">
 
                     <Grid>
                         {catalogRows}

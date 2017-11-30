@@ -17,8 +17,7 @@ export default class RestoreSnapshotModal extends React.Component {
         loading: false,
         errors: {},
         isFromTenantlessEnv : false,
-        shouldForceRestore: false,
-        newTenantName: ''
+        shouldForceRestore: false
     }
 
     static propTypes = {
@@ -50,10 +49,6 @@ export default class RestoreSnapshotModal extends React.Component {
     _submitRestore() {
         let errors = {};
 
-        if (this.state.isFromTenantlessEnv && _.isEmpty(this.state.newTenantName)) {
-            errors["newTenantName"]="Please provide a new tenant name";
-        }
-
         if (!_.isEmpty(errors)) {
             this.setState({errors});
             return false;
@@ -63,8 +58,8 @@ export default class RestoreSnapshotModal extends React.Component {
         this.setState({loading: true});
 
         var actions = new Actions(this.props.toolbox);
-        actions.doRestore(this.props.snapshot,this.state.shouldForceRestore,this.state.newTenantName).then(()=>{
-            this.setState({loading: false});
+        actions.doRestore(this.props.snapshot,this.state.shouldForceRestore).then(()=>{
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.refresh();
             this.props.toolbox.getEventBus().trigger('snapshots:refresh');
             this.props.toolbox.getEventBus().trigger('menu.tenants:refresh');
@@ -79,16 +74,17 @@ export default class RestoreSnapshotModal extends React.Component {
     }
 
     render() {
-        var {Modal, ApproveButton, CancelButton, Icon, Form} = Stage.Basic;
+        var {Modal, ApproveButton, CancelButton, Icon, Form, Message} = Stage.Basic;
 
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()}>
                 <Modal.Header>
                     <Icon name="undo"/> Restore snapshot
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
 
                         <Form.Field>
                             <Form.Checkbox toggle
@@ -98,16 +94,13 @@ export default class RestoreSnapshotModal extends React.Component {
                                            onChange={this._handleFieldChange.bind(this)}/>
                         </Form.Field>
 
-
                         {
                             this.state.isFromTenantlessEnv &&
-                            <Form.Field error={this.state.errors.newTenantName}>
-                                <Form.Input  placeholder="Enter new tenant name for this snapshot to be restored to"
-                                             name='newTenantName'
-                                             required
-                                             value={this.state.newTenantName}
-                                             onChange={this._handleFieldChange.bind(this)}/>
-                            </Form.Field>
+                            <Message>
+                                When restoring from a tenant-less environment, make sure you uploaded the snapshot to
+                                a "clean" tenant that does not contain any other resources.
+                            </Message>
+
                         }
                         <Form.Field>
                             <Form.Checkbox toggle

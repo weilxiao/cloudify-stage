@@ -5,7 +5,7 @@
 export default class DataFetcher{
     static fetch(toolbox,blueprintId,deploymentId) {
         if (_.isEmpty(deploymentId) && _.isEmpty(blueprintId)) {
-            return Promise.resolve({});
+            return Promise.resolve({data:{}});
         }
 
         if (deploymentId) {
@@ -63,8 +63,8 @@ export default class DataFetcher{
             })
 
         } else if (blueprintId) {
-            return toolbox.getManager().doGet(`/blueprints?id=${blueprintId}`).then((blueprint)=>{
-                return Promise.resolve({data:_.get(blueprint,'items[0]',{})});
+            return toolbox.getManager().doGet(`/blueprints/${blueprintId}`).then((blueprint)=>{
+                return Promise.resolve({data: blueprint});
             })
         }
 

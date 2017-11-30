@@ -24,8 +24,8 @@ export default class TenantsTable extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -43,7 +43,7 @@ export default class TenantsTable extends React.Component {
     }
 
     fetchGridData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     _selectTenant(tenantName) {
@@ -70,7 +70,7 @@ export default class TenantsTable extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doGetUsers().then((users)=>{
-            this.setState({tenant, users, modalType: value, showModal: true});
+            this.setState({error: null, tenant, users, modalType: value, showModal: true});
             this.props.toolbox.loading(false);
         }).catch((err)=> {
             this.setState({error: err.message});
@@ -83,7 +83,7 @@ export default class TenantsTable extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doGetUserGroups().then((userGroups)=>{
-            this.setState({tenant, userGroups, modalType: value, showModal: true});
+            this.setState({error: null, tenant, userGroups, modalType: value, showModal: true});
             this.props.toolbox.loading(false);
         }).catch((err)=> {
             this.setState({error: err.message});
@@ -114,7 +114,7 @@ export default class TenantsTable extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchGridData.bind(this)}
                            totalSize={data.total}
@@ -134,8 +134,8 @@ export default class TenantsTable extends React.Component {
                                 <DataTable.RowExpandable key={tenant.name} expanded={tenant.isSelected}>
                                     <DataTable.Row key={tenant.name} selected={tenant.isSelected} onClick={this._selectTenant.bind(this, tenant.name)}>
                                         <DataTable.Data>{tenant.name}</DataTable.Data>
-                                        <DataTable.Data><Label className="green" horizontal>{tenant.groups.length}</Label></DataTable.Data>
-                                        <DataTable.Data><Label className="blue" horizontal>{tenant.users.length}</Label></DataTable.Data>
+                                        <DataTable.Data><Label className="green" horizontal>{Object.keys(tenant.groups).length}</Label></DataTable.Data>
+                                        <DataTable.Data><Label className="blue" horizontal>{Object.keys(tenant.users).length}</Label></DataTable.Data>
                                         <DataTable.Data className="center aligned rowActions">
                                             <MenuAction tenant={tenant} onSelectAction={this._selectAction.bind(this)} />
                                         </DataTable.Data>

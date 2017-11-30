@@ -10,10 +10,9 @@ export default class WidgetDefinition {
         this.showBorder = true;
         this.initialWidth = 3;
         this.initialHeight = 12;
-        this.color = "blue";
+        this.color = 'blue';
         this.initialConfiguration = [];
         this.hasStyle = false;
-        this.isAdmin = false;
 
         // Override defaults with data
         Object.assign(this,data);
@@ -23,6 +22,9 @@ export default class WidgetDefinition {
         }
         if (!this.id) {
             throw new Error('Missing widget id. Widget data is :',data);
+        }
+        if (!this.permission){
+            console.warn('Missing widget permission. No user would be authorized for this widget.')
         }
     }
 

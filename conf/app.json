@@ -1,20 +1,30 @@
 {
+  "contextPath": "/stage",
   "initialTemplate": {
-    "admin": "initial-template-admin",
-    "user": "initial-template",
-    "customer": "initial-template-customer"
+    "*": "initial-template",
+    "sys_admin": {
+      "*": "initial-template-admin"
+    },
+    "user": {
+      "*": "initial-template"
+    },
+    "customer": "initial-template-customer",
+    "community": "initial-template-community"
   },
   "singleManager": true,
   "whiteLabel": {
     "enabled": false,
-    "logoUrl": "/app/images/Cloudify-icon.png",
+    "logoUrl": "/stage/app/images/Cloudify-icon.png",
     "mainColor": "black",
     "pagesLocation": "",
     "headerTextColor": "white",
     "loginPageHeader": "",
+    "loginPageHeaderColor": "white",
     "loginPageText": "",
+    "loginPageTextColor": "white",
     "sidebarColor": "#ffffff",
-    "sidebarTextColor" : "#000000"
+    "sidebarTextColor" : "#000000",
+    "pageTitle": "Cloudify"
   },
   "db": {
     "url": "postgres://cloudify:cloudify@localhost:5432/stage",
@@ -35,15 +45,33 @@
     }
   },
   "influx": {
+    "ip" : "127.0.0.1",
     "port": 8086,
     "user" : "root",
     "password" : "root",
     "database": "cloudify",
-    "timeout": 30000
+    "timeout": 10000
   },
   "github": {
-    "username": "***REMOVED***",
-    "password": "***REMOVED***"
+    "username": "secret(github-username)",
+    "password": "secret(github-password)"
   },
-  "extractedSourcesDir": "/extractedSources"
+  "source": {
+    "browseSourcesDir": "/cloudifyBrowseSources",
+    "lookupYamlsDir": "/cloudifyLookupYamls"
+  },
+  "widgets": {
+    "ignoreFolders": ["common"],
+    "tempDir": "cloudifyWidgets",
+    "requiredFiles" : ["widget.js", "widget.png"]
+  },
+  "ssl": {
+    "ca": "/etc/cloudify/ssl/cloudify_internal_ca_cert.pem"
+  },
+  "saml":{
+    "enabled": false,
+    "certPath": "",
+    "ssoUrl": "",
+    "portalUrl": ""
+  }
 }

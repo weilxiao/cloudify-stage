@@ -14,8 +14,9 @@ export default class UploadModal extends React.Component {
 
     static initialState = {
         loading: false,
-        pluginUrl: "",
-        errors: {}
+        pluginUrl: '',
+        errors: {},
+        privateResource: false
     }
 
     onApprove () {
@@ -40,11 +41,11 @@ export default class UploadModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.pluginUrl) && !pluginFile) {
-            errors["pluginUrl"]="Please select plugin file or url";
+            errors['pluginUrl']='Please select plugin file or url';
         }
 
         if (!_.isEmpty(this.state.pluginUrl) && pluginFile) {
-            errors["pluginUrl"]="Either plugin file or url must be selected, not both";
+            errors['pluginUrl']='Either plugin file or url must be selected, not both';
         }
 
         if (!_.isEmpty(errors)) {
@@ -56,8 +57,8 @@ export default class UploadModal extends React.Component {
         this.setState({loading: true});
 
         var actions = new Actions(this.props.toolbox);
-        actions.doUpload(this.state.pluginUrl, pluginFile).then(()=>{
-            this.setState({loading: false, open: false});
+        actions.doUpload(this.state.pluginUrl, pluginFile, this.state.privateResource).then(()=>{
+            this.setState({errors: {}, loading: false, open: false});
             this.props.toolbox.refresh();
         }).catch(err=>{
             this.setState({errors: {error: err.message}, loading: false});
@@ -69,22 +70,26 @@ export default class UploadModal extends React.Component {
     }
 
     render() {
-        var {Modal, Button, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
+        var {Modal, Button, Icon, Form, ApproveButton, CancelButton, PrivateField} = Stage.Basic;
         const uploadButton = <Button content='Upload' icon='upload' labelPosition='left' />;
 
         return (
             <Modal trigger={uploadButton} open={this.state.open} onOpen={()=>this.setState({open:true})} onClose={()=>this.setState({open:false})}>
                 <Modal.Header>
                     <Icon name="upload"/> Upload plugin
+                    <PrivateField lock={this.state.privateResource} className="rightFloated"
+                                  onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
 
                         <Form.Group>
                             <Form.Field width="9" error={this.state.errors.pluginUrl}>
                                 <Form.Input label="URL" placeholder="Enter plugin url" name="pluginUrl"
-                                            value={this.state.pluginUrl} onChange={this._handleInputChange.bind(this)}/>
+                                            value={this.state.pluginUrl} onChange={this._handleInputChange.bind(this)}
+                                            onBlur={()=>this.state.pluginUrl ? this.refs.pluginFile.reset() : ''}/>
                             </Form.Field>
                             <Form.Field width="1" style={{position:'relative'}}>
                                 <div className="ui vertical divider">
@@ -92,7 +97,9 @@ export default class UploadModal extends React.Component {
                                 </div>
                             </Form.Field>
                             <Form.Field width="8" error={this.state.errors.pluginUrl}>
-                                <Form.File placeholder="Select plugin file" name="pluginFile" ref="pluginFile"/>
+                                <Form.File placeholder="Select plugin file" name="pluginFile" ref="pluginFile"
+                                           onChange={(file)=>file ? this.setState({pluginUrl: ''}) : ''}/>
+
                             </Form.Field>
                         </Form.Group>
 

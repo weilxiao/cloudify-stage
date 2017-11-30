@@ -87,7 +87,7 @@ function cmdMigrate() {
 function getCurrMigration() {
     return umzug.executed()
         .then((executed) => {
-            return Promise.resolve(executed.length > 0 ? executed[0].file : '<NO_MIGRATIONS>');
+            return Promise.resolve(executed.length > 0 ? _.last(executed).file : '<NO_MIGRATIONS>');
         });
 }
 
@@ -128,7 +128,7 @@ function cmdClear() {
         _.each(tableNames,function(tableName){
             if (tableName !== 'SequelizeMeta') {
                 logger.info('Clearing table '+tableName);
-                promises.push(sequelize.query("truncate \"" + tableName+"\""));
+                promises.push(sequelize.query('truncate "' + tableName+'"'));
             }
         });
 
@@ -172,14 +172,14 @@ function handleCommand(cmd) {
         .then((result) => {
             const doneStr = `${ cmd.toUpperCase() } DONE`;
             logger.info(doneStr);
-            logger.info("=".repeat(doneStr.length));
+            logger.info('='.repeat(doneStr.length));
         })
         .catch(err => {
             const errorStr = `${ cmd.toUpperCase() } ERROR`;
             logger.error(errorStr);
-            logger.error("=".repeat(errorStr.length));
+            logger.error('='.repeat(errorStr.length));
             logger.error(err);
-            logger.error("=".repeat(errorStr.length));
+            logger.error('='.repeat(errorStr.length));
         })
         .then(() => {
             if (cmd !== 'status' && cmd !== 'reset-hard') {

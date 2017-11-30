@@ -4,7 +4,6 @@
 
 
 import * as types from '../actions/types';
-import {v4} from 'node-uuid';
 import widgets from './widgetsReducer';
 
 const page = (state = {}, action) => {
@@ -46,7 +45,8 @@ const page = (state = {}, action) => {
             });
         case types.RENAME_PAGE:
             return Object.assign({}, state, {
-                name: action.name
+                name: action.name,
+                id: action.newPageId
             });
         default:
             return state;

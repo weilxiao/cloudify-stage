@@ -7,18 +7,58 @@ import React, { Component, PropTypes } from 'react';
 import OverlayAction from './OverlayAction';
 import OverlayContent from './OverlayContent';
 
+/**
+ * Overlay is a component to present data in simple modal window
+ *
+ * Content data are defined inside {@link OverlayContent} component.
+ *
+ * Overlay trigger is defined inside {@link OverlayAction} component.
+ *
+ * ## Access
+ * `Stage.Basic.Overlay`
+ *
+ * ## Usage
+ * ### Overlay hidden (only trigger visible) *
+ * ![Overlay](manual/asset/overlay/Overlay_0.png)
+ *
+ * ### Overlay visible *
+ * ![Overlay](manual/asset/overlay/Overlay_1.png)
+ *
+ * ```
+ * <Overlay>
+ *   <Overlay.Action title="Click button to open overlay">
+ *     <Button>Details</Button>
+ *   </Overlay.Action>
+ *   <Overlay.Content>
+ *     <p>Overlay content</p>
+ *   </Overlay.Content>
+ * </Overlay>
+ * ```
+ */
 export default class Overlay extends Component {
 
+    /**
+     * Overlay action, see {@link OverlayAction}
+     */
     static Action = OverlayAction;
+
+    /**
+     * Overlay content, see {@link OverlayContent}
+     */
     static Content = OverlayContent;
 
+    /**
+     * propTypes
+     * @property {object[]} children primary content
+     * @property {string} [className='large'] CSS classname to add to modal window <div>
+     */
     static propTypes = {
         children: PropTypes.any.isRequired,
         className: PropTypes.string,
     };
 
     static defaultProps = {
-        className: "large"
+        className: 'large'
     };
 
     componentWillUnmount() {
@@ -33,7 +73,7 @@ export default class Overlay extends Component {
             .modal({observeChanges: true,
                     onShow: ()=>$('body').css({overflow: 'hidden'}),
                     onHide: ()=>$('body').css({overflow: 'inherit'})
-            }).modal("show");
+            }).modal('show');
     }
 
     render() {
@@ -43,9 +83,9 @@ export default class Overlay extends Component {
 
         var self = this;
         React.Children.forEach(this.props.children, function(child,index) {
-            if (child.type && child.type.name === "OverlayAction") {
+            if (child.type && child.type === OverlayAction) {
                 overlayAction = React.cloneElement(child, {onClick:self.show.bind(self)});
-            } else if (child.type && child.type.name === "OverlayContent") {
+            } else if (child.type && child.type === OverlayContent) {
                 overlayContent = child;
             } else {
                 otherChildren.push(child);

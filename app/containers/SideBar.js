@@ -6,11 +6,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import SideBar from '../components/SideBar';
 
-
 const mapStateToProps = (state, ownProps) => {
-return {
-        pageId:     ownProps.pageId || "0",
-        isEditMode: state.config.isEditMode || false
+    var homePageId = state.pages[0].id;
+    return {
+        homePageId,
+        pageId:     ownProps.pageId || homePageId,
+        isEditMode: state.config.isEditMode || false,
+        isOpen: state.app.sidebarIsOpen || false
     }
 };
 

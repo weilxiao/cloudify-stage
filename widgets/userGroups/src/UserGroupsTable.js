@@ -13,6 +13,7 @@ export default class UserGroupsTable extends React.Component {
         super(props, context);
 
         this.state = {
+            error: null,
             showModal: false,
             modalType: '',
             group: {},
@@ -22,8 +23,8 @@ export default class UserGroupsTable extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.widget !== nextProps.widget
-            || this.state != nextState
+        return !_.isEqual(this.props.widget, nextProps.widget)
+            || !_.isEqual(this.state, nextState)
             || !_.isEqual(this.props.data, nextProps.data);
     }
 
@@ -40,7 +41,7 @@ export default class UserGroupsTable extends React.Component {
     }
 
     fetchData(fetchParams) {
-        this.props.toolbox.refresh(fetchParams);
+        return this.props.toolbox.refresh(fetchParams);
     }
 
     _selectUserGroup(userGroup) {
@@ -53,7 +54,7 @@ export default class UserGroupsTable extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doGetTenants().then((tenants)=>{
-            this.setState({group, tenants, modalType: value, showModal: true});
+            this.setState({error: null, group, tenants, modalType: value, showModal: true});
             this.props.toolbox.loading(false);
         }).catch((err)=> {
             this.setState({error: err.message});
@@ -66,7 +67,7 @@ export default class UserGroupsTable extends React.Component {
 
         let actions = new Actions(this.props.toolbox);
         actions.doGetUsers().then((users)=>{
-            this.setState({group, users, modalType: value, showModal: true});
+            this.setState({error: null, group, users, modalType: value, showModal: true});
             this.props.toolbox.loading(false);
         }).catch((err)=> {
             this.setState({error: err.message});
@@ -79,8 +80,10 @@ export default class UserGroupsTable extends React.Component {
             this._getAvailableTenants(value, group);
         } else if (value === MenuAction.EDIT_USERS_ACTION) {
             this._getAvailableUsers(value, group);
-        } else {
+        } else if (value === MenuAction.DELETE_ACTION) {
             this.setState({group, modalType: value, showModal: true});
+        } else {
+            this.setState({error: `Internal error: Unknown action ('${value}') cannot be handled.`});
         }
     }
 
@@ -113,7 +116,7 @@ export default class UserGroupsTable extends React.Component {
 
         return (
             <div>
-                <ErrorMessage error={this.state.error}/>
+                <ErrorMessage error={this.state.error} onDismiss={() => this.setState({error: null})} autoHide={true}/>
 
                 <DataTable fetchData={this.fetchData.bind(this)}
                            totalSize={this.props.data.total}
@@ -166,8 +169,8 @@ export default class UserGroupsTable extends React.Component {
                     onHide={this._hideModal.bind(this)}
                     toolbox={this.props.toolbox}/>
 
-                <Confirm title={`Are you sure you want to remove group ${this.state.group.name}?`}
-                         show={this.state.modalType === MenuAction.DELETE_ACTION && this.state.showModal}
+                <Confirm content={`Are you sure you want to remove group ${this.state.group.name}?`}
+                         open={this.state.modalType === MenuAction.DELETE_ACTION && this.state.showModal}
                          onConfirm={this._deleteUserGroup.bind(this)}
                          onCancel={this._hideModal.bind(this)} />
 

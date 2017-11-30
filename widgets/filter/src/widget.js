@@ -13,6 +13,8 @@ Stage.defineWidget({
     color: "yellow",
     showHeader: false,
     showBorder: false,
+    categories: [Stage.GenericConfig.CATEGORY.BUTTONS_AND_FILTERS],
+    
     fetchData:(widget,toolbox,params)=>{
         return Promise.all([
             toolbox.getManager().doGetFull('/blueprints?_include=id'),
@@ -28,6 +30,7 @@ Stage.defineWidget({
     },
 
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('filter'),
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(5),
         {id: "filterByExecutions",name: "Should show execution filter", default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE}

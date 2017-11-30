@@ -43,8 +43,10 @@ export default class GroupModal extends React.Component {
 
         var actions = new Actions(this.props.toolbox);
         actions.doHandleGroups(this.props.user.username, groupsToAdd, groupsToRemove).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.refresh();
+            this.props.toolbox.getEventBus().trigger('userGroups:refresh');
+            this.props.toolbox.getEventBus().trigger('tenants:refresh');
             this.props.onHide();
         }).catch((err)=>{
             this.setState({errors: {error: err.message}, loading: false});
@@ -58,19 +60,20 @@ export default class GroupModal extends React.Component {
     render() {
         var {Modal, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
 
-        var user = Object.assign({},{username:""}, this.props.user);
+        var user = Object.assign({},{username:''}, this.props.user);
         var groups = Object.assign({},{items:[]}, this.props.groups);
 
         var options = _.map(groups.items, item => { return {text: item.name, value: item.name, key: item.name} });
 
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()}>
                 <Modal.Header>
                     <Icon name="user"/> Edit user groups for {user.username}
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Field>
                             <Form.Dropdown placeholder='Groups' multiple selection options={options} name="groups"
                                            value={this.state.groups} onChange={this._handleInputChange.bind(this)}/>

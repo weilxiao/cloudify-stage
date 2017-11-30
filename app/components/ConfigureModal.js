@@ -2,8 +2,8 @@
  * Created by kinneretzin on 07/03/2017.
  */
 
-import React, {Component, PropTypes} from "react";
-import {Modal, ErrorMessage, GenericField, Form, ApproveButton, CancelButton} from "./basic";
+import React, {Component, PropTypes} from 'react';
+import {Modal, ErrorMessage, GenericField, Form, ApproveButton, CancelButton} from './basic';
 
 export default class ConfigureModal extends Component {
 
@@ -52,7 +52,7 @@ export default class ConfigureModal extends Component {
 
     render() {
         return (
-            <Modal open={this.props.show}>
+            <Modal open={this.props.show} onClose={()=>this.props.onHide()}>
                 <Modal.Header>
                     Configure UI properties
                 </Modal.Header>

@@ -11,8 +11,9 @@ export default class UploadModal extends React.Component {
 
     static initialState = {
         loading: false,
-        blueprintName: "",
-        blueprintFileName: "",
+        blueprintName: '',
+        blueprintFileName: '',
+        privateResource: false,
         errors: {}
     }
 
@@ -36,7 +37,7 @@ export default class UploadModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.blueprintName)) {
-            errors["blueprintName"]="Please provide blueprint name";
+            errors['blueprintName']='Please provide blueprint name';
         }
 
         if (!_.isEmpty(errors)) {
@@ -49,9 +50,10 @@ export default class UploadModal extends React.Component {
 
         this.props.actions.doUpload(this.state.blueprintName,
                                     this.state.blueprintFileName,
-                                    this.props.files.repo
+                                    this.props.files.repo,
+                                    this.state.privateResource
         ).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.getEventBus().trigger('blueprints:refresh');
             this.props.onHide();
         }).catch((err)=>{
@@ -64,22 +66,25 @@ export default class UploadModal extends React.Component {
     }
 
     render() {
-        var {Modal, CancelButton, ApproveButton, Icon, Form} = Stage.Basic;
+        var {Modal, CancelButton, ApproveButton, Icon, Form, PrivateField} = Stage.Basic;
 
-        var files = Object.assign({},{tree:[], repo:""}, this.props.files);
-        files.tree = _.filter(files.tree, x => x.type === "blob" && x.path.endsWith(".yaml"));
+        var files = Object.assign({},{tree:[], repo:''}, this.props.files);
+        files.tree = _.filter(files.tree, x => x.type === 'blob' && x.path.endsWith('.yaml'));
 
         var options = _.map(files.tree, item => { return {text: item.path, value: item.path} });
 
         return (
             <div>
-                <Modal open={this.props.open}>
+                <Modal open={this.props.open} onClose={()=>this.props.onHide()}>
                     <Modal.Header>
                         <Icon name="upload"/> Upload blueprint from {files.repo}
+                        <PrivateField lock={this.state.privateResource} className="rightFloated"
+                                      onClick={()=>this.setState({privateResource:!this.state.privateResource})}/>
                     </Modal.Header>
 
                     <Modal.Content>
-                        <Form loading={this.state.loading} errors={this.state.errors}>
+                        <Form loading={this.state.loading} errors={this.state.errors}
+                              onErrorsDismiss={() => this.setState({errors: {}})}>
                             <Form.Field error={this.state.errors.blueprintName}>
                                 <Form.Input name='blueprintName' placeholder="Blueprint name"
                                             value={this.state.blueprintName} onChange={this._handleInputChange.bind(this)}/>

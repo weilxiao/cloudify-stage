@@ -8,17 +8,18 @@ export default class {
     }
 
     doGetBlueprints() {
-        return this.toolbox.getManager().doGet(`/blueprints?_include=id`);
+        return this.toolbox.getManager().doGet('/blueprints?_include=id');
     }
 
     doGetFullBlueprintData(blueprintId) {
         return this.toolbox.getManager().doGet(`/blueprints/${blueprintId}`);
     }
 
-    doDeploy(blueprintId,deploymentId,inputs) {
-        return this.toolbox.getManager().doPut(`/deployments/${deploymentId}`,null,{
+    doDeploy(blueprintId,deploymentId,inputs,privateResource=false, skipPluginsValidation=false) {
+        return this.toolbox.getManager().doPut(`/deployments/${deploymentId}`,{private_resource: privateResource},{
             'blueprint_id': blueprintId,
-            inputs
+            inputs,
+            skip_plugins_validation:skipPluginsValidation
         });
     }
 }

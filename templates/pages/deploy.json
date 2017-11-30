@@ -1,0 +1,31 @@
+{
+  "name": "Deployments",
+  "widgets": [
+    {
+      "name": "deploymentButton",
+      "definition": "deploymentButton",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "name": "Filter",
+      "definition": "filter",
+      "x": 0,
+      "y": 4,
+      "configuration": {
+        "filterByExecutions":false
+      }
+    },
+    {
+      "name": "Deployments",
+      "width": 12,
+      "height": 36,
+      "definition": "deployments",
+      "x": 0,
+      "y": 8,
+      "configuration":{
+        "displayStyle":"list"
+      }
+    }
+  ]
+}

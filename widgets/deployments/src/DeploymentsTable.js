@@ -28,7 +28,8 @@ export default class extends React.Component {
     };
 
     render() {
-        var DataTable = Stage.Basic.DataTable;
+        var {DataTable, ResourceAvailability} = Stage.Basic;
+        let tableName = 'deploymentsTable';
 
         return (
             <DataTable fetchData={this.props.fetchData}
@@ -37,7 +38,7 @@ export default class extends React.Component {
                        sortColumn={this.props.widget.configuration.sortColumn}
                        sortAscending={this.props.widget.configuration.sortAscending}
                        selectable={true}
-                       className="deploymentTable">
+                       className={tableName}>
 
                 <DataTable.Column label="Name" name="id" width="25%"/>
                 <DataTable.Column label="Blueprint" name="blueprint_id" width="25%"/>
@@ -51,8 +52,10 @@ export default class extends React.Component {
 
                         return (
 
-                            <DataTable.Row key={item.id} selected={item.isSelected} onClick={()=>this.props.onSelectDeployment(item)}>
-                                <DataTable.Data><a className='deploymentName' href="javascript:void(0)">{item.id}</a></DataTable.Data>
+                            <DataTable.Row id={`${tableName}_${item.id}`} key={item.id} selected={item.isSelected} onClick={()=>this.props.onSelectDeployment(item)}>
+                                <DataTable.Data><a className='deploymentName' href="javascript:void(0)">{item.id}</a>
+                                    <ResourceAvailability availability={item.resource_availability} className="rightFloated"/>
+                                </DataTable.Data>
                                 <DataTable.Data>{item.blueprint_id}</DataTable.Data>
                                 <DataTable.Data>{item.created_at}</DataTable.Data>
                                 <DataTable.Data>{item.updated_at}</DataTable.Data>

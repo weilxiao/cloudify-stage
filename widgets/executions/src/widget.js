@@ -11,8 +11,11 @@ Stage.defineWidget({
     initialWidth: 8,
     initialHeight: 24,
     color : "blue",
-    fetchUrl: '[manager]/executions?is_system_workflow=false[params]',
+    fetchUrl: '[manager]/executions?[params]',
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('executions'),
+    categories: [Stage.GenericConfig.CATEGORY.EXECUTIONS_NODES],
+    
     initialConfiguration:
         [
             Stage.GenericConfig.POLLING_TIME_CONFIG(2),
@@ -29,10 +32,12 @@ Stage.defineWidget({
         return {
             blueprint_id: toolbox.getContext().getValue('blueprintId'),
             deployment_id: toolbox.getContext().getValue('deploymentId'),
-            is_system_workflow: widget.configuration.showSystemExecutions &&
-                                !toolbox.getContext().getValue('blueprintId') &&
-                                !toolbox.getContext().getValue('deploymentId')
-        }
+            _include_system_workflows: (
+                widget.configuration.showSystemExecutions &&
+                !toolbox.getContext().getValue('blueprintId') &&
+                !toolbox.getContext().getValue('deploymentId')
+            )
+        };
     },
 
     render: function(widget,data,error,toolbox) {

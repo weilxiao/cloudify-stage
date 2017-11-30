@@ -12,6 +12,9 @@ Stage.defineWidget({
     initialHeight: 20,
     color : 'blue',
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('nodes'),
+    categories: [Stage.GenericConfig.CATEGORY.EXECUTIONS_NODES],
+
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(10),
         Stage.GenericConfig.PAGE_SIZE_CONFIG(),
@@ -20,7 +23,7 @@ Stage.defineWidget({
             default: 'Name,Type,Blueprint,Deployment,Contained in,Connected to,Host,Creator,# Instances,Groups', type: Stage.Basic.GenericField.MULTI_SELECT_LIST_TYPE}
     ],
     fetchUrl: {
-        nodes: '[manager]/nodes?_include=id,deployment_id,blueprint_id,type,number_of_instances,host_id,relationships,created_by[params:blueprint_id,deployment_id,gridParams]',
+        nodes: '[manager]/nodes?_include=id,deployment_id,blueprint_id,type,type_hierarchy,number_of_instances,host_id,relationships,created_by[params:blueprint_id,deployment_id,gridParams]',
         nodeInstances: '[manager]/node-instances?_include=id,node_id,deployment_id,state,relationships,runtime_properties[params:deployment_id]',
         deployments: '[manager]/deployments?_include=id,groups[params:blueprint_id,id]'
     },

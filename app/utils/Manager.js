@@ -2,21 +2,13 @@
  * Created by kinneretzin on 22/11/2016.
  */
 
-import 'isomorphic-fetch';
+import Internal from './Internal';
+import StageUtils from './stageUtils';
 
-import log from 'loglevel';
-
-import Consts from './consts';
-import External from './External';
-
-export default class Manager extends External {
+export default class Manager extends Internal {
 
     constructor(managerData) {
         super(managerData);
-    }
-
-    getSelectedTenant() {
-        return _.get(this,'_data.tenants.selected', null);
     }
 
     getIp() {
@@ -31,41 +23,33 @@ export default class Manager extends External {
         return this._buildActualUrl(url,data);
     }
 
+    getSelectedTenant() {
+        return _.get(this,'_data.tenants.selected', null);
+    }
+
+    getSystemRoles() {
+        var roles = _.get(this,'_data.roles', null);
+        return _.filter(roles, (role) => role.type === 'system_role');
+    }
+
     _buildActualUrl(url,data) {
         let index = url.indexOf('[manager]');
         if (index >= 0) {
             let managerUrl = url.substring(index + '[manager]'.length);
-            var urlInServer = `${this._data.apiVersion?'/api/'+this._data.apiVersion:''}${managerUrl}`;
-            let su = encodeURIComponent(`http://${this._data.ip}${urlInServer}`);
+            var urlInServer = encodeURIComponent(managerUrl);
 
             url = url.substring(0, index);
 
-            data = Object.assign({}, data, {su});
-            var queryString =  (url.indexOf("?") > 0?(_.endsWith(url, "?")?"":"&"):"?") + $.param(data, true);
+            data = Object.assign({}, data, {su:urlInServer});
+            var queryString =  (url.indexOf('?') > 0?(_.endsWith(url, '?')?'':'&'):'?') + $.param(data, true);
 
             return url + queryString;
         } else {
-            var queryString =  data ? (url.indexOf("?") > 0?"&":"?") + $.param(data, true) : '';
-            var urlInServer = `${this._data.apiVersion?'/api/'+this._data.apiVersion:''}${url}${queryString}`;
+            var queryString =  data ? (url.indexOf('?') > 0?'&':'?') + $.param(data, true) : '';
+            var urlInServer = encodeURIComponent(url + queryString);
 
-            let su = encodeURIComponent(`http://${this._data.ip}${urlInServer}`);
-            return `/sp/?su=${su}`;
+            return StageUtils.url(`/sp/?su=${urlInServer}`);
         }
-    }
-
-    _buildSecurityHeader(){
-        var auth = this._data.auth;
-        return (auth.isSecured && auth.token ? {"Authentication-Token": auth.token} : undefined);
-    }
-
-    _buildHeaders() {
-        var securityHeaders = this._buildSecurityHeader();
-
-        var headers = Object.assign({
-            tenant: _.get(this._data,'tenants.selected',Consts.DEFAULT_TENANT)
-        },securityHeaders);
-
-        return headers;
     }
 
     doGetFull(url,params={},parseResponse=true,fullData = {items:[]}, size = 0) {
@@ -77,7 +61,7 @@ export default class Manager extends External {
         return pr.then(data=>{
             size += data.items.length;
             fullData.items = _.concat(fullData.items,data.items);
-            var total = _.get(data, "metadata.pagination.total");
+            var total = _.get(data, 'metadata.pagination.total');
 
             if (total > size) {
                 return this.doGetFull(url,params,parseResponse,fullData,size);
@@ -87,5 +71,4 @@ export default class Manager extends External {
         });
 
     }
-
 }

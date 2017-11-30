@@ -5,9 +5,11 @@
 import 'isomorphic-fetch';
 import {saveAs} from 'file-saver';
 import StageUtils from './stageUtils';
+import Interceptor from './Interceptor';
+import {UNAUTHORIZED_ERR} from '../utils/ErrorCodes';
 
 import log from 'loglevel';
-let logger = log.getLogger("External");
+let logger = log.getLogger('External');
 
 export default class External {
 
@@ -19,8 +21,8 @@ export default class External {
         return this._ajaxCall(url,'get',params,null,parseResponse,headers) ;
     }
 
-    doPost(url,params,data,parseResponse,headers){
-        return this._ajaxCall(url,'post',params,data,parseResponse,headers) ;
+    doPost(url,params,data,parseResponse,headers, withCredentials){
+        return this._ajaxCall(url,'post',params,data,parseResponse,headers, null, withCredentials) ;
     }
 
     doDelete(url,params,data,parseResponse,headers){
@@ -31,8 +33,8 @@ export default class External {
         return this._ajaxCall(url,'put',params,data,parseResponse,headers) ;
     }
 
-    doPatch(url,params,data,parseResponse) {
-        return this._ajaxCall(url,'PATCH',params,data,parseResponse) ;
+    doPatch(url,params,data,parseResponse,headers) {
+        return this._ajaxCall(url,'PATCH',params,data,parseResponse,headers);
     }
 
     doDownload(url,fileName) {
@@ -52,38 +54,37 @@ export default class External {
                 var total = e.totalSize || e.total;
                 logger.debug('xhr progress: ' + Math.round(done/total*100) + '%');
             });
-            xhr.addEventListener("error", function(e){
-                logger.error('xhr upload error', e, this.responseText);
+            xhr.addEventListener('error', function(e){
+                logger.error('xhr upload error', e, xhr.responseText);
 
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.message) {
-                        reject({message: response.message});
+                        reject({message: StageUtils.resolveMessage(response.message)});
                     } else {
                         reject({message: e.message});
                     }
-
                 } catch (err) {
-                    logger.error('Cannot parse upload response',err);
-                    reject({message: err.message});
+                    logger.error('Cannot parse upload error', err, xhr.responseText);
+                    reject({message: xhr.responseText || err.message});
                 }
             });
             xhr.addEventListener('load', function(e) {
-                logger.debug('xhr upload complete', e, this.responseText);
+                logger.debug('xhr upload complete', e, xhr.responseText);
 
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.message) {
-                        reject({message: response.message});
+                        logger.error('xhr upload error', e, xhr.responseText);
+
+                        reject({message: StageUtils.resolveMessage(response.message)});
                         return;
                     }
-
                 } catch (err) {
-                    let errorMessage = `Cannot parse upload response: ${err}`;
-                    logger.error(errorMessage);
-                    reject({message: errorMessage});
+                    logger.error('Cannot parse upload response', err, xhr.responseText);
+                    reject({message: xhr.responseText || err.message});
                 }
-                resolve();
+                resolve(response);
             });
 
             xhr.open(method || 'put',actualUrl);
@@ -96,12 +97,12 @@ export default class External {
             var formData = new FormData();
 
             if (files) {
-                if (_.isArray(files)) {
+                if (files instanceof File) {
+                    formData = files; // Single file, simply pass it
+                } else {
                     _.forEach(files, function (value, key) {
                         formData.append(key, value);
                     });
-                } else {
-                    formData = files; // Single file, simply pass it
                 }
             }
 
@@ -109,7 +110,7 @@ export default class External {
         });
     }
 
-    _ajaxCall(url,method,params,data,parseResponse=true,userHeaders={},fileName=null) {
+    _ajaxCall(url,method,params,data,parseResponse=true,userHeaders={},fileName=null, withCredentials) {
         var actualUrl = this._buildActualUrl(url, params);
         logger.debug(method + ' data. URL: ' + url);
 
@@ -128,14 +129,19 @@ export default class External {
             }
         }
 
+        // this allows the server to set a cookie
+        if(withCredentials){
+            options.credentials = 'include';
+        }
+
         if (fileName) {
             return fetch(actualUrl, options)
-                .then(this._checkStatus)
+                .then(this._checkStatus.bind(this))
                 .then(response => response.blob())
                 .then(blob => saveAs(blob, fileName));
         } else {
             return fetch(actualUrl, options)
-                .then(this._checkStatus)
+                .then(this._checkStatus.bind(this))
                 .then(response => {
                     if (parseResponse) {              
                       var contentType = _.toLower(response.headers.get('content-type'));
@@ -147,12 +153,23 @@ export default class External {
         }
     }
 
+    _isUnauthorized(response){
+        return false;
+    }
+
     _checkStatus(response) {
         if (response.ok) {
             return response;
         }
 
-        // Ignoreing content type and trying to parse the json response. Some errors do send json body but not the right content type (like 400 bad request)
+        if(this._isUnauthorized(response)){
+            let interceptor = Interceptor.getInterceptor();
+            interceptor.handle401();
+            return Promise.reject(UNAUTHORIZED_ERR);
+        }
+
+        // Ignoring content type and trying to parse the json response.
+        // Some errors do send json body but not the right content type (like 400 bad request)
         return response.text()
             .then(resText=>{
                 try {
@@ -160,29 +177,35 @@ export default class External {
 
                     var message = StageUtils.resolveMessage(resJson.message);
 
-                    return Promise.reject({message: message || response.statusText});
+                    return Promise.reject({message: message || response.statusText, status: response.status});
                 } catch (e) {
                     logger.error(e);
-                    return Promise.reject({message: response.statusText});
+                    return Promise.reject({message: response.statusText, status: response.status});
                 }
             });
     }
 
     _buildActualUrl(url, data) {
-        var queryString =  data ? (url.indexOf("?") > 0?"&":"?") + $.param(data, true) : '';
+        var queryString =  data ? (url.indexOf('?') > 0?'&':'?') + $.param(data, true) : '';
         return `${url}${queryString}`;
     }
 
     _contentType() {
-        return {"content-type": "application/json"};
+        return {'content-type': 'application/json'};
     }
 
     _buildHeaders() {
+        if (!this._data) {
+            return {};
+        }
+
         var headers = {};
-        if (this._data && this._data.basicAuth) {
-            headers = Object.assign(headers, {"Authorization": `Basic ${this._data.basicAuth}`});
-        };
+        if (this._data.basicAuth) {
+            headers['Authorization'] = `Basic ${this._data.basicAuth}`;
+        }
 
         return headers;
     }
+
+
 }

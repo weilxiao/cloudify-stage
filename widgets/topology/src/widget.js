@@ -5,11 +5,6 @@
 import Topology from './Topology';
 import DataFetcher from './DataFetcher';
 
-let getConfig = (widgetConfig,id) =>{
-    var conf = widgetConfig ? _.find(widgetConfig,{id:id}) : {};
-    return (conf && conf.value === 'true');
-};
-
 Stage.defineWidget({
     id: 'topology',
     name: "Topology",
@@ -18,7 +13,10 @@ Stage.defineWidget({
     initialHeight: 16,
     color: "yellow",
     isReact: true,
-    hasTemplate: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('topology'),
+    hasStyle: true,
+    categories: [Stage.GenericConfig.CATEGORY.BLUEPRINTS],
+    
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(2),
         {id: 'enableNodeClick', name: 'Enable node click', default:true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
@@ -36,10 +34,6 @@ Stage.defineWidget({
     },
 
     render: function(widget,data,error,toolbox) {
-        if (!widget.definition.template) {
-            return 'Topology: missing template';
-        }
-
         var topologyConfig = {
             enableNodeClick: widget.configuration.enableNodeClick,
             enableGroupClick: widget.configuration.enableGroupClick,
@@ -48,7 +42,6 @@ Stage.defineWidget({
             showToolbar: widget.configuration.showToolbar
         };
 
-        var topologyTemplate = _.template(widget.definition.template)(topologyConfig);
         var deploymentId = toolbox.getContext().getValue('deploymentId');
         var blueprintId = toolbox.getContext().getValue('blueprintId');
 
@@ -57,7 +50,7 @@ Stage.defineWidget({
             blueprintId,
             topologyConfig
         });
-        return <Topology template={topologyTemplate} widget={widget} data={formattedData} toolbox={toolbox}/>;
+        return <Topology widget={widget} data={formattedData} toolbox={toolbox}/>;
 
     }
 

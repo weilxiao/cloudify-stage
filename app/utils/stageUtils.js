@@ -2,6 +2,9 @@
  * Created by pawelposel on 09/11/2016.
  */
 
+import md5 from 'blueimp-md5';
+import Const from './consts';
+
 export default class StageUtils {
 
     static makeCancelable(promise) {
@@ -28,6 +31,10 @@ export default class StageUtils {
         return moment.utc(timestamp, inputPattern).local().format(outputPattern);
     }
 
+    static formatLocalTimestamp(timestamp, outputPattern='DD-MM-YYYY HH:mm', inputPattern=undefined) {
+        return moment(timestamp, inputPattern).format(outputPattern);
+    }
+
     /**
      * Replace all occurrences of <Tag attr1="value1" attr1="value2" ...> to "tag value1 value2 ..."
      * @param message
@@ -37,13 +44,13 @@ export default class StageUtils {
         var tagPattern = /<(\w+)[^<]*>/;
         var attrPattern = /\w+=[',",`](\w+)[',",`]/g;
 
-        var matchedTag, matchedAttr, sentence = "";
+        var matchedTag, matchedAttr, sentence = '';
         while (matchedTag = tagPattern.exec(message)) {
             var tag = matchedTag[0];
             var sentence = matchedTag[1].toLowerCase();
 
             while (matchedAttr = attrPattern.exec(tag)) {
-                sentence += " " + matchedAttr[1];
+                sentence += ' ' + matchedAttr[1];
             }
 
             message = message.replace(tag, sentence);
@@ -51,5 +58,34 @@ export default class StageUtils {
 
         return message;
     }
+
+    static getMD5(str) {
+        return md5(str);
+    }
+
+    static url(path) {
+        if (path === '/') {
+            return Const.CONTEXT_PATH;
+        }
+
+        return Const.CONTEXT_PATH + (_.startsWith(path, '/') ? '' : '/') + path;
+    }
+
+    static buildConfig(widgetDefinition) {
+        var configs = {};
+
+        _.each(widgetDefinition.initialConfiguration,(config)=>{
+            if (!config.id) {
+                console.log('Cannot process config for widget :"'+widgetDefinition.name+'" , because it missing an Id ',config);
+                return;
+            }
+
+            var value = config.default && !config.value ? config.default : (_.isUndefined(config.value) ? null : config.value );
+
+            configs[config.id] = Stage.Basic.GenericField.formatValue(config.type, value);
+        });
+
+        return configs;
+    };
 
 }

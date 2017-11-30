@@ -1,5 +1,15 @@
-.uploadButton {
+.repositoryCatalog .uploadButton {
     position: absolute !important;
     bottom: 1rem;
-    right: 10px;
+    right: 1rem;
+}
+
+.repositoryCatalog .readmeButton {
+    position: absolute !important;
+    bottom: 1rem;
+    left: 1rem;
+}
+
+.repositoryCatalog .contentBlock {
+    margin-bottom: 50px;
 }

@@ -12,14 +12,18 @@ Stage.defineWidget({
     initialHeight: 16,
     color : "blue",
     isReact: true,
-    isAdmin: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('snapshots'),
+    categories: [Stage.GenericConfig.CATEGORY.SYSTEM_RESOURCES],
+
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(30),
         Stage.GenericConfig.PAGE_SIZE_CONFIG(),
         Stage.GenericConfig.SORT_COLUMN_CONFIG('created_at'),
         Stage.GenericConfig.SORT_ASCENDING_CONFIG(false)
     ],
-    fetchUrl: '[manager]/snapshots?_include=id,created_at,status,created_by[params]',
+    fetchUrl: '[manager]/snapshots?_include=id,created_at,status,created_by,resource_availability[params]',
+    fetchParams: (widget, toolbox) => 
+        toolbox.getContext ().getValue ('onlyMyResources') ? {created_by: toolbox.getManager().getCurrentUsername()} : {},
 
     render: function(widget,data,error,toolbox) {
 

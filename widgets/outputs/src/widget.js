@@ -8,6 +8,9 @@ Stage.defineWidget({
     initialHeight: 20,
     color : "blue",
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('outputs'),
+    categories: [Stage.GenericConfig.CATEGORY.DEPLOYMENTS],
+    
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(2)
     ],

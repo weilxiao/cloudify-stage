@@ -13,15 +13,18 @@ export default class ExecuteDeploymentModal extends React.Component {
     }
 
     static initialState = (props) => {
-
         var params = {};
         _.each(props.workflow.parameters,(param, name)=>{
-            params[name] = Stage.Common.JsonUtils.stringify(param.default);
-        })
+            if (typeof param.default == 'undefined' || typeof param.default == 'object')
+                params[name] = Stage.Common.JsonUtils.stringify(param.default);
+            else
+                params[name] = param.default;
+        });
 
         return {
             errors: {},
             loading: false,
+            force: false,
             params
         }
     }
@@ -58,9 +61,19 @@ export default class ExecuteDeploymentModal extends React.Component {
 
         this.setState({loading: true});
 
+        // Attempt to parse params to json
+        var paramsJson = {};
+        _.map(this.state.params, (param,name) => {
+            paramsJson[name] = Stage.Common.JsonUtils.stringToJson((param));
+        });
+
+        // Note that this.setState() is asynchronous and we cannot be sure that
+        // the state changes before we call doExecute
+        this.setState({params: paramsJson});
+
         var actions = new Stage.Common.DeploymentActions(this.props.toolbox);
-        actions.doExecute(this.props.deployment, this.props.workflow, this.state.params).then(()=>{
-            this.setState({loading: false});
+        actions.doExecute(this.props.deployment, this.props.workflow, paramsJson, this.state.force).then(()=>{
+            this.setState({loading: false, errors: {}});
             this.props.onHide();
             this.props.toolbox.getEventBus().trigger('executions:refresh');
         }).catch((err)=>{
@@ -68,23 +81,40 @@ export default class ExecuteDeploymentModal extends React.Component {
         })
     }
 
+    getGenericFieldType(parameter){
+        const {GenericField} = Stage.Basic;
+
+        // if param type is not provided attempt to infer it from default value
+        if (!parameter.type)
+            parameter.type = typeof parameter.default;
+
+        switch (parameter.type){
+            case 'boolean':
+                return GenericField.BOOLEAN_TYPE;
+            case 'integer':
+                return GenericField.NUMBER_TYPE;
+            default:
+                return GenericField.STRING_TYPE;
+        }
+    }
+
     handleInputChange(event, field) {
         this.setState({params: {...this.state.params, ...Stage.Basic.Form.fieldNameValue(field)}});
     }
 
     render() {
-        var {Modal, Icon, Form, Message, Input, ApproveButton, CancelButton} = Stage.Basic;
+        var {Modal, Icon, Form, Message, ApproveButton, CancelButton, GenericField} = Stage.Basic;
 
-        var workflow = Object.assign({},{name:"", parameters:[]}, this.props.workflow);
-
+        var workflow = Object.assign({},{name:'', parameters:[]}, this.props.workflow);
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()} className="executeWorkflowModal">
                 <Modal.Header>
                     <Icon name="road"/> Execute workflow {workflow.name}
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         {
                             _.isEmpty(workflow.parameters)
                             &&
@@ -95,12 +125,27 @@ export default class ExecuteDeploymentModal extends React.Component {
                             _.map(workflow.parameters,(parameter,name)=>{
                                 return (
                                     <Form.Field key={name}>
-                                        <label title={parameter.description || name }>{name}</label>
-                                        <Input name={name} value={this.state.params[name]} onChange={this.handleInputChange.bind(this)}/>
+                                        <GenericField name={name}
+                                                      label={name}
+                                                      description={parameter.description}
+                                                      type={this.getGenericFieldType(parameter)}
+                                                      value={this.state.params[name]}
+                                                      onChange={this.handleInputChange.bind(this)} />
                                     </Form.Field>
                                 );
                             })
                         }
+                        <Form.Field key="force">
+                            <GenericField
+                                name="force"
+                                label="force"
+                                description=""
+                                type={this.getGenericFieldType({type: 'boolean'})}
+                                value={this.state.force}
+                                onChange={(event, field) => {
+                                    this.setState({force: field.checked});
+                                }} />
+                        </Form.Field>
                     </Form>
                 </Modal.Content>
 

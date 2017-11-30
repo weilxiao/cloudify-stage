@@ -15,10 +15,10 @@ export default class CreateModal extends React.Component {
     static initialState = {
         open: false,
         loading: false,
-        username: "",
-        password: "",
-        confirmPassword: "",
-        role: "",
+        username: '',
+        password: '',
+        confirmPassword: '',
+        role: '',
         errors: {}
     }
 
@@ -42,24 +42,24 @@ export default class CreateModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.username)) {
-            errors["username"]="Please provide username";
+            errors['username']='Please provide username';
         }
 
         if (_.isEmpty(this.state.password)) {
-            errors["password"]="Please provide user password";
+            errors['password']='Please provide user password';
         }
 
         if (_.isEmpty(this.state.confirmPassword)) {
-            errors["confirmPassword"]="Please provide password confirmation";
+            errors['confirmPassword']='Please provide password confirmation';
         }
 
         if (!_.isEmpty(this.state.password) && !_.isEmpty(this.state.confirmPassword) &&
             this.state.password !== this.state.confirmPassword) {
-            errors["confirmPassword"]="Passwords do not match";
+            errors['confirmPassword']='Passwords do not match';
         }
 
         if (_.isEmpty(this.state.role)) {
-            errors["role"]="Please provide user role";
+            errors['role']='Please provide user role';
         }
 
         if (!_.isEmpty(errors)) {
@@ -75,7 +75,7 @@ export default class CreateModal extends React.Component {
                          this.state.password,
                          this.state.role
         ).then(()=>{
-            this.setState({loading: false, open: false});
+            this.setState({errors: {}, loading: false, open: false});
             this.props.toolbox.refresh();
         }).catch((err)=>{
             this.setState({errors: {error: err.message}, loading: false});
@@ -89,21 +89,18 @@ export default class CreateModal extends React.Component {
     render() {
         var {Modal, Button, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
 
-        let roleOptions = [
-            {text: Actions.USER_ROLE, value: Actions.USER_ROLE},
-            {text: Actions.ADMIN_ROLE, value: Actions.ADMIN_ROLE}
-        ];
-
-        const addButton = <Button content='Add' icon='add user' labelPosition='left' />;
+        const addButton = <Button content='Add' icon='add user' labelPosition='left' className='addUserButton' />;
 
         return (
-            <Modal trigger={addButton} open={this.state.open} onOpen={()=>this.setState({open:true})} onClose={()=>this.setState({open:false})}>
+            <Modal trigger={addButton} open={this.state.open} onOpen={()=>this.setState({open:true})}
+                   onClose={()=>this.setState({open:false})} className="addUserModal">
                 <Modal.Header>
                     <Icon name="add user"/> Add user
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Field error={this.state.errors.username}>
                             <Form.Input name='username' placeholder="Username"
                                         value={this.state.username} onChange={this._handleInputChange.bind(this)}/>
@@ -120,7 +117,7 @@ export default class CreateModal extends React.Component {
                         </Form.Field>
 
                         <Form.Field error={this.state.errors.role}>
-                            <Form.Dropdown selection name='role' placeholder="Role" options={roleOptions}
+                            <Form.Dropdown selection name='role' placeholder="Role" options={this.props.roles}
                                            value={this.state.role} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
 

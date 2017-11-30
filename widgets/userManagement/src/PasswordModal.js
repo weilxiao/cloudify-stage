@@ -14,8 +14,8 @@ export default class PasswordModal extends React.Component {
 
     static initialState = {
         loading: false,
-        password: "",
-        confirmPassword: "",
+        password: '',
+        confirmPassword: '',
         errors: {}
     }
 
@@ -39,16 +39,16 @@ export default class PasswordModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.password)) {
-            errors["password"]="Please provide user password";
+            errors['password']='Please provide user password';
         }
 
         if (_.isEmpty(this.state.confirmPassword)) {
-            errors["confirmPassword"]="Please provide password confirmation";
+            errors['confirmPassword']='Please provide password confirmation';
         }
 
         if (!_.isEmpty(this.state.password) && !_.isEmpty(this.state.confirmPassword) &&
             this.state.password !== this.state.confirmPassword) {
-            errors["confirmPassword"]="Passwords do not match";
+            errors['confirmPassword']='Passwords do not match';
         }
 
         if (!_.isEmpty(errors)) {
@@ -61,7 +61,7 @@ export default class PasswordModal extends React.Component {
 
         var actions = new Actions(this.props.toolbox);
         actions.doSetPassword(this.props.user.username, this.state.password).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.refresh();
             this.props.onHide();
         }).catch((err)=>{
@@ -76,16 +76,17 @@ export default class PasswordModal extends React.Component {
     render() {
         var {Modal, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
 
-        var user = Object.assign({},{username:""}, this.props.user);
+        var user = Object.assign({},{username:''}, this.props.user);
 
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()} className='userPasswordModal'>
                 <Modal.Header>
                     <Icon name="lock"/> Set password for {user.username}
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Field error={this.state.errors.password}>
                             <Form.Input name='password' placeholder="Password" type="password"
                                         value={this.state.password} onChange={this._handleInputChange.bind(this)}/>

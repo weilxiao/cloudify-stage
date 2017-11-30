@@ -2,30 +2,24 @@
  * Created by kinneretzin on 25/12/2016.
  */
 
-var Login = require('../utils/login');
-var Config =require('../config.json');
+var Config =require('../config');
 
 module.exports = {
-    'Manger IP and status': function (client) {
+    'Manager IP and status': function (client) {
+        client.login();
 
         var page = client.page.page();
 
-        Login(client);
+        page.section.managerData
+            .waitForElementPresent('@statusIconGreen')
+            .clickElement('@version')
+            .assert.containsText('@ip', Config.managerVersion)
+            .assert.cssClassPresent('@statusIcon','green')
 
-        var managerDataSection = page.section.managerData;
-
-        managerDataSection
-            .assert.containsText('@ip', Config.managerIp)
-            .waitForElementPresent('@statusIconGreen',2000)
-            .assert.cssClassPresent('@statusIcon','green');
-
-        managerDataSection
-            .moveToElement('@ip', 10, 10);
-
-        page.waitForElementVisible('@statusesTitle', 2000)
+        page.waitForElementVisible('@statusesTitle')
             .assert.containsText('@statusesTitle','Server Services Status')
-            .assert.containsText('@statusesName','InfluxDB')
-            .assert.containsText('@statusesDesc','InfluxDB Service');
+            .assert.containsText('@statusesName','Cloudify Composer')
+            .assert.containsText('@statusesDesc','Cloudify Composer Service');
 
         client.end();
     }

@@ -3,21 +3,19 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import StageUtils from '../utils/stageUtils';
 import {getToolbox} from '../utils/Toolbox';
 
 import {ErrorMessage} from './basic'
-import fetch from 'isomorphic-fetch';
 import WidgetParamsHandler from '../utils/WidgetParamsHandler';
 
 export default class WidgetDynamicContent extends Component {
     static propTypes = {
         widget: PropTypes.object.isRequired,
-        templates : PropTypes.object.isRequired,
         manager: PropTypes.object.isRequired,
         data: PropTypes.object.isRequired,
         onWidgetConfigUpdate: PropTypes.func,
-        fetchWidgetData: PropTypes.func.isRequired
+        fetchWidgetData: PropTypes.func.isRequired,
+        pageId: PropTypes.string.isRequired
     };
 
     constructor(props) {
@@ -111,7 +109,7 @@ export default class WidgetDynamicContent extends Component {
 
             this.fetchDataPromise = promises.cancelablePromise;
 
-            promises.waitForPromise
+            return promises.waitForPromise
                 .then((data)=> {
 
                     //Fixes sort issue - add grid params to metadata to cheat shouldComponentUpdate
@@ -144,6 +142,8 @@ export default class WidgetDynamicContent extends Component {
                     this._afterFetch();
                 });
         }
+
+        return Promise.resolve();
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -157,6 +157,8 @@ export default class WidgetDynamicContent extends Component {
                 var oldConfig = prevProps.widget.configuration[confName];
 
                 if (oldConfig !== config) {
+                    this._paramsHandler.update(this.props.widget);
+
                     requiresFetch = true;
                     return false;
                 }
@@ -178,8 +180,8 @@ export default class WidgetDynamicContent extends Component {
 
     // In component will mount fetch the data if needed
     componentDidMount() {
-        $(window).on("focus", this._startPolling.bind(this));
-        $(window).on("blur", this._stopPolling.bind(this));
+        $(window).on('focus', this._startPolling.bind(this));
+        $(window).on('blur', this._stopPolling.bind(this));
 
         this.mounted = true;
 
@@ -190,14 +192,19 @@ export default class WidgetDynamicContent extends Component {
     }
 
     componentWillUnmount() {
-        $(window).off("focus", this._startPolling.bind(this));
-        $(window).off("blur", this._stopPolling.bind(this));
+        $(window).off('focus', this._startPolling.bind(this));
+        $(window).off('blur', this._stopPolling.bind(this));
 
         this.mounted = false;
 
         this._stopPolling();
 
         console.log(`Widget '${this.props.widget.name}' unmounts`);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return !_.isEqual(this.props, nextProps)
+            || !_.isEqual(this.state, nextState);
     }
 
     renderWidget() {
@@ -214,7 +221,7 @@ export default class WidgetDynamicContent extends Component {
 
     renderReact () {
         if (this.props.data.error) {
-            return <ErrorMessage error={this.props.data.error} header="An unexpected error occurred"/>;
+            return <ErrorMessage error={this.props.data.error} header="An unexpected error occurred" autoHide={true}/>;
         }
 
         if (this.props.widget.definition && this.props.widget.definition.render) {
@@ -222,7 +229,7 @@ export default class WidgetDynamicContent extends Component {
                 return this.props.widget.definition.render(this.props.widget,this.props.data.data,this.props.data.error,this._getToolbox());
             } catch (e) {
                 console.error('Error rendering widget - '+e.message,e.stack);
-                return <ErrorMessage error={`Error rendering widget: ${e.message}`}/>;
+                return <ErrorMessage error={`Error rendering widget: ${e.message}`} autoHide={true}/>;
             }
         }
         return <div/>;

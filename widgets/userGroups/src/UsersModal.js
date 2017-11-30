@@ -43,8 +43,10 @@ export default class UsersModal extends React.Component {
 
         var actions = new Actions(this.props.toolbox);
         actions.doHandleUsers(this.props.group.name, usersToAdd, usersToRemove).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.refresh();
+            this.props.toolbox.getEventBus().trigger('users:refresh');
+            this.props.toolbox.getEventBus().trigger('tenants:refresh');
             this.props.onHide();
         }).catch((err)=>{
             this.setState({errors: {error: err.message}, loading: false});
@@ -64,13 +66,14 @@ export default class UsersModal extends React.Component {
         var options = _.map(users.items, item => { return {text: item.username, value: item.username, key: item.username} });
 
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()}>
                 <Modal.Header>
                     <Icon name="user"/> Add users to group {group.name}
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Field>
                             <Form.Dropdown placeholder='Users' multiple selection options={options} name="users"
                                            value={this.state.users} onChange={this._handleInputChange.bind(this)}/>

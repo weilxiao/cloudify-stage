@@ -4,11 +4,11 @@
     "live_output" : true,
     "parallel_process_delay" : 1500,
     "page_objects_path" : "e2e/pages",
-
+    "custom_commands_path" : "e2e/commands",
+    "globals_path" : "e2e/globals.js",
     "selenium" : {
         "start_process" : true,
         "server_path" : "./e2e/bin/selenium-server-standalone-3.0.1.jar",
-        "host": "127.0.0.1",
         "port" : 4444,
         "cli_args" : {
             "webdriver.chrome.driver" : "./e2e/bin/chromedriver"
@@ -22,18 +22,30 @@
             "selenium_port": 4444,
             "selenium_host": "localhost",
             "screenshots" : {
-                "enabled" : false,
-                "path" : "./screenshots"
+                "enabled" : true,
+                "path" : "e2e/screenshots",
+                "on_failure": true,
+                "on_error": true
             },
+            "end_session_on_fail" : true,
             "desiredCapabilities": {
                 "browserName": "chrome",
                 "marionette": true
+            },
+            "globals" : {
+                "usePathResolutionForResources": false,
+                "resourcesPath": "/home/ubuntu/stage/e2e/resources/"
             }
         },
 
-        "chrome" : {
-            "desiredCapabilities" : {
-                "browserName" : "chrome"
+        "dev" : {
+            "launch_url" : "http://localhost:4000",
+            "screenshots" : {
+                "enabled" : false
+            },
+            "globals" : {
+                "usePathResolutionForResources": true,
+                "resourcesPath": "e2e/resources/"
             }
         }
     }

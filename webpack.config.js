@@ -18,7 +18,7 @@ module.exports = {
     },
     entry: {
         "dev": [
-            'webpack-dev-server/client?http://0.0.0.0:3000', // WebpackDevServer host and port
+            'webpack-dev-server/client?http://0.0.0.0:4000', // WebpackDevServer host and port
             'webpack/hot/only-dev-server' /// "only" prevents reload on syntax errors
         ],
         "main.bundle": [
@@ -28,7 +28,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, 'dist'),
         filename: '[name].js',
-        publicPath: '/'
+        publicPath: '/stage'
     },
 
     plugins: [
@@ -76,7 +76,7 @@ module.exports = {
         loaders: [
             {
                 test: /\.js?$/,
-                exclude: [/bower_components/, /node_modules/,/cloudify-blueprint-topology/],
+                exclude: [/bower_components/, new RegExp('node_modules\\'+path.sep+'(?!d3-format).*'), /cloudify-blueprint-topology/],
                 loaders: ['react-hot','babel']
             },
             {

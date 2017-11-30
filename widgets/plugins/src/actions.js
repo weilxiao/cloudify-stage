@@ -13,17 +13,17 @@ export default class {
 
     }
 
-    doUpload(pluginUrl, file) {
-        var params = {};
+    doUpload(pluginUrl, file, privateResource=false) {
+        var params = {private_resource: privateResource};
 
         if (!_.isEmpty(pluginUrl)) {
             params['plugin_archive_url'] = pluginUrl;
         }
 
         if (file) {
-            return this.toolbox.getManager().doUpload(`/plugins`, params, file, 'post');
+            return this.toolbox.getManager().doUpload('/plugins', params, file, 'post');
         } else {
-            return this.toolbox.getManager().doPost(`/plugins`, params);
+            return this.toolbox.getManager().doPost('/plugins', params);
         }
     }
 
@@ -32,5 +32,9 @@ export default class {
         let pluginFileName = `${plugin.package_name}_${plugin.package_version}.zip`;
 
         return this.toolbox.getManager().doDownload(pluginDownloadUrl, pluginFileName);
+    }
+
+    doSetGlobal(plugin) {
+        return this.toolbox.getManager().doPatch(`/plugins/${plugin.id}/set-global`);
     }
 }

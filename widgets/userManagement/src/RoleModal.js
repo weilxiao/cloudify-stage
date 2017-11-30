@@ -14,7 +14,7 @@ export default class RoleModal extends React.Component {
 
     static initialState = {
         loading: false,
-        role: "",
+        role: '',
         errors: {}
     }
 
@@ -38,7 +38,7 @@ export default class RoleModal extends React.Component {
         let errors = {};
 
         if (_.isEmpty(this.state.role)) {
-            errors["role"]="Please provide user role";
+            errors['role']='Please provide user role';
         }
 
         if (!_.isEmpty(errors)) {
@@ -51,7 +51,7 @@ export default class RoleModal extends React.Component {
 
         var actions = new Actions(this.props.toolbox);
         actions.doSetRole(this.props.user.username, this.state.role).then(()=>{
-            this.setState({loading: false});
+            this.setState({errors: {}, loading: false});
             this.props.toolbox.refresh();
             this.props.onHide();
         }).catch((err)=>{
@@ -66,23 +66,19 @@ export default class RoleModal extends React.Component {
     render() {
         var {Modal, Icon, Form, ApproveButton, CancelButton} = Stage.Basic;
 
-        let roleOptions = [
-            {text: Actions.USER_ROLE, value: Actions.USER_ROLE},
-            {text: Actions.ADMIN_ROLE, value: Actions.ADMIN_ROLE}
-        ];
-
-        var user = Object.assign({},{username:""}, this.props.user);
+        var user = Object.assign({},{username:''}, this.props.user);
 
         return (
-            <Modal open={this.props.open}>
+            <Modal open={this.props.open} onClose={()=>this.props.onHide()} className='userRoleModal'>
                 <Modal.Header>
                     <Icon name="male"/> Set role for {user.username}
                 </Modal.Header>
 
                 <Modal.Content>
-                    <Form loading={this.state.loading} errors={this.state.errors}>
+                    <Form loading={this.state.loading} errors={this.state.errors}
+                          onErrorsDismiss={() => this.setState({errors: {}})}>
                         <Form.Field error={this.state.errors.role}>
-                            <Form.Dropdown selection name='role' placeholder="Role" options={roleOptions}
+                            <Form.Dropdown selection name='role' placeholder="Role" options={this.props.roles}
                                            value={this.state.role} onChange={this._handleInputChange.bind(this)}/>
                         </Form.Field>
                     </Form>

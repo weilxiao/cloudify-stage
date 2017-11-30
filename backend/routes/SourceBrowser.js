@@ -4,11 +4,13 @@
  */
 
 var express = require('express');
-var request = require('request');
-var SourceHandler = require('../source/SourceHandler');
+var SourceHandler = require('../handler/SourceHandler');
+var passport = require('passport');
 
 var logger = require('log4js').getLogger('sourceBrowser');
 var router = express.Router();
+
+router.use(passport.authenticate('token', {session: false}));
 
 router.get('/browse/file', function(req, res, next) {
     var path = req.query.path;
@@ -17,55 +19,21 @@ router.get('/browse/file', function(req, res, next) {
         return next('no file path passed [path]');
     }
 
-    try {
-        SourceHandler.browseArchiveFile(path, function (err, content) {
-            if (err) {
-                next(err);
-            } else {
-                res.contentType('application/text').send(content);
-            }
-        });
-    } catch(err) {
-        next(err);
-    }
+    SourceHandler.browseArchiveFile(path)
+        .then(content => res.contentType('application/text').send(content))
+        .catch(next);
 });
 
-router.get('/browse', function(req, res, next) {
-    var su = req.query.su;
-    var lastUpdate = req.query.last_update;
+router.get('/browse/:blueprintId/archive', function(req, res, next) {
+    SourceHandler.browseArchiveTree(req)
+        .then(data => res.send(data))
+        .catch(next);
+});
 
-    var errors = [];
-    if (!su) {
-        errors.push('no server url passed [su]');
-    }
-    if (!lastUpdate) {
-        errors.push('no last update passed [last_update]');
-    }
-
-    if (errors.length > 0) {
-        return next(errors.join());
-    }
-
-    try {
-        var archiveUrl = decodeURIComponent(su);
-        logger.debug('download archive from url', archiveUrl);
-
-        req.pipe(request.get(archiveUrl)).on('error', next).on('response', function (response) {
-                var cd = response.headers['content-disposition'];
-
-                var stream = SourceHandler.browseArchiveTree(lastUpdate, cd, function (err, tree) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        res.contentType('application/json').send(tree);
-                    }
-                });
-
-                response.pipe(stream);
-        });
-    } catch(err) {
-        return next(err);
-    }
+router.put('/list/yaml', function (req, res, next) {
+    SourceHandler.listYamlFiles(req.query.url, req)
+        .then(data => res.send(data))
+        .catch(next);
 });
 
 module.exports = router;

@@ -5,11 +5,14 @@
 import 'proxy-polyfill';
 
 import {drillDownToPage} from '../actions/widgets';
+import {selectPageByName, selectHomePage, selectParentPage} from '../actions/page';
+
 
 import EventBus from './EventBus';
 import Context from './Context';
 import Manager from './Manager';
 import External from './External';
+import Internal from './Internal';
 
 class Toolbox {
     constructor (store) {
@@ -25,15 +28,28 @@ class Toolbox {
 
     _initFromStore () {
         var state = this.store.getState();
-        this.templates = state.templates || {};
+        this.templates = state.templates || {templatesDef: {}};
         this._Manager = new Manager(state.manager || {});
+        this._Internal = new Internal(state.manager || {});
         this._Context = new Context(this.store);
         this.widgetDefinitions = state.widgetDefinitions || [];
         this._widgetsConfig = state.config.widgets;
     }
 
     drillDown(widget,defaultTemplate,drilldownContext,drilldownPageName) {
-        this.store.dispatch(drillDownToPage(widget,this.templates[defaultTemplate],this.widgetDefinitions,drilldownContext,drilldownPageName));
+        this.store.dispatch(drillDownToPage(widget,this.templates.pagesDef[defaultTemplate],this.widgetDefinitions,drilldownContext,drilldownPageName));
+    }
+
+    goToHomePage() {
+        this.store.dispatch(selectHomePage());
+    }
+
+    goToParentPage() {
+        this.store.dispatch(selectParentPage());
+    }
+
+    goToPage(pageName) {
+        this.store.dispatch(selectPageByName(pageName));
     }
 
     getEventBus (){
@@ -44,13 +60,17 @@ class Toolbox {
         return this._Manager;
     }
 
+    getInternal() {
+        return this._Internal;
+    }
+
     getExternal(basicAuth) {
         return new External(basicAuth);
     }
 
     // This is sometimes needed inorder to join a different manager (for cluster joining for example)
-    getNewManager(ip) {
-        return new Manager({ip,apiVersion:'v3'});
+    getNewManager() {
+        return new Manager();
     }
 
     getContext() {

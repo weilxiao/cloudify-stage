@@ -13,11 +13,13 @@ Stage.defineWidget({
     color: "pink",
     showHeader: false,
     showBorder: false,
+    categories: [Stage.GenericConfig.CATEGORY.BUTTONS_AND_FILTERS],
+    
     fetchData:(widget,toolbox,params)=>{
         return Promise.all([
             toolbox.getManager().doGetFull('/blueprints?_include=id'),
             toolbox.getManager().doGetFull('/deployments?_include=id,blueprint_id'),
-            toolbox.getManager().doGetFull('/events?_include=event_type&type=cloudify_event')
+            toolbox.getManager().doGetFull('/events?_include=event_type')
         ]).then(results=>{
             return {
                 blueprints: results[0],
@@ -27,6 +29,7 @@ Stage.defineWidget({
         });
     },
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('eventsFilter'),
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(5)
     ],
@@ -41,8 +44,11 @@ Stage.defineWidget({
             deployments:{
                 items: data.deployments.items
             },
-            types:{
-                items: _.uniqBy(data.types.items, 'event_type')
+            eventTypes:{
+                items: _.chain(data.types.items)
+                        .uniqBy('event_type')
+                        .filter((eventType) => !_.isEmpty(eventType))
+                        .value()
             }
         });
 

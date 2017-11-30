@@ -16,21 +16,19 @@ class BlueprintActions {
             .then(()=>this.doDeleteImage(blueprint.id));
     }
 
-    doDeploy(blueprint, deploymentId, inputs) {
-        return this.toolbox.getManager().doPut(`/deployments/${deploymentId}`,null,{
+    doDeploy(blueprint, deploymentId, inputs, privateResource=false, skipPluginsValidation=false) {
+        return this.toolbox.getManager().doPut(`/deployments/${deploymentId}`,{private_resource:privateResource}, {
             'blueprint_id': blueprint.id,
-            inputs
+            inputs,
+            skip_plugins_validation:skipPluginsValidation
         });
     }
 
-    doUpload(blueprintName, blueprintFileName, blueprintUrl, file, imageUrl, image) {
-        var params = {};
-        const YAML_EXTENSION = '.yaml';
+    doUpload(blueprintName, blueprintFileName, blueprintUrl, file, imageUrl, image, privateResource=false) {
+        var params = {private_resource: privateResource};
 
         if (!_.isEmpty(blueprintFileName)) {
-            params['application_file_name'] = _.endsWith(blueprintFileName, YAML_EXTENSION)
-                                              ? blueprintFileName
-                                              : blueprintFileName + YAML_EXTENSION;
+            params['application_file_name'] = blueprintFileName;
         }
         if (!_.isEmpty(blueprintUrl)) {
             params['blueprint_archive_url'] = blueprintUrl;
@@ -46,6 +44,18 @@ class BlueprintActions {
         return promise.then(()=> this.doUploadImage(blueprintName, imageUrl, image));
     }
 
+    doSetGlobal(blueprintId) {
+        return this.toolbox.getManager().doPatch(`/blueprints/${blueprintId}/set-global`);
+    }
+
+    doListYamlFiles(blueprintUrl, file) {
+        if (file) {
+            return this.toolbox.getInternal().doUpload('/source/list/yaml', null, {archive: file});
+        } else {
+            return this.toolbox.getInternal().doPut('/source/list/yaml', {url: blueprintUrl});
+        }
+    }
+
     doUploadImage(blueprintId, imageUrl, image) {
         if (_.isEmpty(imageUrl) && !image) {
             return Promise.resolve();
@@ -53,14 +63,14 @@ class BlueprintActions {
 
         var params = {imageUrl};
         if (image) {
-            return this.toolbox.getExternal().doUpload(`/ba/image/${blueprintId}`, params, image, "post");
+            return this.toolbox.getInternal().doUpload(`/ba/image/${blueprintId}`, params, image, 'post');
         } else {
-            return this.toolbox.getExternal().doPost(`/ba/image/${blueprintId}`, params);
+            return this.toolbox.getInternal().doPost(`/ba/image/${blueprintId}`, params);
         }
     }
 
     doDeleteImage(blueprintId) {
-        return this.toolbox.getExternal().doDelete(`/ba/image/${blueprintId}`);
+        return this.toolbox.getInternal().doDelete(`/ba/image/${blueprintId}`);
     }
 
 }

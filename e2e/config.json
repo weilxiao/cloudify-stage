@@ -1,5 +1,6 @@
 {
-  "managerIp": "10.239.3.37",
+  "managerIp": "127.0.0.1",
+  "managerVersion": "4.2.0",
   "admin" : "admin",
   "adminPass" : "admin",
   "user" : "user1",

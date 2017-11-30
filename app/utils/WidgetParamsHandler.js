@@ -23,6 +23,10 @@ export default class WidgetParamsHandler {
         this._runFetchParamsIfNeeded();
     }
 
+    update(widget) {
+        this._widget = widget;
+    }
+
     buildParamsToSend(userRequestedParams) {
 
         // Map grid params to params
@@ -73,7 +77,7 @@ export default class WidgetParamsHandler {
     _buildFilterParams() {
         let params = {};
         _.forIn(this.fetchParams.filterParams, function(value, key) {
-            if (!_.isEmpty(value)) {
+            if (_.isBoolean(value) || !_.isEmpty(value)) {
                 params[key] = value;
             }
         });
@@ -106,7 +110,7 @@ export default class WidgetParamsHandler {
                 params._size=this.fetchParams.gridParams.pageSize;
             }
 
-            if (this.fetchParams.gridParams.currentPage) {
+            if (this.fetchParams.gridParams.currentPage && this.fetchParams.gridParams.pageSize) {
                 params._offset=(this.fetchParams.gridParams.currentPage-1)*this.fetchParams.gridParams.pageSize;
             }
         }

@@ -13,10 +13,13 @@ Stage.defineWidget({
     color : "blue",
     hasStyle: true,
     isReact: true,
+    permission: Stage.GenericConfig.WIDGET_PERMISSION('blueprints'),
+    categories: [Stage.GenericConfig.CATEGORY.BLUEPRINTS],
+    
     initialConfiguration: [
         Stage.GenericConfig.POLLING_TIME_CONFIG(2),
-        Stage.GenericConfig.PAGE_SIZE_CONFIG(),
-        {id: "clickToDrillDown", name: "Should click to drilldown", default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
+        Stage.GenericConfig.PAGE_SIZE_CONFIG(3),
+        {id: "clickToDrillDown", name: "Enable click to drill down", default: true, type: Stage.Basic.GenericField.BOOLEAN_TYPE},
         {id: "displayStyle",name: "Display style", items: [{name:'Table', value:'table'}, {name:'Catalog', value:'catalog'}],
             default: "table", type: Stage.Basic.GenericField.LIST_TYPE},
         Stage.GenericConfig.SORT_COLUMN_CONFIG('created_at'),
@@ -25,7 +28,7 @@ Stage.defineWidget({
 
     fetchData(widget,toolbox,params) {
         var result = {};
-        return toolbox.getManager().doGet('/blueprints?_include=id,updated_at,created_at,description,created_by',params)
+        return toolbox.getManager().doGet('/blueprints?_include=id,updated_at,created_at,description,created_by,resource_availability,main_file_name',params)
             .then(data=>{
                 result.blueprints = data;
                 var blueprintIds = data.items.map(item=>item.id);
@@ -37,6 +40,8 @@ Stage.defineWidget({
                 return result;
             });
     },
+    fetchParams: (widget, toolbox) => 
+        toolbox.getContext().getValue('onlyMyResources') ? {created_by: toolbox.getManager().getCurrentUsername()} : {},
 
     _processData(data,toolbox) {
         var blueprintsData = data.blueprints;
