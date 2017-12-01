@@ -53,10 +53,11 @@ export default class WidgetsList extends Component {
                                         key={widget.id}
                                         id={widget.id}
                                         x={widget.x} y={widget.y}
-                                        height={widget.height}
+                                        height={widget.minimized ? 3 : widget.height}
                                         width={widget.width}
                                         className={`widget ${widgetDefId}Widget`}
-                                        maximized={widget.maximized}>
+                                        maximized={widget.maximized}
+                                        minimized={widget.minimized}>
                                         <Widget widget={widget} pageId={this.props.pageId} isEditMode={this.props.isEditMode}
                                                 pageManagementMode={this.props.pageManagementMode}/>
                                     </GridItem>

@@ -14,7 +14,8 @@ export default class GridItem extends Component {
         className: PropTypes.string,
         onItemAdded: PropTypes.func,
         onItemRemoved: PropTypes.func,
-        maximized: PropTypes.bool
+        maximized: PropTypes.bool,
+        minimized: PropTypes.bool
     };
 
     static defaultProps = {
@@ -23,7 +24,8 @@ export default class GridItem extends Component {
         width: 10,
         height: 5,
         className: '',
-        maximized: false
+        maximized: false,
+        minimized: false
     };
 
     componentDidMount() {

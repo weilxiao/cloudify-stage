@@ -35,13 +35,14 @@ export default class Grid extends Component {
             key: el.props.id,
             className: [
                 el.props.className,
-                el.props.maximized && 'maximize'
+                el.props.maximized && 'maximize',
+                el.props.minimized && 'minimize'
             ].join(' '),
             'data-grid': {
                 x: el.props.x || 0,
                 y: el.props.y || 0,
                 w: el.props.width || 10,
-                h: el.props.height || 5
+                h: (el.props.minimized && 3) || el.props.height
             }
         }, el)
     }

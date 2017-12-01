@@ -5,7 +5,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Widget from '../components/Widget';
-import {renameWidget,removeWidget,editWidget,maximizeWidget} from '../actions/widgets';
+import {renameWidget,removeWidget,editWidget,maximizeWidget, minimizeWidget} from '../actions/widgets';
 import {removePageWidget, editPageWidget, maximizePageWidget} from '../actions/templateManagement';
 import {setValue} from '../actions/context';
 import {fetchWidgetData} from '../actions/WidgetData';
@@ -40,6 +40,11 @@ const mapDispatchToProps = (dispatch, ownProps) => {
                 dispatch(maximizePageWidget(pageId, widgetId, maximized));
             } else {
                 dispatch(maximizeWidget(pageId, widgetId, maximized));
+            }
+        },
+        onWidgetMinimize: (pageId,widgetId,minimized, savedHeight) => {
+            if (!ownProps.pageManagementMode) {
+                dispatch(minimizeWidget(pageId, widgetId, minimized, savedHeight));
             }
         },
         onWidgetConfigUpdate: (pageId, widgetId, configuration) => {

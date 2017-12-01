@@ -129,7 +129,7 @@ export default class Widget extends Component {
                             {
                                 this.props.widget.minimized &&
                                 <i className="expand link icon"
-                                   onClick={() => this.props.onWidgetMinimize(this.props.pageId, this.props.widget.id, false, this.props.widget.savedHeight)}/>
+                                   onClick={() => this.props.onWidgetMinimize(this.props.pageId, this.props.widget.id, false, this.props.widget.height)}/>
                             }
                             {
                                 !this.props.widget.maximized && !this.props.widget.minimized &&

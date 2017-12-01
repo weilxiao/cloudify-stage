@@ -93,11 +93,6 @@ a:hover {
   }
 }
 
-.grid-stack > .grid-stack-item.widget > .grid-stack-item-content {
-  overflow-x: initial;
-  overflow-y: initial;
-}
-
 .gridStackBottomSpace {
   height: 150px;
 }
@@ -123,24 +118,16 @@ a:hover {
   }
 }
 
-.grid-stack-item.widget.minimize widgetContent{
-  display: none;
-}
+.react-grid-item.widget.minimize {
+  display: block;
+  height: 45px !important;
 
-.minimizeWidget .grid-stack-item.widget {
-  display: none;
-
-  &.maximize {
-    display: block;
+  .ui.header.dividing {
+    border-bottom:0;
   }
 
-  &.maximize .widgetItem {
-    position: fixed;
-    top: 8rem;
-    bottom: 1rem;
-    left: 14rem;
-    right: 1rem;
-    outline: 0;
+  .widgetContent{
+    display: none;
   }
 }
 
