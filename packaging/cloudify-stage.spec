@@ -28,6 +28,9 @@ export PATH="$NPM_PACKAGES/bin:$PATH"
 unset MANPATH
 export MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
 
+echo prefix=${NPM_PACKAGES} > ~/.npmrc
+
+
 mkdir -p ${NPM_PACKAGES}
 
 
