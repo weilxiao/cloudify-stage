@@ -19,10 +19,10 @@ Cloudify's REST Service.
 
 %build
 cd ${RPM_SOURCE_DIR}
-npm install webpack -g
-npm install bower -g
-npm install gulp -g
-npm install grunt-cli -g
+sudo npm install webpack -g
+sudo npm install bower -g
+sudo npm install gulp -g
+sudo npm install grunt-cli -g
 npm install
 bower install --allow-root
 pushd semantic
