@@ -8,8 +8,8 @@ URL:            https://github.com/cloudify-cosmo/cloudify-stage
 Vendor:         Cloudify Inc.
 Packager:       Cloudify Inc.
 
-Requires:       nodejs == 6
-BuildRequires:  %{requires}
+Requires:       nodejs
+BuildRequires:  %{requires}, git
 
 %description
 Cloudify's REST Service.
@@ -18,24 +18,25 @@ Cloudify's REST Service.
 %prep
 
 %build
+cd ${RPM_SOURCE_DIR}
 npm install webpack -g
 npm install bower -g
 npm install gulp -g
 npm install grunt-cli -g
 npm install
-bower install
+bower install --allow-root
 pushd semantic
-	gulp build
+        gulp build
 popd
 pushd backend
-	npm install
+        npm install
 popd
 webpack --config webpack.config-prod.js --bail
 
 %install
 
 mkdir -p %{buildroot}/opt/cloudify-stage
-cp . %{buildroot}/opt/cloudify-stage
+cp ${RPM_SOURCE_DIR} %{buildroot}/opt/cloudify-stage -fr
 
 %pre
 %post
