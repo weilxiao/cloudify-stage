@@ -11,10 +11,6 @@ Packager:       Cloudify Inc.
 Requires:       nodejs == 6
 BuildRequires:  %{requires}
 
-Source0:        http://repository.cloudifysource.org/cloudify/components/consul_0.7.2_linux_amd64.zip
-Source1:        http://repository.cloudifysource.org/cloudify/components/syncthing-linux-amd64-v0.14.5.tar.gz
-
-
 %description
 Cloudify's REST Service.
 
