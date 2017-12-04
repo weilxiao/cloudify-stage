@@ -14,7 +14,7 @@ Vendor:         Cloudify Inc.
 Packager:       Cloudify Inc.
 
 Requires:       nodejs
-BuildRequires:  %{requires}, git, sudo
+BuildRequires:  %{requires}, git
 
 %description
 Cloudify's REST Service.
@@ -32,10 +32,10 @@ mkdir -p ${NPM_PACKAGES}
 
 
 cd ${RPM_SOURCE_DIR}
-sudo npm install webpack -g
-sudo npm install bower -g
-sudo npm install gulp -g
-sudo npm install grunt-cli -g
+npm install webpack -g
+npm install bower -g
+npm install gulp -g
+npm install grunt-cli -g
 npm install
 bower install --allow-root
 pushd semantic
