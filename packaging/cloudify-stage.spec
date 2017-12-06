@@ -41,7 +41,7 @@ npm install bower -g
 npm install gulp -g
 npm install grunt-cli -g
 npm install
-bower install --allow-root
+bower install
 pushd semantic
         gulp build
 popd
