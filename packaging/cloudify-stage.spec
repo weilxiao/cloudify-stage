@@ -33,8 +33,11 @@ echo prefix=${NPM_PACKAGES} > ~/.npmrc
 
 mkdir -p ${NPM_PACKAGES}
 
+install -m 755 -d %{buildroot}/opt
+cp ${RPM_SOURCE_DIR} %{buildroot}/opt/cloudify-stage -fr
 
-cd ${RPM_SOURCE_DIR}
+cd %{buildroot}/opt/cloudify-stage
+
 npm install webpack -g
 npm install bower -g
 npm install gulp -g
@@ -50,8 +53,7 @@ popd
 webpack --config webpack.config-prod.js --bail
 
 %install
-install -m 755 -d %{buildroot}/opt
-cp ${RPM_SOURCE_DIR} %{buildroot}/opt/cloudify-stage -fr
+
 
 %pre
 %post
