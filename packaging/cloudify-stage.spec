@@ -51,7 +51,9 @@ popd
 webpack --config webpack.config-prod.js --bail
 
 %install
-install -m 755 -d %{buildroot}/opt/cloudify-stage/{dist, backend, conf}
+install -m 755 -d %{buildroot}/opt/cloudify-stage/dist
+install -m 755 -d %{buildroot}/opt/cloudify-stage/backend
+install -m 755 -d %{buildroot}/opt/cloudify-stage/conf
 cp -r ${RPM_SOURCE_DIR}/dist/** %{buildroot}/opt/cloudify-stage/dist
 cp -r ${RPM_SOURCE_DIR}/backend/** %{buildroot}/opt/cloudify-stage/backend
 cp ${RPM_SOURCE_DIR}/conf/** %{buildroot}/opt/cloudify-stage/conf
