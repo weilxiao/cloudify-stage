@@ -15,6 +15,7 @@ Packager:       Cloudify Inc.
 
 Requires:       nodejs
 BuildRequires:  %{requires}, git
+Requires(pre):  shadow-utils
 
 %description
 Cloudify's REST Service.
@@ -54,6 +55,7 @@ webpack --config webpack.config-prod.js --bail
 install -m 755 -d %{buildroot}/opt/cloudify-stage/dist
 install -m 755 -d %{buildroot}/opt/cloudify-stage/backend
 install -m 755 -d %{buildroot}/opt/cloudify-stage/conf
+install -m 755 -d %{buildroot}/var/log/cloudify/stage
 cp -r ${RPM_SOURCE_DIR}/dist/** %{buildroot}/opt/cloudify-stage/dist
 cp -r ${RPM_SOURCE_DIR}/backend/** %{buildroot}/opt/cloudify-stage/backend
 cp ${RPM_SOURCE_DIR}/conf/** %{buildroot}/opt/cloudify-stage/conf
@@ -61,6 +63,10 @@ cp ${RPM_SOURCE_DIR}/scripts/package-template.json %{buildroot}/opt/cloudify-sta
 
 
 %pre
+groupadd -fr stage_group
+getent passwd stage_user >/dev/null || useradd -r -g stage_group -d /etc/cloudify -s /sbin/nologin stage_user
+
+
 %post
 %preun
 %postun
@@ -69,3 +75,4 @@ cp ${RPM_SOURCE_DIR}/scripts/package-template.json %{buildroot}/opt/cloudify-sta
 %files
 
 /opt/cloudify-stage
+/var/log/cloudify/stage
