@@ -55,6 +55,7 @@ webpack --config webpack.config-prod.js --bail
 install -m 755 -d %{buildroot}/opt/cloudify-stage/dist
 install -m 755 -d %{buildroot}/opt/cloudify-stage/backend
 install -m 755 -d %{buildroot}/opt/cloudify-stage/conf
+install -m 755 -o stage_user -g stage_group -d %{buildroot}/opt/cloudify-stage/resources
 install -m 755 -o stage_user -g stage_group -d %{buildroot}/var/log/cloudify/stage
 cp -r ${RPM_SOURCE_DIR}/dist/** %{buildroot}/opt/cloudify-stage/dist
 cp -r ${RPM_SOURCE_DIR}/backend/** %{buildroot}/opt/cloudify-stage/backend
