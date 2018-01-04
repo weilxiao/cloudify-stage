@@ -261,6 +261,9 @@ a:hover {
 // TODO need to calc it according to screen size
 .editWidgetModal {
   max-height: 600px;
+  .content {
+    overflow: auto;
+  }
 }
 
 // TODO need to calc it according to screen size

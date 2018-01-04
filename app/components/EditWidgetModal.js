@@ -79,6 +79,7 @@ export default class EditWidgetModal extends Component {
                                 return <GenericField key={config.id}
                                               name={config.id}
                                               type={config.type}
+                                              portal={true}
                                               placeholder={config.placeHolder}
                                               label={config.name}
                                               description={config.description}

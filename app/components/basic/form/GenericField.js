@@ -3,7 +3,7 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import {Icon, Popup, Input, Checkbox, Dropdown, Form} from '../index'
+import {Icon, Popup, Input, Checkbox, Dropdown, DropdownPortal, Form} from '../index'
 import EdiTable from './EdiTable';
 import InputTimeFilter from './InputTimeFilter';
 
@@ -280,15 +280,27 @@ export default class GenericField extends Component {
                    this.props.type === GenericField.EDITABLE_LIST_TYPE ||
                    this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE) {
 
-            field = <Dropdown fluid selection value={this.props.value} name={this.props.name}
-                              multiple={this.props.type === GenericField.MULTI_SELECT_LIST_TYPE}
-                              allowAdditions={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
-                                              this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
-                              search={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
-                                      this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
-                              placeholder={this.props.placeholder} options={this.state.options}
-                              onAddItem={(e, { value }) => {this.setState({options: [{ text: value, value }, ...this.state.options]})}}
-                              onChange={(proxy, field)=> { this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}} />;
+            if (this.props.portal) {
+                field = <DropdownPortal fluid selection value={this.props.value} name={this.props.name}
+                                  multiple={this.props.type === GenericField.MULTI_SELECT_LIST_TYPE}
+                                  allowAdditions={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
+                                                  this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
+                                  search={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
+                                          this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
+                                  placeholder={this.props.placeholder} options={this.state.options}
+                                  onAddItem={(e, { value }) => {this.setState({options: [{ text: value, value }, ...this.state.options]})}}
+                                  onChange={(proxy, field)=> { this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}} />;
+            } else {
+                field = <Dropdown fluid selection value={this.props.value} name={this.props.name}
+                                  multiple={this.props.type === GenericField.MULTI_SELECT_LIST_TYPE}
+                                  allowAdditions={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
+                                                  this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
+                                  search={this.props.type === GenericField.EDITABLE_LIST_TYPE ||
+                                          this.props.type === GenericField.NUMBER_EDITABLE_LIST_TYPE}
+                                  placeholder={this.props.placeholder} options={this.state.options}
+                                  onAddItem={(e, { value }) => {this.setState({options: [{ text: value, value }, ...this.state.options]})}}
+                                  onChange={(proxy, field)=> { this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))}} />;
+            }
 
         } else if (this.props.type === GenericField.EDITABLE_TABLE_TYPE) {
 
@@ -296,6 +308,7 @@ export default class GenericField extends Component {
                               value={this.props.value}
                               rows={this.props.max}
                               columns={this.props.items}
+                              portal={true}
                               onChange={(proxy, field)=>this.props.onChange(proxy, Object.assign({}, field, {genericType: this.props.type}))} />;
         } else if (this.props.type === GenericField.TIME_FILTER_TYPE) {
 

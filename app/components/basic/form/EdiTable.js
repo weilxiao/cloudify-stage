@@ -137,6 +137,7 @@ export default class EdiTable extends Component {
                                     _.map(this.props.columns, (column) =>
                                         <Table.Cell key={`${index}|${column.name}`}>
                                             <GenericField {...column} type={column.type} description='' label=''
+                                                          portal={this.props.portal}
                                                           name={`${index}|${column.name}`}
                                                           value={this.state.fields[index][column.name]}
                                                           onChange={this._handleInputChange.bind(this)} />
